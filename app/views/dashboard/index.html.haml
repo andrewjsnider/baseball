@@ -2,10 +2,10 @@
 
   %h1{ class: "text-3xl font-semibold mb-6" } Draft Board
 
-  %div.mb-6.text-sm
-    Tier1: #{@ranked_players.count { |p| p.tier == "Tier1" }} |
-    Tier2: #{@ranked_players.count { |p| p.tier == "Tier2" }} |
-    Tier3: #{@ranked_players.count { |p| p.tier == "Tier3" }}
+  %div.mb-6.text-sm.flex.gap-2
+    %span Tier1: #{@ranked_players.count { |p| p.tier == "Tier1" }}
+    %span Tier2: #{@ranked_players.count { |p| p.tier == "Tier2" }}
+    %span Tier3: #{@ranked_players.count { |p| p.tier == "Tier3" }}
 
   %div{ class: "mb-8 text-sm" }
     Pitchers: #{@team.pitchers_count} |

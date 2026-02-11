@@ -26,4 +26,8 @@ class Team < ApplicationRecord
   def spots_remaining
     ROSTER_SIZE - roster_count
   end
+
+  def picks_until_next_turn(total_teams)
+    total_teams - 1
+  end
 end
