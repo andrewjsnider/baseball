@@ -2,18 +2,18 @@ class Team < ApplicationRecord
   has_many :players
 
   def pitchers_count
-    players.where(primary_position: "P").count
+    players.joins(:positions).where(positions: { name: "P" }).distinct.count
   end
 
   def catchers_count
-    players.where(primary_position: "C").count
+    players.joins(:positions).where(positions: { name: "C" }).distinct.count
   end
 
-  def infield_count
-    players.where(primary_position: %w[SS 2B 3B 1B]).count
+  def middle_infield_count
+    players.joins(:positions).where(positions: { name: ["SS", "2B"] }).distinct.count
   end
 
   def outfield_count
-    players.where(primary_position: "OF").count
+    players.joins(:positions).where(positions: { name: ["OF"] }).distinct.count
   end
 end

@@ -2,19 +2,19 @@
 
   %h1{ class: "text-3xl font-semibold mb-6" } Draft Board
 
-  %p.mb-6
+  %div{ class: "mb-8 text-sm" }
     Pitchers: #{@team.pitchers_count} |
     Catchers: #{@team.catchers_count} |
-    Infield: #{@team.infield_count}
+    Middle Infield: #{@team.middle_infield_count}
 
   - best = @ranked_players.first
 
   - if best
-    %div{ class: "border-2 border-green-600 p-6 mb-10" }
+    %div{ class: "border-2 border-green-600 p-6 mb-12" }
       %p.text-sm.text-stone-600 Recommended Pick
-      %h2.text-2xl.font-semibold.mb-2= best.name
-      %p.mb-1 Position: #{best.primary_position}
-      %p.mb-1 Recommendation Score: #{best.recommendation_score(@team)}
+      %h2.text-2xl.font-semibold.mb-3= best.name
+      %p.mb-2 Positions: #{best.positions.pluck(:name).join(", ")}
+      %p.mb-2 Recommendation Score: #{best.recommendation_score(@team)}
       %p.mb-4 Overall Score: #{best.overall_score}
       = button_to "Draft #{best.name}", draft_player_path(best), method: :post, class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white"
 
@@ -25,16 +25,16 @@
       %tr{ class: "border-b border-stone-300 text-left" }
         %th.py-3 Rank
         %th.py-3 Name
-        %th.py-3 Pos
+        %th.py-3 Positions
         %th.py-3 Rec
         %th.py-3 Overall
         %th.py-3
     %tbody
       - @ranked_players.each_with_index do |player, index|
-        %tr{ class: "border-b border-stone-200" }
-          %td.py-4= index + 1
-          %td.py-4= link_to player.name, player_path(player), class: "underline"
-          %td.py-4= player.primary_position
-          %td.py-4= player.recommendation_score(@team)
-          %td.py-4= player.overall_score
-          %td.py-4= button_to "Draft", draft_player_path(player), method: :post, class: "border border-stone-900 px-3 py-1 hover:bg-stone-900 hover:text-white"
+        %tr{ class: "border-b border-stone-200 hover:bg-stone-50" }
+          %td.py-5= index + 1
+          %td.py-5= link_to player.name, player_path(player), class: "underline"
+          %td.py-5= player.positions.pluck(:name).join(", ")
+          %td.py-5= player.recommendation_score(@team)
+          %td.py-5= player.overall_score
+          %td.py-5= button_to "Draft", draft_player_path(player), method: :post, class: "border border-stone-900 px-3 py-1 hover:bg-stone-900 hover:text-white"

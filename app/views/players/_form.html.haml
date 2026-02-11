@@ -18,13 +18,17 @@
         = f.label :age, class: "block text-sm"
         = f.number_field :age, class: "border border-stone-300 p-2 w-full"
 
-      %div
-        = f.label :primary_position, class: "block text-sm"
-        = f.text_field :primary_position, class: "border border-stone-300 p-2 w-full"
+      %div{ class: "mt-6 sm:col-span-2" }
+      %p{ class: "block text-sm mb-2 font-semibold" } Positions
 
-      %div
-        = f.label :secondary_positions, class: "block text-sm"
-        = f.text_field :secondary_positions, class: "border border-stone-300 p-2 w-full"
+      %div{ class: "grid grid-cols-2 sm:grid-cols-4 gap-3" }
+        - Position.order(:name).each do |position|
+          %label{ class: "flex items-center gap-2 text-sm" }
+            = check_box_tag "player[position_ids][]", position.id, @player.positions.include?(position), class: "border border-stone-400"
+            = position.name
+
+      = hidden_field_tag "player[position_ids][]", ""
+
 
       %div
         = f.label :arm_strength, class: "block text-sm"

@@ -127,8 +127,18 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   def test_position_scarcity_orders_lowest_first
-    FactoryBot.create_list(:player, 2, primary_position: "C", drafted: false)
-    FactoryBot.create_list(:player, 5, primary_position: "P", drafted: false)
+    c = Position.create!(name: "C")
+    p = Position.create!(name: "P")
+
+    2.times do
+      player = FactoryBot.create(:player)
+      player.positions << c
+    end
+
+    5.times do
+      player = FactoryBot.create(:player)
+      player.positions << p
+    end
 
     scarcity = Player.position_scarcity
 

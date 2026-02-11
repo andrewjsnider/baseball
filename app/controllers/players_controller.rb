@@ -70,16 +70,13 @@ class PlayersController < ApplicationController
 
 
   def player_params
-      params.require(:player).permit(
+    params.require(:player).permit(
       :name,
       :age,
-      :primary_position,
-      :secondary_positions,
       :arm_strength,
       :arm_accuracy,
       :pitching_control,
       :pitching_velocity,
-      :catcher_skill,
       :speed,
       :fielding,
       :hitting_contact,
@@ -88,7 +85,8 @@ class PlayersController < ApplicationController
       :coachability,
       :parent_reliability,
       :notes,
-      :risk_flag
+      :risk_flag,
+      position_ids: []
     )
   end
 end

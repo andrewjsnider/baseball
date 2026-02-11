@@ -4,7 +4,8 @@ class Player < ApplicationRecord
   before_save :assign_tier
 
   belongs_to :team, optional: true
-
+  has_many :player_positions, dependent: :destroy
+  has_many :positions, through: :player_positions
 
   validates :name, presence: true
 
@@ -27,9 +28,10 @@ class Player < ApplicationRecord
       score += 10
     end
 
+    score += flexibility_bonus
+
     score
   end
-
 
   def pitcher_score
     pitching_control.to_i * 2 +
@@ -62,15 +64,16 @@ class Player < ApplicationRecord
     reliability_score
   end
 
-  def self.position_scarcity
-    grouped = Player.where(drafted: false)
-                    .group_by(&:primary_position)
-
-    grouped.transform_values(&:count)
-          .sort_by { |_, count| count }
-          .to_h
+  def flexibility_bonus
+    positions.count > 1 ? 5 : 0
   end
 
+  def self.position_scarcity
+    Position.all.each_with_object({}) do |position, hash|
+      count = position.players.where(team_id: nil).distinct.count
+      hash[position.name] = count
+    end.sort_by { |_, count| count }.to_h
+  end
 
   def assign_tier
     scores = Player.pluck(:id).reject { |id| id == self.id }

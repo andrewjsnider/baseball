@@ -1,27 +1,25 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
 require "faker"
 
-puts "Clearing players..."
-Player.destroy_all
+puts "Clearing data..."
 
-positions = %w[P C SS 2B 3B OF 1B]
+PlayerPosition.destroy_all
+Player.destroy_all
+Position.destroy_all
+
+puts "Creating positions..."
+
+positions = %w[P C SS 2B 3B 1B OF]
+
+positions.each do |pos|
+  Position.create!(name: pos)
+end
+
+puts "Creating players..."
 
 100.times do
-  Player.create!(
+  player = Player.create!(
     name: Faker::Name.name,
     age: rand(11..12),
-    primary_position: positions.sample,
-    secondary_positions: positions.sample,
-    throws: %w[R L].sample,
-    bats: %w[R L S].sample,
     arm_strength: rand(1..5),
     arm_accuracy: rand(1..5),
     pitching_control: rand(1..5),
@@ -35,8 +33,15 @@ positions = %w[P C SS 2B 3B OF 1B]
     coachability: rand(1..5),
     parent_reliability: rand(1..5),
     risk_flag: [true, false, false].sample,
-    drafted: false
+    team_id: nil
   )
+
+  # Assign 1–3 positions
+  possible_positions = Position.all.sample(rand(1..3))
+
+  possible_positions.each do |position|
+    PlayerPosition.create!(player: player, position: position)
+  end
 end
 
 puts "Created #{Player.count} players."
