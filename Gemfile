@@ -31,7 +31,7 @@ gem "tzinfo-data", platforms: %i[ windows jruby ]
 gem "solid_cache"
 gem "solid_queue"
 gem "solid_cable"
-gem 'psych'
+gem 'psych', '>=5.3.1'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
@@ -51,6 +51,8 @@ group :development, :test do
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
+
+  gem "minitest", "~> 5.20"
 
   gem 'factory_bot_rails'
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]

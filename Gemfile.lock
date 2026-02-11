@@ -171,8 +171,7 @@ GEM
     marcel (1.1.0)
     matrix (0.4.3)
     mini_mime (1.1.5)
-    minitest (6.0.1)
-      prism (~> 1.5)
+    minitest (5.27.0)
     msgpack (1.8.0)
     net-imap (0.6.2)
       date
@@ -225,7 +224,8 @@ GEM
       actionpack (>= 7.0.0)
       activesupport (>= 7.0.0)
       rack
-    psych (5.0.2)
+    psych (5.3.1)
+      date
       stringio
     public_suffix (7.0.2)
     puma (7.2.0)
@@ -400,9 +400,10 @@ DEPENDENCIES
   jbuilder
   jsbundling-rails
   kamal
+  minitest (~> 5.20)
   pg (~> 1.1)
   propshaft
-  psych
+  psych (>= 5.3.1)
   puma (>= 5.0)
   rails (~> 8.0.4)
   rubocop-rails-omakase
