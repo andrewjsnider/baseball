@@ -10,29 +10,54 @@ class Player < ApplicationRecord
   validates :name, presence: true
 
   def recommendation_score(team)
-    score = overall_score
+    score = overall_score.to_f
 
-    score *= (confidence.to_f / 5) if confidence.present?
-
-    # Boost pitching if team lacks pitchers
-    if team.pitchers_count < 3 && plays_position?("P")
-      score += pitcher_score * 1.5
+    # ----- Confidence Adjustment (soft penalty) -----
+    if confidence.present?
+      confidence_penalty = (5 - confidence) * 2   # max -8
+      score -= confidence_penalty
     end
 
-    # Boost catcher if none yet
-    if team.catchers_count == 0 && plays_position?("C")
-      score += 15
+    # ----- Stale Data (mild penalty) -----
+    score *= 0.9 if evaluation_stale?
+
+    # ----- Weight age -----
+    if age == 12
+      score += 6
+    elsif age == 11
+      score += 0
     end
 
-    # Boost scarcity for ANY position the player plays
+    # ----- Pitching Priority -----
+    if plays_position?("P")
+      if team.pitchers_count < 2
+        score += 25
+      elsif team.pitchers_count < 3
+        score += 12
+      end
+    end
+
+    # ----- Catcher Priority -----
+    if plays_position?("C") && team.catchers_count == 0
+      score += 18
+    end
+
+    # ----- Scarcity Scaling -----
     scarcity_hash = Player.position_scarcity
 
     positions.each do |position|
       scarcity = scarcity_hash[position.name] || 0
-      score += 10 if scarcity < 5
+
+      if scarcity <= 2
+        score += 12
+      elsif scarcity <= 4
+        score += 6
+      end
     end
 
-    score += flexibility_bonus
+    # ----- Flexibility Bonus -----
+    score += 4 if positions.count > 1
+    score += 8 if positions.count > 2
 
     score
   end

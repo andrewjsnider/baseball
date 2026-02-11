@@ -30,16 +30,22 @@ positions = Position.all.index_by(&:name)
 100.times do
   # Bias distribution toward average players
   base = rand(1..5)
+  age = rand < 0.6 ? 12 : 11   # 60% 12-year-olds
+
+  # Slight physical bias for 12-year-olds
+  arm_strength = age == 12 ? rand(2..5) : rand(1..4)
+  pitching_velocity = age == 12 ? rand(2..5) : rand(1..4)
+  speed = age == 12 ? rand(2..5) : rand(1..4)
 
   player = Player.create!(
     name: Faker::Name.name,
-    age: rand(11..12),
-    arm_strength: rand(base..5),
+    age: age,
+    arm_strength: arm_strength,
     arm_accuracy: rand(1..5),
     pitching_control: rand(1..5),
-    pitching_velocity: rand(1..5),
+    pitching_velocity: pitching_velocity,
     catcher_skill: rand(1..5),
-    speed: rand(1..5),
+    speed: speed,
     fielding: rand(1..5),
     hitting_contact: rand(1..5),
     hitting_power: rand(1..5),

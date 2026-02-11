@@ -31,25 +31,22 @@
       %tr{ class: "border-b border-stone-300 text-left" }
         %th.py-3 Rank
         %th.py-3 Name
+        %th.py-3 Age
         %th.py-3 Positions
         %th.py-3 Rec
         %th.py-3 Overall
-        %th.py-3
+        %th.py-3 Data
+
     %tbody
       - @ranked_players.each_with_index do |player, index|
         %tr{ class: "border-b border-stone-200 hover:bg-stone-50" }
           %td.py-5= index + 1
           %td.py-5= link_to player.name, player_path(player), class: "underline"
+          %td.py-5= player.age
           %td.py-5= player.positions.pluck(:name).join(", ")
+          %td.py-5= player.recommendation_score(@team)
+          %td.py-5= player.overall_score
           %td.py-5
-            = player.recommendation_score(@team)
-            - if best.evaluation_stale?
-              %p.text-yellow-600.text-sm.mb-1 Data is stale
-            - elsif best.confidence && best.confidence <= 2
-              %p.text-red-600.text-sm.mb-1 Low confidence evaluation
-
-          %td.py-5
-            = player.overall_score
             - if player.evaluation_stale?
               %span.text-yellow-600.text-xs STALE
             - if player.confidence && player.confidence <= 2
