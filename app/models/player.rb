@@ -7,104 +7,92 @@ class Player < ApplicationRecord
 
   validates :name, presence: true
 
-  def recommendation_score(team, dropoffs = {})
-
+  def recommendation_score(team, dropoffs: {}, depths: {}, top_by_position: {}, total_teams: Team.count)
     score = overall_score.to_f
 
-    # ----- Confidence (soft linear penalty) -----
-    if confidence.present?
-      score -= (5 - confidence) * 2.0
-    end
-
-    # ----- Stale data (mild reduction) -----
-    score *= 0.92 if evaluation_stale?
-
-    # ----- Age (small tiebreaker only) -----
-    if team.spots_remaining > 6
-      score += 4 if age == 12
-    else
-      score += 2 if age == 12
-    end
-
-    # ----- Weight Expected Next-Round Availability -----
-    positions.each do |position|
-      depth = Player.where(team_id: nil)
-                    .select { |p| p.plays_position?(position.name) }
-                    .count
-
-      if depth <= team.picks_until_next_turn(Team.count)
-        score += 8
-      end
-    end
-
-    # ----- Weight positions dropoff -----
-    positions.each do |position|
-      top_player = Player.top_player_for(position.name)
-
-      if top_player == self
-        dropoff = dropoffs[position.name] || 0
-
-        if dropoff > 15
-          score += 10
-        elsif dropoff > 8
-          score += 5
-        end
-      end
-    end
-
-    # ----- Pitching Marginal Value -----
-    if plays_position?("P")
-      need_bonus = 0
-
-      if team.pitchers_count == 0
-        need_bonus = 28
-      elsif team.pitchers_count == 1
-        need_bonus = 20
-      elsif team.pitchers_count == 2
-        need_bonus = 10
-      end
-
-      quality_scale = pitcher_score.to_f / max_pitcher_score
-      score += need_bonus * quality_scale
-    end
-
-    # ----- Catcher Marginal Value -----
-    if plays_position?("C")
-      if team.catchers_count == 0
-        score += 18
-      elsif team.catchers_count == 1
-        score += 6
-      end
-    end
-
-    # ----- Scarcity (supportive only) -----
-    scarcity_hash = Player.position_scarcity
-
-    positions.each do |position|
-      scarcity = scarcity_hash[position.name] || 0
-
-      score += 3 if scarcity <= 2
-    end
-
-    # Adjust for risk
-    if risk_flag
-      if team.spots_remaining > 6
-        score -= 12   # early draft avoid risk
-      else
-        score -= 4    # late draft risk acceptable
-      end
-    end
-
-    # ----- Flexibility (phase-aware) -----
-    flex = positions.count
-
-    if team.spots_remaining <= 3
-      score += flex * 4
-    else
-      score += flex * 2
-    end
+    score += confidence_adjustment
+    score += stale_adjustment
+    score += age_adjustment(team)
+    score += expected_availability_bonus(team, depths, total_teams)
+    score += positional_cliff_bonus(dropoffs, top_by_position)
+    score += pitching_bonus(team)
+    score += catcher_bonus(team)
+    score += risk_adjustment(team)
+    score += flexibility_bonus(team)
+    score += manual_adjustment.to_i
 
     score
+  end
+
+  def confidence_adjustment
+    return 0 unless confidence.present?
+    -(5 - confidence) * 2.0
+  end
+
+  def stale_adjustment
+    evaluation_stale? ? -(overall_score * 0.08) : 0
+  end
+
+  def age_adjustment(team)
+    return 0 unless age == 12
+    team.spots_remaining > 6 ? 4 : 2
+  end
+
+  def expected_availability_bonus(team, depths, total_teams)
+    bonus = 0
+    positions.each do |position|
+      depth = depths[position.name] || 0
+      if depth <= team.picks_until_next_turn(total_teams)
+        bonus += 8
+      end
+    end
+    bonus
+  end
+
+  def positional_cliff_bonus(dropoffs, top_by_position)
+    bonus = 0
+    positions.each do |position|
+      next unless top_by_position[position.name] == self
+      dropoff = dropoffs[position.name] || 0
+      bonus += 10 if dropoff > 15
+      bonus += 5 if dropoff > 8 && dropoff <= 15
+    end
+    bonus
+  end
+
+  def pitching_bonus(team)
+    return 0 unless plays_position?("P")
+
+    need_bonus =
+      if team.pitchers_count == 0
+        28
+      elsif team.pitchers_count == 1
+        20
+      elsif team.pitchers_count == 2
+        10
+      else
+        0
+      end
+
+    quality_scale = pitcher_score.to_f / max_pitcher_score
+    need_bonus * quality_scale
+  end
+
+  def catcher_bonus(team)
+    return 0 unless plays_position?("C")
+    return 18 if team.catchers_count == 0
+    return 6 if team.catchers_count == 1
+    0
+  end
+
+  def risk_adjustment(team)
+    return 0 unless risk_flag
+    team.spots_remaining > 6 ? -12 : -4
+  end
+
+  def flexibility_bonus(team)
+    flex = positions.count
+    team.spots_remaining <= 3 ? flex * 4 : flex * 2
   end
 
   def evaluation_stale?
@@ -149,10 +137,6 @@ class Player < ApplicationRecord
     defensive_score +
     offensive_score +
     reliability_score
-  end
-
-  def flexibility_bonus
-    positions.count > 1 ? 5 : 0
   end
 
   def self.position_scarcity

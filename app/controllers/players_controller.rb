@@ -103,6 +103,7 @@ class PlayersController < ApplicationController
       :parent_reliability,
       :notes,
       :risk_flag,
+      :manual_adjustment,
       position_ids: []
     )
   end

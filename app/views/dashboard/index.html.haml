@@ -21,13 +21,15 @@
       %p.mb-1 Tier: #{best.tier}
       %p.mb-2 Positions: #{best.positions.map(&:name).join(", ")}
       %p.mb-2
-        Recommendation Score: #{best.recommendation_score(@team)}
+        Recommendation Score: #{ best.recommendation_score( @team, dropoffs: @dropoffs, depths: @position_depths, top_by_position: @top_by_position, total_teams: Team.count)}
         - if best.evaluation_stale?
           %p.text-yellow-600.text-sm.mb-1 Data is stale
         - elsif best.confidence && best.confidence <= 2
           %p.text-red-600.text-sm.mb-1 Low confidence evaluation
 
       %p.mb-4 Overall Score: #{best.overall_score}
+      - if best.manual_adjustment
+        %p.mb-4 (Manual Adjustment: #{best.manual_adjustment})
       = button_to "Draft #{best.name}", draft_player_path(best, team_id: @team.id), method: :post, class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white"
 
   %h2{ class: "text-xl font-semibold mb-4" } Full Ranked Board
@@ -39,10 +41,11 @@
         %th.py-3 Name
         %th.py-3 Age
         %th.py-3 Positions
-        %th.py-3 Rec
-        %th.py-3 Overall
-        %th.py-3 Data
-        %th.py-3 Tier
+        %th.py-3.text-center Rec
+        %th.py-3.text-center Overall
+        %th.py-3.text-center Adjusted
+        %th.py-3.text-center Data
+        %th.py-3.text-center Tier
 
     %tbody
       - @ranked_players.each_with_index do |player, index|
@@ -51,14 +54,15 @@
           %td.py-5= link_to player.name, player_path(player), class: "underline"
           %td.py-5= player.age
           %td.py-5= player.positions.pluck(:name).join(", ")
-          %td.py-5= player.recommendation_score(@team)
-          %td.py-5= player.overall_score
-          %td.py-5
+          %td.py-5.text-center= player.recommendation_score( @team, dropoffs: @dropoffs, depths: @position_depths, top_by_position: @top_by_position, total_teams: Team.count)
+          %td.py-5.text-center= player.overall_score
+          %td.py-5.text-center= player.manual_adjustment ? "(+#{player.manual_adjustment})" : '-'
+          %td.py-5.text-center
             - if player.evaluation_stale?
               %span.text-yellow-600.text-xs STALE
             - if player.confidence && player.confidence <= 2
               %span.text-red-600.text-xs LOW DATA
-          %td.py-5
+          %td.text-center.py-5
             %span{ class: tier_badge_class(player.tier) }
               = player.tier
           %td.py-5.flex.gap-2.items-center

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_11_220247) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_11_230904) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -53,6 +53,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_11_220247) do
     t.bigint "team_id"
     t.date "evaluation_date"
     t.integer "confidence"
+    t.integer "manual_adjustment"
     t.index ["team_id"], name: "index_players_on_team_id"
   end
 
