@@ -12,52 +12,63 @@ class Player < ApplicationRecord
   def recommendation_score(team)
     score = overall_score.to_f
 
-    # ----- Confidence Adjustment (soft penalty) -----
+    # ----- Confidence (soft linear penalty) -----
     if confidence.present?
-      confidence_penalty = (5 - confidence) * 2   # max -8
-      score -= confidence_penalty
+      score -= (5 - confidence) * 2.0
     end
 
-    # ----- Stale Data (mild penalty) -----
-    score *= 0.9 if evaluation_stale?
+    # ----- Stale data (mild reduction) -----
+    score *= 0.92 if evaluation_stale?
 
-    # ----- Weight age -----
-    if age == 12
-      score += 6
-    elsif age == 11
-      score += 0
-    end
+    # ----- Age (small tiebreaker only) -----
+    score += 4 if age == 12
 
-    # ----- Pitching Priority -----
+    # ----- Pitching Marginal Value -----
     if plays_position?("P")
-      if team.pitchers_count < 2
-        score += 25
-      elsif team.pitchers_count < 3
-        score += 12
+      need_bonus = 0
+
+      if team.pitchers_count == 0
+        need_bonus = 28
+      elsif team.pitchers_count == 1
+        need_bonus = 20
+      elsif team.pitchers_count == 2
+        need_bonus = 10
+      end
+
+      quality_scale = pitcher_score / 20.0
+      score += need_bonus * quality_scale
+    end
+
+    # ----- Catcher Marginal Value -----
+    if plays_position?("C")
+      if team.catchers_count == 0
+        score += 18
+      elsif team.catchers_count == 1
+        score += 6
       end
     end
 
-    # ----- Catcher Priority -----
-    if plays_position?("C") && team.catchers_count == 0
-      score += 18
-    end
-
-    # ----- Scarcity Scaling -----
+    # ----- Scarcity (supportive only) -----
     scarcity_hash = Player.position_scarcity
 
     positions.each do |position|
       scarcity = scarcity_hash[position.name] || 0
 
       if scarcity <= 2
-        score += 12
-      elsif scarcity <= 4
         score += 6
+      elsif scarcity <= 4
+        score += 3
       end
     end
 
-    # ----- Flexibility Bonus -----
-    score += 4 if positions.count > 1
-    score += 8 if positions.count > 2
+    # ----- Flexibility (phase-aware) -----
+    flex = positions.count
+
+    if team.spots_remaining <= 3
+      score += flex * 4
+    else
+      score += flex * 2
+    end
 
     score
   end
