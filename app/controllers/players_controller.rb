@@ -26,7 +26,7 @@ class PlayersController < ApplicationController
 
     if team
       @player.update!(team: team)
-      redirect_to players_path
+      redirect_to root_path
     else
       render :assign, status: :unprocessable_entity
     end

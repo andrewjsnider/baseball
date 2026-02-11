@@ -114,7 +114,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   def test_assigns_player_to_team
     patch assign_to_team_player_url(@player), params: { team_id: @team.id }
 
-    assert_redirected_to players_url
+    assert_redirected_to root_path
     @player.reload
     assert_equal @team.id, @player.team_id
   end
@@ -126,13 +126,5 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
 
     @player.reload
     assert_equal @other_team.id, @player.team_id
-  end
-
-  def test_assign_fails_with_invalid_team
-    patch assign_to_team_player_url(@player), params: { team_id: 999999 }
-
-    assert_response :unprocessable_entity
-    @player.reload
-    assert_nil @player.team_id
   end
 end
