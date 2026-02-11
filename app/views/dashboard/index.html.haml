@@ -46,6 +46,7 @@
               %td= link_to player.name, player_path(player), class: "underline"
               %td= player.overall_score
 
+
   - if @risk_players.any?
     %div{ class: "mt-12" }
       %h2{ class: "text-xl font-semibold mb-4 text-red-600" } Risk Flag Players
@@ -53,6 +54,37 @@
       %ul{ class: "list-disc ml-6 text-sm" }
         - @risk_players.each do |player|
           %li= link_to player.name, player_path(player), class: "underline text-red-600"
+
+  %div{ class: "mt-12 grid grid-cols-1 md:grid-cols-2 gap-10" }
+
+    %div
+      %h2{ class: "text-xl font-semibold mb-4" } Tier Distribution (Available)
+
+      %table{ class: "w-full text-sm" }
+        %thead
+          %tr
+            %th.text-left Tier
+            %th.text-left Count
+        %tbody
+          - @tiers.each do |tier, count|
+            %tr
+              %td= tier
+              %td= count
+
+    %div
+      %h2{ class: "text-xl font-semibold mb-4" } Position Scarcity
+
+      %table{ class: "w-full text-sm" }
+        %thead
+          %tr
+            %th.text-left Position
+            %th.text-left Available
+        %tbody
+          - @position_scarcity.each do |position, count|
+            %tr
+              %td= position
+              %td= count
+
 
   %div{ class: "mt-12 flex gap-6" }
     = link_to "All Players", players_path, class: "border border-stone-900 px-6 py-2 hover:bg-stone-900 hover:text-white"

@@ -105,4 +105,34 @@ class PlayerTest < ActiveSupport::TestCase
 
     assert_equal 0, @player.overall_score
   end
+
+  def test_assigns_tier1_for_top_player
+    FactoryBot.create_list(:player, 10, arm_strength: 1)
+
+    elite = FactoryBot.create(
+      :player,
+      pitching_control: 5,
+      pitching_velocity: 5,
+      arm_strength: 5,
+      baseball_iq: 5,
+      hitting_contact: 5,
+      hitting_power: 5,
+      speed: 5,
+      fielding: 5,
+      coachability: 5,
+      parent_reliability: 5
+    )
+
+    assert_equal "Tier1", elite.tier
+  end
+
+  def test_position_scarcity_orders_lowest_first
+    FactoryBot.create_list(:player, 2, primary_position: "C", drafted: false)
+    FactoryBot.create_list(:player, 5, primary_position: "P", drafted: false)
+
+    scarcity = Player.position_scarcity
+
+    first_key = scarcity.keys.first
+    assert_equal "C", first_key
+  end
 end

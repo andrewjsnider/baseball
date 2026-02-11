@@ -15,5 +15,11 @@ class DashboardController < ApplicationController
                          .first(5)
 
     @risk_players = Player.where(risk_flag: true, drafted: false)
+
+    @tiers = Player.where(drafted: false)
+               .group(:tier)
+               .count
+
+    @position_scarcity = Player.position_scarcity
   end
 end
