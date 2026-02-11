@@ -1,0 +1,82 @@
+%div{ class: "max-w-4xl mx-auto px-6 py-8 text-stone-900" }
+  = form_with model: @player, local: true do |f|
+
+    - if @player.errors.any?
+      %div{ class: "mb-6 border border-red-400 p-4" }
+        %h2{ class: "font-semibold text-red-600 mb-2" } Errors
+        %ul{ class: "text-sm text-red-600" }
+          - @player.errors.full_messages.each do |msg|
+            %li= msg
+
+    %div{ class: "grid grid-cols-1 sm:grid-cols-2 gap-4" }
+
+      %div
+        = f.label :name, class: "block text-sm"
+        = f.text_field :name, class: "border border-stone-300 p-2 w-full"
+
+      %div
+        = f.label :age, class: "block text-sm"
+        = f.number_field :age, class: "border border-stone-300 p-2 w-full"
+
+      %div
+        = f.label :primary_position, class: "block text-sm"
+        = f.text_field :primary_position, class: "border border-stone-300 p-2 w-full"
+
+      %div
+        = f.label :secondary_positions, class: "block text-sm"
+        = f.text_field :secondary_positions, class: "border border-stone-300 p-2 w-full"
+
+      %div
+        = f.label :arm_strength, class: "block text-sm"
+        = f.number_field :arm_strength, class: "border border-stone-300 p-2 w-full"
+
+      %div
+        = f.label :arm_accuracy, class: "block text-sm"
+        = f.number_field :arm_accuracy, class: "border border-stone-300 p-2 w-full"
+
+      %div
+        = f.label :pitching_control, class: "block text-sm"
+        = f.number_field :pitching_control, class: "border border-stone-300 p-2 w-full"
+
+      %div
+        = f.label :pitching_velocity, class: "block text-sm"
+        = f.number_field :pitching_velocity, class: "border border-stone-300 p-2 w-full"
+
+      %div
+        = f.label :speed, class: "block text-sm"
+        = f.number_field :speed, class: "border border-stone-300 p-2 w-full"
+
+      %div
+        = f.label :fielding, class: "block text-sm"
+        = f.number_field :fielding, class: "border border-stone-300 p-2 w-full"
+
+      %div
+        = f.label :hitting_contact, class: "block text-sm"
+        = f.number_field :hitting_contact, class: "border border-stone-300 p-2 w-full"
+
+      %div
+        = f.label :hitting_power, class: "block text-sm"
+        = f.number_field :hitting_power, class: "border border-stone-300 p-2 w-full"
+
+      %div
+        = f.label :baseball_iq, class: "block text-sm"
+        = f.number_field :baseball_iq, class: "border border-stone-300 p-2 w-full"
+
+      %div
+        = f.label :coachability, class: "block text-sm"
+        = f.number_field :coachability, class: "border border-stone-300 p-2 w-full"
+
+      %div
+        = f.label :parent_reliability, class: "block text-sm"
+        = f.number_field :parent_reliability, class: "border border-stone-300 p-2 w-full"
+
+    %div{ class: "mt-6" }
+      = f.label :notes, class: "block text-sm"
+      = f.text_area :notes, rows: 4, class: "border border-stone-300 p-2 w-full"
+
+    %div{ class: "mt-4 flex items-center gap-2" }
+      = f.check_box :risk_flag
+      = f.label :risk_flag, "Risk Flag"
+
+    %div{ class: "mt-8" }
+      = f.submit class: "border border-stone-900 px-6 py-2 hover:bg-stone-900 hover:text-white"

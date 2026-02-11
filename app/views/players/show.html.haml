@@ -1,0 +1,63 @@
+%div{ class: "max-w-4xl mx-auto px-6 py-8 text-stone-900" }
+
+  %div{ class: "flex justify-between items-start mb-6" }
+    %h1{ class: "text-3xl font-semibold" }= @player.name
+
+    %div{ class: "flex gap-4" }
+      = link_to "Edit", edit_player_path(@player), class: "underline text-sm"
+      = link_to "Delete", player_path(@player),
+        method: :delete,
+        data: { confirm: "Are you sure?" },
+        class: "underline text-sm text-red-600"
+
+  %div{ class: "grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8" }
+
+    %div
+      %p.text-sm.text-stone-600 Age
+      %p= @player.age
+
+    %div
+      %p.text-sm.text-stone-600 Primary Position
+      %p= @player.primary_position
+
+    %div
+      %p.text-sm.text-stone-600 Secondary Positions
+      %p= @player.secondary_positions
+
+    %div
+      %p.text-sm.text-stone-600 Risk Flag
+      %p= @player.risk_flag ? "Yes" : "No"
+
+  %hr{ class: "my-6 border-stone-300" }
+
+  %h2{ class: "text-xl font-semibold mb-4" } Scores
+
+  %div{ class: "grid grid-cols-2 sm:grid-cols-3 gap-4" }
+
+    %div
+      %p.text-sm Pitcher Score
+      %p.font-semibold= @player.pitcher_score
+
+    %div
+      %p.text-sm Defensive Score
+      %p.font-semibold= @player.defensive_score
+
+    %div
+      %p.text-sm Offensive Score
+      %p.font-semibold= @player.offensive_score
+
+    %div
+      %p.text-sm Reliability Score
+      %p.font-semibold= @player.reliability_score
+
+    %div
+      %p.text-sm Overall Score
+      %p.font-semibold.text-lg= @player.overall_score
+
+  - if @player.notes.present?
+    %hr{ class: "my-6 border-stone-300" }
+    %h2{ class: "text-xl font-semibold mb-2" } Notes
+    %p= @player.notes
+
+  %div{ class: "mt-8" }
+    = link_to "Back to Players", players_path, class: "underline text-sm"

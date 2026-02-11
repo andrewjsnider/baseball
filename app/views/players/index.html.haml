@@ -1,0 +1,18 @@
+%h1 Players
+
+= link_to "New Player", new_player_path
+
+%table
+  %thead
+    %tr
+      %th Name
+      %th Pitcher Score
+      %th Overall
+      %th
+  %tbody
+    - @players.each do |player|
+      %tr
+        %td= player.name
+        %td= player.pitcher_score
+        %td= player.overall_score
+        %td= link_to "Show", player_path(player)
