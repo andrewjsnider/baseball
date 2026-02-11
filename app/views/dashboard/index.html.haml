@@ -1,91 +1,40 @@
 %div{ class: "max-w-6xl mx-auto px-6 py-10 text-stone-900" }
 
-  %h1{ class: "text-3xl font-semibold mb-8" } Draft Dashboard
+  %h1{ class: "text-3xl font-semibold mb-6" } Draft Board
 
-  %div{ class: "grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10" }
+  %p.mb-6
+    Pitchers: #{@team.pitchers_count} |
+    Catchers: #{@team.catchers_count} |
+    Infield: #{@team.infield_count}
 
-    %div{ class: "border border-stone-300 p-6" }
-      %p.text-sm.text-stone-600 Total Players
-      %p.text-2xl.font-semibold= @total_players
+  - best = @ranked_players.first
 
-    %div{ class: "border border-stone-300 p-6" }
-      %p.text-sm.text-stone-600 Drafted
-      %p.text-2xl.font-semibold= @drafted_players
+  - if best
+    %div{ class: "border-2 border-green-600 p-6 mb-10" }
+      %p.text-sm.text-stone-600 Recommended Pick
+      %h2.text-2xl.font-semibold.mb-2= best.name
+      %p.mb-1 Position: #{best.primary_position}
+      %p.mb-1 Recommendation Score: #{best.recommendation_score(@team)}
+      %p.mb-4 Overall Score: #{best.overall_score}
+      = button_to "Draft #{best.name}", draft_player_path(best), method: :post, class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white"
 
-    %div{ class: "border border-stone-300 p-6" }
-      %p.text-sm.text-stone-600 Undrafted
-      %p.text-2xl.font-semibold= @undrafted_players
+  %h2{ class: "text-xl font-semibold mb-4" } Full Ranked Board
 
-  %div{ class: "grid grid-cols-1 md:grid-cols-2 gap-10" }
-
-    %div
-      %h2{ class: "text-xl font-semibold mb-4" } Top 5 Pitchers Available
-
-      %table{ class: "w-full text-sm" }
-        %thead
-          %tr
-            %th.text-left Name
-            %th.text-left Score
-        %tbody
-          - @top_pitchers.each do |player|
-            %tr
-              %td= link_to player.name, player_path(player), class: "underline"
-              %td= player.pitcher_score
-
-    %div
-      %h2{ class: "text-xl font-semibold mb-4" } Top 5 Overall Available
-
-      %table{ class: "w-full text-sm" }
-        %thead
-          %tr
-            %th.text-left Name
-            %th.text-left Score
-        %tbody
-          - @top_overall.each do |player|
-            %tr
-              %td= link_to player.name, player_path(player), class: "underline"
-              %td= player.overall_score
-
-
-  - if @risk_players.any?
-    %div{ class: "mt-12" }
-      %h2{ class: "text-xl font-semibold mb-4 text-red-600" } Risk Flag Players
-
-      %ul{ class: "list-disc ml-6 text-sm" }
-        - @risk_players.each do |player|
-          %li= link_to player.name, player_path(player), class: "underline text-red-600"
-
-  %div{ class: "mt-12 grid grid-cols-1 md:grid-cols-2 gap-10" }
-
-    %div
-      %h2{ class: "text-xl font-semibold mb-4" } Tier Distribution (Available)
-
-      %table{ class: "w-full text-sm" }
-        %thead
-          %tr
-            %th.text-left Tier
-            %th.text-left Count
-        %tbody
-          - @tiers.each do |tier, count|
-            %tr
-              %td= tier
-              %td= count
-
-    %div
-      %h2{ class: "text-xl font-semibold mb-4" } Position Scarcity
-
-      %table{ class: "w-full text-sm" }
-        %thead
-          %tr
-            %th.text-left Position
-            %th.text-left Available
-        %tbody
-          - @position_scarcity.each do |position, count|
-            %tr
-              %td= position
-              %td= count
-
-
-  %div{ class: "mt-12 flex gap-6" }
-    = link_to "All Players", players_path, class: "border border-stone-900 px-6 py-2 hover:bg-stone-900 hover:text-white"
-    = link_to "Add Player", new_player_path, class: "border border-stone-900 px-6 py-2 hover:bg-stone-900 hover:text-white"
+  %table{ class: "w-full text-sm border-collapse" }
+    %thead
+      %tr{ class: "border-b border-stone-300 text-left" }
+        %th.py-3 Rank
+        %th.py-3 Name
+        %th.py-3 Pos
+        %th.py-3 Rec
+        %th.py-3 Overall
+        %th.py-3
+    %tbody
+      - @ranked_players.each_with_index do |player, index|
+        %tr{ class: "border-b border-stone-200" }
+          %td.py-4= index + 1
+          %td.py-4= link_to player.name, player_path(player), class: "underline"
+          %td.py-4= player.primary_position
+          %td.py-4= player.recommendation_score(@team)
+          %td.py-4= player.overall_score
+          %td.py-4= button_to "Draft", draft_player_path(player), method: :post, class: "border border-stone-900 px-3 py-1 hover:bg-stone-900 hover:text-white"

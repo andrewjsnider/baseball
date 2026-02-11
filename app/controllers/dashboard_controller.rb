@@ -1,25 +1,11 @@
 class DashboardController < ApplicationController
   def index
-    @total_players = Player.count
-    @drafted_players = Player.where(drafted: true).count
-    @undrafted_players = Player.where(drafted: false).count
+    @team = Team.first || Team.create!(name: "My Team")
 
-    @top_pitchers = Player.where(drafted: false)
-                          .sort_by(&:pitcher_score)
-                          .reverse
-                          .first(5)
+    @available_players = Player.where(team_id: nil)
 
-    @top_overall = Player.where(drafted: false)
-                         .sort_by(&:overall_score)
-                         .reverse
-                         .first(5)
-
-    @risk_players = Player.where(risk_flag: true, drafted: false)
-
-    @tiers = Player.where(drafted: false)
-               .group(:tier)
-               .count
-
-    @position_scarcity = Player.position_scarcity
+    @ranked_players = @available_players.sort_by do |player|
+        player.recommendation_score(@team)
+    end.reverse
   end
 end

@@ -1,9 +1,35 @@
 class Player < ApplicationRecord
+  TIERS = %w[Tier1 Tier2 Tier3 Tier4].freeze
+
   before_save :assign_tier
 
-  TIERS = %w[Tier1 Tier2 Tier3 Tier4]
+  belongs_to :team, optional: true
+
 
   validates :name, presence: true
+
+  def recommendation_score(team)
+    score = overall_score
+
+    # Boost pitching if team lacks pitchers
+    if team.pitchers_count < 3
+      score += pitcher_score * 1.5
+    end
+
+    # Boost catcher if none yet
+    if team.catchers_count == 0 && primary_position == "C"
+      score += 15
+    end
+
+    # Boost scarcity
+    scarcity = Player.position_scarcity[primary_position] || 0
+    if scarcity < 5
+      score += 10
+    end
+
+    score
+  end
+
 
   def pitcher_score
     pitching_control.to_i * 2 +

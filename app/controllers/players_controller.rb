@@ -8,6 +8,13 @@ class PlayersController < ApplicationController
   def show
   end
 
+  def draft
+    player = Player.find(params[:id])
+    team = Team.first
+    player.update!(team: team)
+    redirect_to root_path
+  end
+
   def new
     @player = Player.new
   end
