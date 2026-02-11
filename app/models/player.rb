@@ -13,24 +13,30 @@ class Player < ApplicationRecord
     score = overall_score
 
     # Boost pitching if team lacks pitchers
-    if team.pitchers_count < 3
+    if team.pitchers_count < 3 && plays_position?("P")
       score += pitcher_score * 1.5
     end
 
     # Boost catcher if none yet
-    if team.catchers_count == 0 && primary_position == "C"
+    if team.catchers_count == 0 && plays_position?("C")
       score += 15
     end
 
-    # Boost scarcity
-    scarcity = Player.position_scarcity[primary_position] || 0
-    if scarcity < 5
-      score += 10
+    # Boost scarcity for ANY position the player plays
+    scarcity_hash = Player.position_scarcity
+
+    positions.each do |position|
+      scarcity = scarcity_hash[position.name] || 0
+      score += 10 if scarcity < 5
     end
 
     score += flexibility_bonus
 
     score
+  end
+
+  def plays_position?(name)
+    positions.any? { |p| p.name == name }
   end
 
   def pitcher_score
@@ -76,12 +82,10 @@ class Player < ApplicationRecord
   end
 
   def assign_tier
-    scores = Player.pluck(:id).reject { |id| id == self.id }
-    return if scores.empty?
+    all_players = Player.where.not(id: id).to_a + [self]
+    return if all_players.size < 5
 
-    all_players = Player.where.not(id: self.id).to_a + [self]
     sorted = all_players.sort_by(&:overall_score).reverse
-
     index = sorted.index(self)
     percentile = index.to_f / sorted.size
 

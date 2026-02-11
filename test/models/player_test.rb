@@ -145,4 +145,55 @@ class PlayerTest < ActiveSupport::TestCase
     first_key = scarcity.keys.first
     assert_equal "C", first_key
   end
+
+  def test_assigns_tier1_for_top_player
+    Player.destroy_all
+
+    FactoryBot.create_list(:player, 10,
+      pitching_control: 1,
+      pitching_velocity: 1,
+      arm_strength: 1,
+      baseball_iq: 1,
+      hitting_contact: 1,
+      hitting_power: 1,
+      speed: 1,
+      fielding: 1,
+      coachability: 1,
+      parent_reliability: 1
+    )
+
+    elite = FactoryBot.create(
+      :player,
+      pitching_control: 5,
+      pitching_velocity: 5,
+      arm_strength: 5,
+      baseball_iq: 5,
+      hitting_contact: 5,
+      hitting_power: 5,
+      speed: 5,
+      fielding: 5,
+      coachability: 5,
+      parent_reliability: 5
+    )
+
+    assert_equal "Tier1", elite.tier
+  end
+
+  def test_overall_score_is_zero_when_all_metrics_nil
+    @player.assign_attributes(
+      pitching_control: nil,
+      pitching_velocity: nil,
+      arm_strength: nil,
+      baseball_iq: nil,
+      fielding: nil,
+      arm_accuracy: nil,
+      hitting_contact: nil,
+      hitting_power: nil,
+      speed: nil,
+      coachability: nil,
+      parent_reliability: nil
+    )
+
+    assert_equal 0, @player.overall_score
+  end
 end
