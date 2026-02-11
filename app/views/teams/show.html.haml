@@ -1,0 +1,28 @@
+%div{ class: "max-w-6xl mx-auto px-6 py-10 text-stone-900" }
+
+  %div{ class: "flex justify-between items-start mb-6" }
+    %h1{ class: "text-3xl font-semibold" }= @team.name
+    = link_to "Edit", edit_team_path(@team), class: "underline"
+
+  %p.mb-6.text-sm
+    Pitchers: #{@team.pitchers_count} |
+    Catchers: #{@team.catchers_count} |
+    Middle Infield: #{@team.middle_infield_count}
+
+  %h2{ class: "text-xl font-semibold mb-4" } Roster
+
+  %table{ class: "w-full text-sm" }
+    %thead
+      %tr{ class: "border-b border-stone-300 text-left" }
+        %th.py-3 Name
+        %th.py-3 Positions
+        %th.py-3 Overall
+    %tbody
+      - @players.each do |player|
+        %tr{ class: "border-b border-stone-200" }
+          %td.py-4= link_to player.name, player_path(player), class: "underline"
+          %td.py-4= player.positions.pluck(:name).join(", ")
+          %td.py-4= player.overall_score
+
+  %div.mt-8
+    = link_to "Back to Teams", teams_path, class: "underline"

@@ -1,0 +1,14 @@
+%header{ class: "border-b border-stone-300 bg-stone-50" }
+  %div{ class: "max-w-7xl mx-auto px-6 py-4 flex items-center justify-between text-stone-900 text-sm" }
+
+    %div{ class: "flex items-center gap-8" }
+      = link_to "Draft Board", root_path, class: "font-semibold underline"
+      = link_to "Players", players_path, class: "underline"
+      = link_to "Teams", teams_path, class: "underline"
+
+      - if defined?(@team) && @team.present?
+        = link_to "My Team", team_path(@team), class: "underline"
+
+    %div{ class: "flex items-center gap-6" }
+      = link_to "New Player", new_player_path, class: "underline"
+      = link_to "New Team", new_team_path, class: "underline"

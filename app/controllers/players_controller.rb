@@ -10,9 +10,9 @@ class PlayersController < ApplicationController
 
   def draft
     player = Player.find(params[:id])
-    team = Team.first
+    team = Team.find(params[:team_id])
     player.update!(team: team)
-    redirect_to root_path
+    redirect_back fallback_location: players_path
   end
 
   def new

@@ -1,0 +1,18 @@
+%div{ class: "max-w-4xl mx-auto px-6 py-10 text-stone-900" }
+
+  %h1{ class: "text-3xl font-semibold mb-6" } Teams
+
+  = link_to "New Team", new_team_path, class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white"
+
+  %table{ class: "w-full text-sm mt-6" }
+    %thead
+      %tr{ class: "border-b border-stone-300 text-left" }
+        %th.py-3 Name
+        %th.py-3 Players
+        %th.py-3
+    %tbody
+      - @teams.each do |team|
+        %tr{ class: "border-b border-stone-200" }
+          %td.py-4= link_to team.name, team_path(team), class: "underline"
+          %td.py-4= team.players.count
+          %td.py-4= link_to "Edit", edit_team_path(team), class: "underline"
