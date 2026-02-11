@@ -2,10 +2,27 @@
 
   %h1{ class: "text-3xl font-semibold mb-6" } Draft Board
 
-  %div.mb-6.text-sm.flex.gap-2
-    %span Tier1: #{@ranked_players.count { |p| p.tier == "Tier1" }}
-    %span Tier2: #{@ranked_players.count { |p| p.tier == "Tier2" }}
-    %span Tier3: #{@ranked_players.count { |p| p.tier == "Tier3" }}
+  %div{ class: "border border-stone-300 p-6 mb-10 bg-stone-50" }
+    %h2{ class: "text-lg font-semibold mb-4" } Remaining Needs
+
+    %div{ class: "grid grid-cols-2 md:grid-cols-4 gap-6 text-sm" }
+
+      %div
+        %p.text-stone-600 Pitchers Needed
+        %p.text-xl.font-semibold= @team.pitchers_needed
+
+      %div
+        %p.text-stone-600 Catchers Needed
+        %p.text-xl.font-semibold= @team.catchers_needed
+
+      %div
+        %p.text-stone-600 Middle Infield Needed
+        %p.text-xl.font-semibold= @team.middle_infield_needed
+
+      %div
+        %p.text-stone-600 Bench Spots Left
+        %p.text-xl.font-semibold= @team.spots_remaining
+
 
   %div{ class: "mb-8 text-sm" }
     Pitchers: #{@team.pitchers_count} |

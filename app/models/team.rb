@@ -1,7 +1,31 @@
 class Team < ApplicationRecord
   ROSTER_SIZE = 12
+  TARGET_PITCHERS = 3
+  TARGET_CATCHERS = 1
+  TARGET_MIDDLE_INFIELD = 2
+
   NAMES = %w[Giants Marlins Braves Phillies Dodgers Padres Diamondbacks].freeze
   has_many :players
+
+   def roster_count
+    players.count
+  end
+
+  def spots_remaining
+    ROSTER_SIZE - roster_count
+  end
+
+   def pitchers_needed
+    [TARGET_PITCHERS - pitchers_count, 0].max
+  end
+
+  def catchers_needed
+    [TARGET_CATCHERS - catchers_count, 0].max
+  end
+
+  def middle_infield_needed
+    [TARGET_MIDDLE_INFIELD - middle_infield_count, 0].max
+  end
 
   def pitchers_count
     players.joins(:positions).where(positions: { name: "P" }).distinct.count
