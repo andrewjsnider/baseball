@@ -37,5 +37,7 @@
           %td.py-5= player.positions.pluck(:name).join(", ")
           %td.py-5= player.recommendation_score(@team)
           %td.py-5= player.overall_score
-          %td.py-5= button_to "Draft", draft_player_path(player, team_id: @team.id), method: :post, class: "border border-stone-900 px-3 py-1 hover:bg-stone-900 hover:text-white"
+          %td.py-5.flex.gap-2.items-center
+            = button_to "Draft", draft_player_path(player, team_id: @team.id), method: :post, class: "border border-stone-900 px-3 py-1 hover:bg-stone-900 hover:text-white"
+            = link_to "Assign…", assign_player_path(player), class: "ml-3 underline text-sm"
 

@@ -1,4 +1,5 @@
 class Team < ApplicationRecord
+  NAMES = %w[Giants Marlins Braves Phillies Dodgers Padres Diamondbacks].freeze
   has_many :players
 
   def pitchers_count

@@ -18,6 +18,9 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
       coachability: 4,
       parent_reliability: 5
     )
+
+      @team = FactoryBot.create(:team, name: "Team A")
+    @other_team = FactoryBot.create(:team, name: "Team B")
   end
 
   def valid_player_params
@@ -100,5 +103,36 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to players_url
+  end
+
+  def test_get_assign
+    get assign_player_url(@player)
+    assert_response :success
+    assert_select "h1", /Assign/
+  end
+
+  def test_assigns_player_to_team
+    patch assign_to_team_player_url(@player), params: { team_id: @team.id }
+
+    assert_redirected_to players_url
+    @player.reload
+    assert_equal @team.id, @player.team_id
+  end
+
+  def test_reassigns_player_to_different_team
+    @player.update!(team: @team)
+
+    patch assign_to_team_player_url(@player), params: { team_id: @other_team.id }
+
+    @player.reload
+    assert_equal @other_team.id, @player.team_id
+  end
+
+  def test_assign_fails_with_invalid_team
+    patch assign_to_team_player_url(@player), params: { team_id: 999999 }
+
+    assert_response :unprocessable_entity
+    @player.reload
+    assert_nil @player.team_id
   end
 end

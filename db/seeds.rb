@@ -14,6 +14,14 @@ positions.each do |pos|
   Position.create!(name: pos)
 end
 
+puts "Creating teams..."
+
+Team::NAMES.each do |name|
+  Team.find_or_create_by! name: name
+end
+
+puts "Created #{Team.count} teams."
+
 puts "Creating players..."
 
 100.times do

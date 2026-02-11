@@ -14,6 +14,8 @@ Rails.application.routes.draw do
   resources :players do
     member do
       post :draft
+      get :assign
+      patch :assign_to_team
     end
 
     collection do

@@ -15,6 +15,23 @@ class PlayersController < ApplicationController
     redirect_back fallback_location: players_path
   end
 
+  def assign
+    @player = Player.find(params[:id])
+    @teams = Team.all
+  end
+
+  def assign_to_team
+    @player = Player.find(params[:id])
+    team = Team.find_by(id: params[:team_id])
+
+    if team
+      @player.update!(team: team)
+      redirect_to players_path
+    else
+      render :assign, status: :unprocessable_entity
+    end
+  end
+
   def new
     @player = Player.new
   end

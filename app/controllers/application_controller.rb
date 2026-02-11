@@ -4,6 +4,6 @@ class ApplicationController < ActionController::Base
   before_action :set_team
 
   def set_team
-    @team ||= Team.find_by(name: 'My Team')
+    @team ||= Team.find_by(name: 'Giants')
   end
 end

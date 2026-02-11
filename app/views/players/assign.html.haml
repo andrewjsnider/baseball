@@ -1,0 +1,18 @@
+%div{ class: "max-w-3xl mx-auto px-6 py-10 text-stone-900" }
+
+  %h1{ class: "text-2xl font-semibold mb-6" }
+    Assign #{ @player.name }
+
+  %p.mb-6
+    Positions: #{@player.positions.pluck(:name).join(", ")}
+
+  = form_with url: assign_to_team_player_path(@player), method: :patch, local: true do
+    %div.mb-6
+      = select_tag :team_id,
+        options_from_collection_for_select(@teams, :id, :name),
+        class: "border border-stone-300 p-2 w-full"
+
+    = submit_tag "Assign Player", class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white"
+
+  %div.mt-6
+    = link_to "Back to Draft Board", players_path, class: "underline text-sm"
