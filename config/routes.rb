@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   resources :players do
     member do
       post :draft
+      post :undraft
       get :assign
       patch :assign_to_team
     end

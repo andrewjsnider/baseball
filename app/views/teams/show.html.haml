@@ -45,6 +45,7 @@
           %td.py-4= link_to player.name, player_path(player), class: "underline"
           %td.py-4= player.positions.pluck(:name).join(", ")
           %td.py-4= player.overall_score
+          %td.py-4= button_to "Remove", undraft_player_path(player), method: :post, class: "underline text-red-600"
 
   %div.mt-8
     = link_to "Back to Teams", teams_path, class: "underline"

@@ -15,6 +15,13 @@ class PlayersController < ApplicationController
     redirect_back fallback_location: players_path
   end
 
+  def undraft
+    @player = Player.find(params[:id])
+    @player.update(team_id: nil)
+
+    redirect_back fallback_location: players_path
+  end
+
   def assign
     @player = Player.find(params[:id])
     @teams = Team.all
