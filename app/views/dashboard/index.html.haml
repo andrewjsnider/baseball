@@ -13,8 +13,14 @@
     %div{ class: "border-2 border-green-600 p-6 mb-12" }
       %p.text-sm.text-stone-600 Recommended Pick
       %h2.text-2xl.font-semibold.mb-3= best.name
-      %p.mb-2 Positions: #{best.positions.pluck(:name).join(", ")}
-      %p.mb-2 Recommendation Score: #{best.recommendation_score(@team)}
+      %p.mb-2 Positions: #{best.positions.map(&:name).join(", ")}
+      %p.mb-2
+        Recommendation Score: #{best.recommendation_score(@team)}
+        - if best.evaluation_stale?
+          %p.text-yellow-600.text-sm.mb-1 Data is stale
+        - elsif best.confidence && best.confidence <= 2
+          %p.text-red-600.text-sm.mb-1 Low confidence evaluation
+
       %p.mb-4 Overall Score: #{best.overall_score}
       = button_to "Draft #{best.name}", draft_player_path(best, team_id: @team.id), method: :post, class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white"
 
@@ -35,9 +41,21 @@
           %td.py-5= index + 1
           %td.py-5= link_to player.name, player_path(player), class: "underline"
           %td.py-5= player.positions.pluck(:name).join(", ")
-          %td.py-5= player.recommendation_score(@team)
-          %td.py-5= player.overall_score
+          %td.py-5
+            = player.recommendation_score(@team)
+            - if best.evaluation_stale?
+              %p.text-yellow-600.text-sm.mb-1 Data is stale
+            - elsif best.confidence && best.confidence <= 2
+              %p.text-red-600.text-sm.mb-1 Low confidence evaluation
+
+          %td.py-5
+            = player.overall_score
+            - if player.evaluation_stale?
+              %span.text-yellow-600.text-xs STALE
+            - if player.confidence && player.confidence <= 2
+              %span.text-red-600.text-xs LOW DATA
+
           %td.py-5.flex.gap-2.items-center
             = button_to "Draft", draft_player_path(player, team_id: @team.id), method: :post, class: "border border-stone-900 px-3 py-1 hover:bg-stone-900 hover:text-white"
-            = link_to "Assign…", assign_player_path(player), class: "ml-3 underline text-sm"
+            = link_to "Assign…", assign_player_path(player), class: "underline text-sm"
 

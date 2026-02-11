@@ -12,6 +12,8 @@ class Player < ApplicationRecord
   def recommendation_score(team)
     score = overall_score
 
+    score *= (confidence.to_f / 5) if confidence.present?
+
     # Boost pitching if team lacks pitchers
     if team.pitchers_count < 3 && plays_position?("P")
       score += pitcher_score * 1.5
@@ -33,6 +35,11 @@ class Player < ApplicationRecord
     score += flexibility_bonus
 
     score
+  end
+
+  def evaluation_stale?
+    return true if evaluation_date.nil?
+    evaluation_date < 1.year.ago
   end
 
   def plays_position?(name)

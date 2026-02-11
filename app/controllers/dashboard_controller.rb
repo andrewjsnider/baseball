@@ -4,8 +4,9 @@ class DashboardController < ApplicationController
 
     @available_players = Player.where(team_id: nil)
 
-    @ranked_players = @available_players.sort_by do |player|
-        player.recommendation_score(@team)
-    end.reverse
+    @ranked_players = Player.where(team_id: nil)
+                         .includes(:positions)
+                         .sort_by { |p| p.recommendation_score(@team) }
+                         .reverse
   end
 end
