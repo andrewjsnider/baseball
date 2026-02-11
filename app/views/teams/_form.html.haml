@@ -1,0 +1,12 @@
+= form_with model: @team, local: true do |f|
+  - if @team.errors.any?
+    %div{ class: "mb-6 border border-red-400 p-4" }
+      %ul{ class: "text-sm text-red-600" }
+        - @team.errors.full_messages.each do |msg|
+          %li= msg
+
+  %div.mb-6
+    = f.label :name, class: "block text-sm"
+    = f.text_field :name, class: "border border-stone-300 p-2 w-full"
+
+  = f.submit class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white"
