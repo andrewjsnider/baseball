@@ -196,4 +196,53 @@ class PlayerTest < ActiveSupport::TestCase
 
     assert_equal 0, @player.overall_score
   end
+
+  def test_tier_assigns_correct_percentile_groups
+    Player.destroy_all
+
+    # Create 20 players with ascending strength
+    20.times do |i|
+      FactoryBot.create(
+        :player,
+        pitching_control: i,
+        pitching_velocity: i,
+        arm_strength: i,
+        baseball_iq: i,
+        fielding: i,
+        arm_accuracy: i,
+        hitting_contact: i,
+        hitting_power: i,
+        speed: i,
+        coachability: i,
+        parent_reliability: i
+      )
+    end
+
+    players = Player.all.sort_by { |p| -p.overall_score }
+
+    # Top 15% → Tier1 (3 players out of 20)
+    assert_equal "Tier1", players[0].tier
+    assert_equal "Tier1", players[2].tier
+
+    # Around 20–35% → Tier2
+    assert_equal "Tier2", players[4].tier
+
+    # Middle → Tier3
+    assert_equal "Tier3", players[10].tier
+
+    # Bottom → Tier4
+    assert_equal "Tier4", players.last.tier
+  end
+
+  def test_tier_handles_small_dataset
+    Player.destroy_all
+
+    3.times do
+      FactoryBot.create(:player)
+    end
+
+    Player.all.each do |player|
+      assert_nil player.tier
+    end
+  end
 end

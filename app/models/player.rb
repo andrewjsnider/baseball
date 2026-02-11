@@ -1,8 +1,6 @@
 class Player < ApplicationRecord
   TIERS = %w[Tier1 Tier2 Tier3 Tier4].freeze
 
-  before_save :assign_tier
-
   belongs_to :team, optional: true
   has_many :player_positions, dependent: :destroy
   has_many :positions, through: :player_positions
@@ -124,23 +122,22 @@ class Player < ApplicationRecord
     end.sort_by { |_, count| count }.to_h
   end
 
-  def assign_tier
-    all_players = Player.where.not(id: id).to_a + [self]
-    return if all_players.size < 5
+  def tier
+    players = Player.all.to_a
+    return nil if players.size < 5
 
-    sorted = all_players.sort_by(&:overall_score).reverse
+    sorted = players.sort_by { |p| -p.overall_score }
     index = sorted.index(self)
     percentile = index.to_f / sorted.size
 
-    self.tier =
-      if percentile <= 0.15
-        "Tier1"
-      elsif percentile <= 0.35
-        "Tier2"
-      elsif percentile <= 0.65
-        "Tier3"
-      else
-        "Tier4"
-      end
+    if percentile <= 0.15
+      "Tier1"
+    elsif percentile <= 0.35
+      "Tier2"
+    elsif percentile <= 0.65
+      "Tier3"
+    else
+      "Tier4"
+    end
   end
 end

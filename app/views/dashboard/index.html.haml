@@ -2,6 +2,11 @@
 
   %h1{ class: "text-3xl font-semibold mb-6" } Draft Board
 
+  %div.mb-6.text-sm
+    Tier1: #{@ranked_players.count { |p| p.tier == "Tier1" }} |
+    Tier2: #{@ranked_players.count { |p| p.tier == "Tier2" }} |
+    Tier3: #{@ranked_players.count { |p| p.tier == "Tier3" }}
+
   %div{ class: "mb-8 text-sm" }
     Pitchers: #{@team.pitchers_count} |
     Catchers: #{@team.catchers_count} |
@@ -13,6 +18,7 @@
     %div{ class: "border-2 border-green-600 p-6 mb-12" }
       %p.text-sm.text-stone-600 Recommended Pick
       %h2.text-2xl.font-semibold.mb-3= best.name
+      %p.mb-1 Tier: #{best.tier}
       %p.mb-2 Positions: #{best.positions.map(&:name).join(", ")}
       %p.mb-2
         Recommendation Score: #{best.recommendation_score(@team)}
@@ -36,6 +42,7 @@
         %th.py-3 Rec
         %th.py-3 Overall
         %th.py-3 Data
+        %th.py-3 Tier
 
     %tbody
       - @ranked_players.each_with_index do |player, index|
@@ -51,7 +58,9 @@
               %span.text-yellow-600.text-xs STALE
             - if player.confidence && player.confidence <= 2
               %span.text-red-600.text-xs LOW DATA
-
+          %td.py-5
+            %span{ class: tier_badge_class(player.tier) }
+              = player.tier
           %td.py-5.flex.gap-2.items-center
             = button_to "Draft", draft_player_path(player, team_id: @team.id), method: :post, class: "border border-stone-900 px-3 py-1 hover:bg-stone-900 hover:text-white"
             = link_to "Assign…", assign_player_path(player), class: "underline text-sm"
