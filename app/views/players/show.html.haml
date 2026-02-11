@@ -17,16 +17,13 @@
       %p= @player.age
     %div
       %p.text-sm.text-stone-600 Manual Adjustment
-      %p= @player.manual_adjustment
+      %p= @player.manual_adjustment || 'N/A'
 
     %div
-      %p.text-sm.text-stone-600 Primary Position
-      %p= @player.primary_position
-
-    %div
-      %p.text-sm.text-stone-600 Secondary Positions
-      %p= @player.secondary_positions
-
+      %p.text-sm.text-stone-600 Positions
+      %p.flex.gap-2
+        - @player.positions.each do |position|
+          %span= position.name
     %div
       %p.text-sm.text-stone-600 Risk Flag
       %p= @player.risk_flag ? "Yes" : "No"
