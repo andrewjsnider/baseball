@@ -31,7 +31,7 @@ gem "tzinfo-data", platforms: %i[ windows jruby ]
 gem "solid_cache"
 gem "solid_queue"
 gem "solid_cable"
-gem 'psych', '6.0.1'
+gem 'psych'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
