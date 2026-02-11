@@ -4,10 +4,32 @@
     %h1{ class: "text-3xl font-semibold" }= @team.name
     = link_to "Edit", edit_team_path(@team), class: "underline"
 
-  %p.mb-6.text-sm
-    Pitchers: #{@team.pitchers_count} |
-    Catchers: #{@team.catchers_count} |
-    Middle Infield: #{@team.middle_infield_count}
+  %div{ class: "mb-8 grid grid-cols-2 md:grid-cols-5 gap-3 text-sm" }
+
+    %div
+      %p.font-semibold Total Players
+      %p.text-lg= @team.roster_count
+
+    %div
+      %p.font-semibold Spots Remaining
+      - if @team.spots_remaining > 0
+        %p.text-lg= @team.spots_remaining
+      - else
+        %p.text-lg.text-red-600 Full
+
+    %div
+      %p.font-semibold Pitchers
+      %p= @team.pitchers_count
+
+    %div
+      %p.font-semibold Catchers
+      %p= @team.catchers_count
+
+    %div
+      %p.font-semibold Middle Infielders
+      %p= @team.middle_infield_count
+
+
 
   %h2{ class: "text-xl font-semibold mb-4" } Roster
 

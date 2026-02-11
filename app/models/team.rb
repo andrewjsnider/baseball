@@ -1,4 +1,5 @@
 class Team < ApplicationRecord
+  ROSTER_SIZE = 12
   NAMES = %w[Giants Marlins Braves Phillies Dodgers Padres Diamondbacks].freeze
   has_many :players
 
@@ -16,5 +17,13 @@ class Team < ApplicationRecord
 
   def outfield_count
     players.joins(:positions).where(positions: { name: ["OF"] }).distinct.count
+  end
+
+  def roster_count
+    players.count
+  end
+
+  def spots_remaining
+    ROSTER_SIZE - roster_count
   end
 end
