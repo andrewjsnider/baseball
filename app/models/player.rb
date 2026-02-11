@@ -17,6 +17,7 @@ class Player < ApplicationRecord
     score += positional_cliff_bonus(dropoffs, top_by_position)
     score += pitching_bonus(team)
     score += catcher_bonus(team)
+    score += middle_infield_bonus(team)
     score += risk_adjustment(team)
     score += flexibility_bonus(team)
     score += manual_adjustment.to_i
@@ -63,26 +64,32 @@ class Player < ApplicationRecord
   def pitching_bonus(team)
     return 0 unless plays_position?("P")
 
-    need_bonus =
-      if team.pitchers_count == 0
-        28
-      elsif team.pitchers_count == 1
-        20
-      elsif team.pitchers_count == 2
-        10
+    need = team.pitchers_needed
+    return 0 if need <= 0
+
+    base =
+      if need >= 2
+        26
       else
-        0
+        14
       end
 
     quality_scale = pitcher_score.to_f / max_pitcher_score
-    need_bonus * quality_scale
+    base * quality_scale
   end
 
   def catcher_bonus(team)
     return 0 unless plays_position?("C")
-    return 18 if team.catchers_count == 0
-    return 6 if team.catchers_count == 1
-    0
+    return 0 if team.catchers_needed <= 0
+
+    team.catchers_needed >= 1 ? 16 : 0
+  end
+
+  def middle_infield_bonus(team)
+    return 0 unless plays_position?("SS") || plays_position?("2B")
+    return 0 if team.middle_infield_needed <= 0
+
+    team.middle_infield_needed >= 1 ? 12 : 6
   end
 
   def risk_adjustment(team)
@@ -92,7 +99,13 @@ class Player < ApplicationRecord
 
   def flexibility_bonus(team)
     flex = positions.count
-    team.spots_remaining <= 3 ? flex * 4 : flex * 2
+    return 0 if flex <= 1
+
+    if team.spots_remaining <= 3
+      flex * 3
+    else
+      flex * 2
+    end
   end
 
   def evaluation_stale?
