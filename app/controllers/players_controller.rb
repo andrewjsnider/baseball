@@ -97,20 +97,26 @@ class PlayersController < ApplicationController
     params.require(:player).permit(
       :name,
       :age,
-      :arm_strength,
-      :arm_accuracy,
-      :pitching_control,
-      :pitching_velocity,
-      :speed,
-      :fielding,
-      :hitting_contact,
-      :hitting_power,
-      :baseball_iq,
-      :coachability,
-      :parent_reliability,
+      :tier,
+      :confidence_level,
+      :manual_adjustment,
       :notes,
       :risk_flag,
-      :manual_adjustment,
+      :evaluation_date,
+      :team_id,
+
+      :pitching_rating,
+      :hitting_rating,
+      :infield_defense_rating,
+      :outfield_defense_rating,
+      :catching_rating,
+      :baseball_iq,
+      :athleticism,
+      :speed,
+
+      :can_pitch,
+      :can_catch,
+
       position_ids: []
     )
   end

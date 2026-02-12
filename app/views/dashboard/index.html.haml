@@ -35,13 +35,15 @@
     %div{ class: "border-2 border-green-600 p-6 mb-12" }
       %p.text-sm.text-stone-600 Recommended Pick
       %h2.text-2xl.font-semibold.mb-3= best.name
-      %p.mb-1 Tier: #{best.tier}
+      %p.mb-1
+        %span{ class: tier_badge_class(best.tier) }
+          Tier: #{best.tier}
       %p.mb-2 Positions: #{best.positions.map(&:name).join(", ")}
       %p.mb-2
         Recommendation Score: #{ best.recommendation_score( @team, dropoffs: @dropoffs, depths: @position_depths, top_by_position: @top_by_position, total_teams: Team.count)}
         - if best.evaluation_stale?
           %p.text-yellow-600.text-sm.mb-1 Data is stale
-        - elsif best.confidence && best.confidence <= 2
+        - elsif best.confidence_level && best.confidence_level <= 2
           %p.text-red-600.text-sm.mb-1 Low confidence evaluation
 
       %p.mb-4 Overall Score: #{best.overall_score}
@@ -73,11 +75,11 @@
           %td.py-5= player.positions.pluck(:name).join(", ")
           %td.py-5.text-center= player.recommendation_score( @team, dropoffs: @dropoffs, depths: @position_depths, top_by_position: @top_by_position, total_teams: Team.count)
           %td.py-5.text-center= player.overall_score
-          %td.py-5.text-center= player.manual_adjustment ? "(+#{player.manual_adjustment})" : '-'
-          %td.py-5.text-center
+          %td.py-5.text-center= player.manual_adjustment ? "(#{player.manual_adjustment})" : '-'
+          %td.py-5.text-center.flex.flex-col.gap-2
             - if player.evaluation_stale?
               %span.text-yellow-600.text-xs STALE
-            - if player.confidence && player.confidence <= 2
+            - if player.confidence_level && player.confidence_level <= 2
               %span.text-red-600.text-xs LOW DATA
           %td.text-center.py-5
             %span{ class: tier_badge_class(player.tier) }

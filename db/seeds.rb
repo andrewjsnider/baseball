@@ -40,21 +40,29 @@ positions = Position.all.index_by(&:name)
   player = Player.create!(
     name: Faker::Name.name,
     age: age,
-    arm_strength: arm_strength,
-    arm_accuracy: rand(1..5),
-    pitching_control: rand(1..5),
-    pitching_velocity: pitching_velocity,
-    catcher_skill: rand(1..5),
-    speed: speed,
-    fielding: rand(1..5),
-    hitting_contact: rand(1..5),
-    hitting_power: rand(1..5),
+
+    # New rating card
+    pitching_rating: rand(1..5),
+    hitting_rating: rand(1..5),
+    infield_defense_rating: rand(1..5),
+    outfield_defense_rating: rand(1..5),
+    catching_rating: rand(1..5),
     baseball_iq: rand(2..5),
-    coachability: rand(2..5),
-    parent_reliability: rand(2..5),
+    athleticism: rand(1..5),
+    speed: speed,
+
+    # Booleans
+    can_pitch: rand < 0.5,
+    can_catch: rand < 0.3,
+
+    # Metadata
+    tier: Player::TIERS.sample,
     risk_flag: rand < 0.2,
-    confidence: rand(2..5),
+    confidence_level: rand(2..5),
     evaluation_date: rand < 0.2 ? 2.years.ago : Date.today,
+    manual_adjustment: [nil, -5, 0, 5].sample,
+
+    notes: Faker::Lorem.sentence,
     team_id: nil
   )
 

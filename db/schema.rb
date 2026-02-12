@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_11_230904) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_12_003707) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -35,7 +35,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_11_230904) do
     t.integer "arm_accuracy"
     t.integer "pitching_control"
     t.integer "pitching_velocity"
-    t.integer "catcher_skill"
+    t.integer "catching_rating"
     t.integer "speed"
     t.integer "fielding"
     t.integer "hitting_contact"
@@ -52,8 +52,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_11_230904) do
     t.string "tier"
     t.bigint "team_id"
     t.date "evaluation_date"
-    t.integer "confidence"
+    t.integer "confidence_level"
     t.integer "manual_adjustment"
+    t.integer "pitching_rating"
+    t.integer "hitting_rating"
+    t.integer "infield_defense_rating"
+    t.integer "outfield_defense_rating"
+    t.integer "athleticism"
+    t.boolean "can_pitch", default: false, null: false
+    t.boolean "can_catch", default: false, null: false
     t.index ["team_id"], name: "index_players_on_team_id"
   end
 

@@ -19,65 +19,71 @@
         = f.number_field :age, class: "border border-stone-300 p-2 w-full"
 
       %div
+        = f.label :tier, class: "block text-sm"
+        = f.select :tier, options_for_select(Player::TIERS, @player.tier), { include_blank: true }, class: "border border-stone-300 p-2 w-full"
+
+      %div
+        = f.label :confidence_level, class: "block text-sm"
+        = f.number_field :confidence_level, in: 1..5, class: "border border-stone-300 p-2 w-full"
+
+      %div
         = f.label :manual_adjustment, class: "block text-sm"
         = f.number_field :manual_adjustment, class: "border border-stone-300 p-2 w-full"
 
+      %div{ class: "sm:col-span-2 mt-6" }
+        %p{ class: "block text-sm mb-2 font-semibold" } Positions
 
-      %div{ class: "mt-6 sm:col-span-2" }
-      %p{ class: "block text-sm mb-2 font-semibold" } Positions
+        %div{ class: "grid grid-cols-2 sm:grid-cols-4 gap-3" }
+          - Position.order(:name).each do |position|
+            %label{ class: "flex items-center gap-2 text-sm" }
+              = check_box_tag "player[position_ids][]", position.id, @player.positions.include?(position), class: "border border-stone-400"
+              = position.name
 
-      %div{ class: "grid grid-cols-2 sm:grid-cols-4 gap-3" }
-        - Position.order(:name).each do |position|
-          %label{ class: "flex items-center gap-2 text-sm" }
-            = check_box_tag "player[position_ids][]", position.id, @player.positions.include?(position), class: "border border-stone-400"
-            = position.name
+        = hidden_field_tag "player[position_ids][]", ""
 
-      = hidden_field_tag "player[position_ids][]", ""
-
-
-      %div
-        = f.label :arm_strength, class: "block text-sm"
-        = f.number_field :arm_strength, class: "border border-stone-300 p-2 w-full"
+      %div{ class: "sm:col-span-2 mt-6" }
+        %p{ class: "block text-sm mb-2 font-semibold" } Ratings (1–5)
 
       %div
-        = f.label :arm_accuracy, class: "block text-sm"
-        = f.number_field :arm_accuracy, class: "border border-stone-300 p-2 w-full"
+        = f.label :pitching_rating, class: "block text-sm"
+        = f.number_field :pitching_rating, in: 1..5, class: "border border-stone-300 p-2 w-full"
 
       %div
-        = f.label :pitching_control, class: "block text-sm"
-        = f.number_field :pitching_control, class: "border border-stone-300 p-2 w-full"
+        = f.label :hitting_rating, class: "block text-sm"
+        = f.number_field :hitting_rating, in: 1..5, class: "border border-stone-300 p-2 w-full"
 
       %div
-        = f.label :pitching_velocity, class: "block text-sm"
-        = f.number_field :pitching_velocity, class: "border border-stone-300 p-2 w-full"
+        = f.label :infield_defense_rating, class: "block text-sm"
+        = f.number_field :infield_defense_rating, in: 1..5, class: "border border-stone-300 p-2 w-full"
 
       %div
-        = f.label :speed, class: "block text-sm"
-        = f.number_field :speed, class: "border border-stone-300 p-2 w-full"
+        = f.label :outfield_defense_rating, class: "block text-sm"
+        = f.number_field :outfield_defense_rating, in: 1..5, class: "border border-stone-300 p-2 w-full"
 
       %div
-        = f.label :fielding, class: "block text-sm"
-        = f.number_field :fielding, class: "border border-stone-300 p-2 w-full"
-
-      %div
-        = f.label :hitting_contact, class: "block text-sm"
-        = f.number_field :hitting_contact, class: "border border-stone-300 p-2 w-full"
-
-      %div
-        = f.label :hitting_power, class: "block text-sm"
-        = f.number_field :hitting_power, class: "border border-stone-300 p-2 w-full"
+        = f.label :catching_rating, class: "block text-sm"
+        = f.number_field :catching_rating, in: 1..5, class: "border border-stone-300 p-2 w-full"
 
       %div
         = f.label :baseball_iq, class: "block text-sm"
-        = f.number_field :baseball_iq, class: "border border-stone-300 p-2 w-full"
+        = f.number_field :baseball_iq, in: 1..5, class: "border border-stone-300 p-2 w-full"
 
       %div
-        = f.label :coachability, class: "block text-sm"
-        = f.number_field :coachability, class: "border border-stone-300 p-2 w-full"
+        = f.label :athleticism, class: "block text-sm"
+        = f.number_field :athleticism, in: 1..5, class: "border border-stone-300 p-2 w-full"
 
       %div
-        = f.label :parent_reliability, class: "block text-sm"
-        = f.number_field :parent_reliability, class: "border border-stone-300 p-2 w-full"
+        = f.label :speed, class: "block text-sm"
+        = f.number_field :speed, in: 1..5, class: "border border-stone-300 p-2 w-full"
+
+      %div{ class: "sm:col-span-2 mt-4 flex items-center gap-6" }
+        %label{ class: "flex items-center gap-2 text-sm" }
+          = f.check_box :can_pitch
+          Can pitch (game-usable)
+
+        %label{ class: "flex items-center gap-2 text-sm" }
+          = f.check_box :can_catch
+          Can catch (game-usable)
 
     %div{ class: "mt-6" }
       = f.label :notes, class: "block text-sm"
