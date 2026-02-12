@@ -2,42 +2,59 @@ require "test_helper"
 
 class PlayersControllerTest < ActionDispatch::IntegrationTest
   def setup
+    @pitcher = FactoryBot.create(:position, name: "P")
+    @shortstop = FactoryBot.create(:position, name: "SS")
+
+    @team = FactoryBot.create(:team, name: "Team A")
+    @other_team = FactoryBot.create(:team, name: "Team B")
+
     @player = FactoryBot.create(
       :player,
       name: "Draft Kid",
       age: 12,
-      primary_position: "P",
-      arm_strength: 4,
-      pitching_control: 4,
-      pitching_velocity: 3,
-      speed: 3,
-      fielding: 3,
-      hitting_contact: 3,
-      hitting_power: 2,
+      pitching_rating: 4,
+      hitting_rating: 3,
+      infield_defense_rating: 3,
+      outfield_defense_rating: 2,
+      catching_rating: 2,
       baseball_iq: 4,
-      coachability: 4,
-      parent_reliability: 5
+      athleticism: 4,
+      speed: 3,
+      confidence_level: 4,
+      can_pitch: true,
+      can_catch: false,
+      notes: "Strong arm",
+      risk_flag: false,
+      team: nil
     )
 
-      @team = FactoryBot.create(:team, name: "Team A")
-    @other_team = FactoryBot.create(:team, name: "Team B")
+    @player.positions << @pitcher
   end
 
   def valid_player_params
     {
       name: "New Player",
       age: 11,
-      primary_position: "SS",
-      arm_strength: 3,
-      pitching_control: 3,
-      pitching_velocity: 2,
-      speed: 4,
-      fielding: 4,
-      hitting_contact: 3,
-      hitting_power: 2,
+      tier: "B",
+      confidence_level: 3,
+      manual_adjustment: 0,
+      notes: "Good athlete",
+      risk_flag: false,
+      evaluation_date: Date.today,
+
+      pitching_rating: 3,
+      hitting_rating: 3,
+      infield_defense_rating: 4,
+      outfield_defense_rating: 3,
+      catching_rating: 2,
       baseball_iq: 3,
-      coachability: 4,
-      parent_reliability: 4
+      athleticism: 4,
+      speed: 4,
+
+      can_pitch: false,
+      can_catch: false,
+
+      position_ids: [@shortstop.id]
     }
   end
 
@@ -58,6 +75,8 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to player_url(Player.last)
+    assert_equal "New Player", Player.last.name
+    assert_equal ["SS"], Player.last.positions.pluck(:name)
   end
 
   def test_create_player_with_invalid_params
@@ -81,12 +100,13 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
 
   def test_update_player_with_valid_params
     patch player_url(@player), params: {
-      player: { name: "Updated Name" }
+      player: { name: "Updated Name", confidence_level: 5 }
     }
 
     assert_redirected_to player_url(@player)
     @player.reload
     assert_equal "Updated Name", @player.name
+    assert_equal 5, @player.confidence_level
   end
 
   def test_update_player_with_invalid_params

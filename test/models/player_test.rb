@@ -14,7 +14,16 @@ class PlayerTest < ActiveSupport::TestCase
       hitting_power: 3,
       speed: 4,
       coachability: 5,
-      parent_reliability: 4
+      parent_reliability: 4,
+
+      # Ensure we stay on legacy scoring in these tests
+      pitching_rating: nil,
+      hitting_rating: nil,
+      infield_defense_rating: nil,
+      outfield_defense_rating: nil,
+      catching_rating: nil,
+      athleticism: nil,
+      confidence_level: nil
     )
   end
 
@@ -86,100 +95,17 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal 0, @player.reliability_score
   end
 
-  def test_overall_score_combines_all_scores
+  def test_legacy_overall_score_combines_all_scores
     expected =
       @player.pitcher_score +
       @player.defensive_score +
       @player.offensive_score +
       @player.reliability_score
 
-    assert_equal expected, @player.overall_score
+    assert_equal expected, @player.legacy_overall_score
   end
 
-  def test_overall_score_is_zero_when_all_metrics_nil
-    @player.attributes.each do |key, value|
-      if @player.respond_to?(key) && value.is_a?(Integer)
-        @player.send("#{key}=", nil)
-      end
-    end
-
-    assert_equal 0, @player.overall_score
-  end
-
-  def test_assigns_tier1_for_top_player
-    FactoryBot.create_list(:player, 10, arm_strength: 1)
-
-    elite = FactoryBot.create(
-      :player,
-      pitching_control: 5,
-      pitching_velocity: 5,
-      arm_strength: 5,
-      baseball_iq: 5,
-      hitting_contact: 5,
-      hitting_power: 5,
-      speed: 5,
-      fielding: 5,
-      coachability: 5,
-      parent_reliability: 5
-    )
-
-    assert_equal "Tier1", elite.tier
-  end
-
-  def test_position_scarcity_orders_lowest_first
-    c = Position.create!(name: "C")
-    p = Position.create!(name: "P")
-
-    2.times do
-      player = FactoryBot.create(:player)
-      player.positions << c
-    end
-
-    5.times do
-      player = FactoryBot.create(:player)
-      player.positions << p
-    end
-
-    scarcity = Player.position_scarcity
-
-    first_key = scarcity.keys.first
-    assert_equal "C", first_key
-  end
-
-  def test_assigns_tier1_for_top_player
-    Player.destroy_all
-
-    FactoryBot.create_list(:player, 10,
-      pitching_control: 1,
-      pitching_velocity: 1,
-      arm_strength: 1,
-      baseball_iq: 1,
-      hitting_contact: 1,
-      hitting_power: 1,
-      speed: 1,
-      fielding: 1,
-      coachability: 1,
-      parent_reliability: 1
-    )
-
-    elite = FactoryBot.create(
-      :player,
-      pitching_control: 5,
-      pitching_velocity: 5,
-      arm_strength: 5,
-      baseball_iq: 5,
-      hitting_contact: 5,
-      hitting_power: 5,
-      speed: 5,
-      fielding: 5,
-      coachability: 5,
-      parent_reliability: 5
-    )
-
-    assert_equal "Tier1", elite.tier
-  end
-
-  def test_overall_score_is_zero_when_all_metrics_nil
+  def test_legacy_overall_score_is_zero_when_all_metrics_nil
     @player.assign_attributes(
       pitching_control: nil,
       pitching_velocity: nil,
@@ -194,55 +120,117 @@ class PlayerTest < ActiveSupport::TestCase
       parent_reliability: nil
     )
 
-    assert_equal 0, @player.overall_score
+    assert_equal 0, @player.legacy_overall_score
   end
 
-  def test_tier_assigns_correct_percentile_groups
+  def test_overall_score_uses_ratings_card_when_present
+    @player.assign_attributes(
+      pitching_rating: 5,
+      hitting_rating: 5,
+      infield_defense_rating: 5,
+      outfield_defense_rating: 5,
+      catching_rating: 5,
+      athleticism: 5,
+      confidence_level: 5
+    )
+
+    assert @player.uses_ratings_card?
+    assert @player.overall_score > 0
+    assert_equal @player.ratings_overall_score.round(1), @player.overall_score
+  end
+
+  def test_computed_tier_assigns_a_for_top_player
     Player.destroy_all
 
-    # Create 20 players with ascending strength
-    20.times do |i|
+    10.times do
       FactoryBot.create(
         :player,
-        pitching_control: i,
-        pitching_velocity: i,
-        arm_strength: i,
-        baseball_iq: i,
-        fielding: i,
-        arm_accuracy: i,
-        hitting_contact: i,
-        hitting_power: i,
-        speed: i,
-        coachability: i,
-        parent_reliability: i
+        pitching_rating: 1,
+        hitting_rating: 1,
+        infield_defense_rating: 1,
+        outfield_defense_rating: 1,
+        catching_rating: 1,
+        baseball_iq: 1,
+        athleticism: 1,
+        confidence_level: 5
       )
     end
 
-    players = Player.all.sort_by { |p| -p.overall_score }
+    elite = FactoryBot.create(
+      :player,
+      pitching_rating: 5,
+      hitting_rating: 5,
+      infield_defense_rating: 5,
+      outfield_defense_rating: 5,
+      catching_rating: 5,
+      baseball_iq: 5,
+      athleticism: 5,
+      confidence_level: 5
+    )
 
-    # Top 15% → Tier1 (3 players out of 20)
-    assert_equal "Tier1", players[0].tier
-    assert_equal "Tier1", players[2].tier
-
-    # Around 20–35% → Tier2
-    assert_equal "Tier2", players[4].tier
-
-    # Middle → Tier3
-    assert_equal "Tier3", players[10].tier
-
-    # Bottom → Tier4
-    assert_equal "Tier4", players.last.tier
+    assert_equal "A", elite.computed_tier
   end
 
-  def test_tier_handles_small_dataset
+  def test_position_scarcity_orders_lowest_first
     Player.destroy_all
+    Position.destroy_all
 
-    3.times do
-      FactoryBot.create(:player)
+    c = Position.create!(name: "C")
+    p = Position.create!(name: "P")
+
+    2.times do
+      player = FactoryBot.create(:player)
+      player.positions << c
     end
 
+    5.times do
+      player = FactoryBot.create(:player)
+      player.positions << p
+    end
+
+    scarcity = Player.position_scarcity
+    first_key = scarcity.keys.first
+    assert_equal "C", first_key
+  end
+
+  def test_computed_tier_assigns_correct_percentile_groups
+    Player.destroy_all
+
+    20.times do |i|
+      FactoryBot.create(
+        :player,
+        pitching_rating: (i % 5) + 1,
+        hitting_rating: (i % 5) + 1,
+        infield_defense_rating: (i % 5) + 1,
+        outfield_defense_rating: (i % 5) + 1,
+        catching_rating: (i % 5) + 1,
+        baseball_iq: (i % 5) + 1,
+        athleticism: (i % 5) + 1,
+        speed: (i % 5) + 1,
+        confidence_level: 5,
+        manual_adjustment: i # force strict ordering so percentiles are stable
+      )
+    end
+
+    players = Player.all.sort_by { |p| -p.overall_score.to_f }
+
+    # computed_tier uses 15% / 35% cutoffs
+    assert_equal "A", players[0].computed_tier
+    assert_equal "A", players[2].computed_tier
+
+    assert_equal "B", players[4].computed_tier
+
+    assert_equal "C", players[10].computed_tier
+    assert_equal "C", players.last.computed_tier
+  end
+
+  def test_computed_tier_handles_small_dataset
+    Player.destroy_all
+
+    3.times { FactoryBot.create(:player) }
+
     Player.all.each do |player|
-      assert_nil player.tier
+      assert_nil player.computed_tier
     end
   end
 end
