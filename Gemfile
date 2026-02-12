@@ -54,7 +54,7 @@ group :development, :test do
 
   gem "faker"
 
-  gem "minitest", "~> 5.20"
+  gem "minitest", "~> 6.0"
 
   gem 'factory_bot_rails'
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
