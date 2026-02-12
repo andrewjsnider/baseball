@@ -14,6 +14,7 @@ class GamesController < ApplicationController
 
   def create
     @game = Game.new(game_params)
+    @game.opponent = Team.find_by(name: game_params[:opponent])
     @game.team = @team
     if @game.save
       redirect_to @game

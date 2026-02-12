@@ -5,4 +5,8 @@ class Lineup < ApplicationRecord
   has_many :lineup_slots, -> { order(:batting_order) }, dependent: :destroy
 
   accepts_nested_attributes_for :lineup_slots
+
+  def opponent
+    game.team.name
+  end
 end

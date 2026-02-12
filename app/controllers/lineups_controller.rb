@@ -16,6 +16,19 @@ class LineupsController < ApplicationController
     head :ok
   end
 
+  def create
+    @lineup = @game.create_lineup
+
+    @team.players.each_with_index do |player, index|
+      @lineup.lineup_slots.create!(
+        player: player,
+        batting_order: index + 1
+      )
+    end
+
+    redirect_to game_lineup_path(@game)
+  end
+
   def update_pitch_limit
     @lineup.update!(planned_pitch_limit: params[:planned_pitch_limit])
     head :ok
@@ -55,7 +68,7 @@ class LineupsController < ApplicationController
         @lineup.lineup_slots.create!(
           player: player,
           batting_order: index + 1,
-          field_position: :bench
+          field_position: :extra_hitter,
         )
       end
     end

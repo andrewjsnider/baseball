@@ -1,7 +1,7 @@
 %div{ class: "max-w-4xl mx-auto px-6 py-10 text-stone-900" }
 
   %h1{ class: "text-2xl font-semibold mb-6" }
-    Lineup for #{@game.opponent} - #{@game.date}
+    = link_to "Lineup for #{@team.name} vs. #{@game.team.name} - #{@game.date}", game_path(@game), class: 'underline'
 
   %ul{ id: "batting-order", data: { controller: "lineup", lineup_url: game_lineup_path(@game) }, class: "space-y-3" }
 

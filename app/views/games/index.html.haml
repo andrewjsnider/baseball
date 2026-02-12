@@ -10,6 +10,7 @@
         %th.text-center.py-2 Date
         %th.text-center.py-2 Opponent
         %th.text-center.py-2 Team
+        %th.text-center.py-2
 
     %tbody
       - @games.each do |game|
@@ -17,3 +18,7 @@
           %td.py-3.text-center= link_to game.date, game_path(game), class: 'underline'
           %td.py-3.text-center= game.opponent
           %td.py-3.text-center= game.team.name
+          %td.py-3.flex.gap-3
+            = link_to 'Edit', edit_game_path(game), class: 'underline'
+            = button_to 'Delete', game_path(game), method: :delete, class: 'underline text-red-500', data: { turbo_confirm: 'Are you sure?' }
+

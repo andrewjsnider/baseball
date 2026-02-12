@@ -39,6 +39,17 @@
             = number_field_tag "planned_pitch_limit", @game.lineup.planned_pitch_limit, data: { action: "change->lineup#updatePitchLimit" }, class: "border p-2 w-24"
 
       %h3{ class: "text-md font-semibold mb-3" } Batting Order
+      - required_positions = LineupSlot.field_positions.keys - ["extra_hitter"]
+      - filled_positions = @game.lineup.lineup_slots.pluck(:field_position).compact
+      - missing_positions = required_positions - filled_positions
+
+      - if missing_positions.any?
+        %div{ class: "my-4 p-4 border border-red-300 bg-red-50 text-red-700 text-sm" }
+          %strong Incomplete Defensive Alignment
+          %p{ class: "mt-1" }
+            Missing:
+            = missing_positions.map(&:humanize).join(", ")
+
       .my-5= link_to "Edit Lineup", game_lineup_path(@game), class: "border border-stone-900 px-4 py-2 text-xs hover:bg-stone-900 hover:text-white"
 
       %ol{ class: "list-decimal ml-6 space-y-1 text-sm" }
@@ -49,6 +60,9 @@
               %span{ class: "text-stone-500 ml-2" }
                 (#{slot.field_position.humanize})
 
+
   - else
     %p{ class: "mt-6 text-stone-500" }
       No lineup created yet.
+    %p{ class: "mt-6 text-stone-500" }
+      = button_to "Create Lineup", game_lineup_path(@game), method: :post, class: "underline"
