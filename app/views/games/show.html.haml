@@ -8,4 +8,4 @@
   %p.mb-4 Team: #{@game.team.name}
   %p.mb-4 Location: #{@game.location}
 
-  = link_to "Edit Lineup", lineup_path(@game.lineup), class: "underline"
+  = link_to "Edit Lineup", game_lineup_path(@game), class: "underline"

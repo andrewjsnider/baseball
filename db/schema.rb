@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_12_011600) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_12_013025) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -24,6 +24,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_12_011600) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["team_id"], name: "index_games_on_team_id"
+  end
+
+  create_table "lineup_slots", force: :cascade do |t|
+    t.bigint "lineup_id", null: false
+    t.bigint "player_id", null: false
+    t.integer "batting_order"
+    t.integer "field_position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lineup_id"], name: "index_lineup_slots_on_lineup_id"
+    t.index ["player_id"], name: "index_lineup_slots_on_player_id"
   end
 
   create_table "lineup_spots", force: :cascade do |t|
@@ -40,7 +51,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_12_011600) do
     t.bigint "game_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "starting_pitcher_id"
+    t.integer "planned_pitch_limit"
     t.index ["game_id"], name: "index_lineups_on_game_id"
+  end
+
+  create_table "pitch_appearances", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "game_id", null: false
+    t.integer "pitches_thrown"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["game_id"], name: "index_pitch_appearances_on_game_id"
+    t.index ["player_id"], name: "index_pitch_appearances_on_player_id"
   end
 
   create_table "player_positions", force: :cascade do |t|
@@ -107,9 +130,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_12_011600) do
   end
 
   add_foreign_key "games", "teams"
+  add_foreign_key "lineup_slots", "lineups"
+  add_foreign_key "lineup_slots", "players"
   add_foreign_key "lineup_spots", "lineups"
   add_foreign_key "lineup_spots", "players"
   add_foreign_key "lineups", "games"
+  add_foreign_key "pitch_appearances", "games"
+  add_foreign_key "pitch_appearances", "players"
   add_foreign_key "player_positions", "players"
   add_foreign_key "player_positions", "positions"
   add_foreign_key "players", "teams"

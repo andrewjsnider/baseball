@@ -10,7 +10,12 @@ Rails.application.routes.draw do
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-  resources :games
+  resources :games do
+    resource :lineup do
+      patch :reorder
+      patch :assign_positions
+    end
+  end
 
   resources :lineups, only: [:show] do
     member do

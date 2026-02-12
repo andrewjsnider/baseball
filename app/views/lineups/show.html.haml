@@ -1,15 +1,16 @@
-%div{ class: "max-w-3xl mx-auto px-6 py-8" }
+%div{ class: "max-w-4xl mx-auto px-6 py-10 text-stone-900" }
 
-  %h1.text-2xl.font-semibold.mb-6
-    Batting Order
+  %h1{ class: "text-2xl font-semibold mb-6" }
+    Lineup for #{@game.opponent} - #{@game.date}
 
-  %ul#batting-order{
-    class: "space-y-2",
-    data: { update_url: update_order_lineup_path(@lineup) }
-  }
-    - @players.each do |player|
-      %li{
-        class: "border border-stone-300 p-3 bg-white cursor-move",
-        data: { player_id: player.id }
-      }
-        = player.name
+  %ul{ id: "batting-order", data: { controller: "lineup", lineup_url: game_lineup_path(@game) }, class: "space-y-3" }
+
+    - @lineup.lineup_slots.each do |slot|
+      %li{ data: { player_id: slot.player.id }, class: "border p-4 bg-white cursor-move flex justify-between items-center" }
+
+        %div
+          %strong= slot.player.name
+          %span{ class: "text-sm text-stone-500 ml-2" }= slot.field_position&.humanize || "No position"
+
+        %div
+          = select_tag "", options_for_select(LineupSlot.field_positions.keys.map { |p| [p.humanize, p] }, slot.field_position), data: { action: "change->lineup#updatePosition", player_id: slot.player.id }, class: "border p-1 text-sm"

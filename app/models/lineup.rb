@@ -1,8 +1,8 @@
 class Lineup < ApplicationRecord
   belongs_to :game
-  has_many :lineup_spots, dependent: :destroy
+  belongs_to :starting_pitcher, class_name: "Player", optional: true
 
-  def ordered_spots
-    lineup_spots.order(:batting_order)
-  end
+  has_many :lineup_slots, -> { order(:batting_order) }, dependent: :destroy
+
+  accepts_nested_attributes_for :lineup_slots
 end
