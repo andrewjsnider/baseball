@@ -17,7 +17,10 @@
       %div
         = f.label :age, class: "block text-sm"
         = f.number_field :age, class: "border border-stone-300 p-2 w-full"
-
+      %div
+        %label{ class: "flex items-center gap-2 text-sm" }
+          = f.check_box :club_team
+          Plays on a club team
       %div
         = f.label :tier, class: "block text-sm"
         = f.select :tier, options_for_select(Player::TIERS, @player.tier), { include_blank: true }, class: "border border-stone-300 p-2 w-full"

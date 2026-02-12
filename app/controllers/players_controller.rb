@@ -104,6 +104,7 @@ class PlayersController < ApplicationController
       :risk_flag,
       :evaluation_date,
       :team_id,
+      :club_team,
 
       :pitching_rating,
       :hitting_rating,

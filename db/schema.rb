@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_12_003707) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_12_005815) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -61,6 +61,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_12_003707) do
     t.integer "athleticism"
     t.boolean "can_pitch", default: false, null: false
     t.boolean "can_catch", default: false, null: false
+    t.boolean "club_team"
     t.index ["team_id"], name: "index_players_on_team_id"
   end
 

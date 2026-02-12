@@ -15,6 +15,7 @@
     %div
       %p.text-sm.text-stone-600 Age
       %p= @player.age
+
     %div
       %p.text-sm.text-stone-600 Manual Adjustment
       %p= @player.manual_adjustment || 'N/A'
@@ -27,6 +28,10 @@
     %div
       %p.text-sm.text-stone-600 Risk Flag
       %p= @player.risk_flag ? "Yes" : "No"
+
+    %div
+      %p.text-sm.text-stone-600 Club Team
+      %p= @player.club_team? ? 'Yes' : 'No'
 
   %hr{ class: "my-6 border-stone-300" }
 

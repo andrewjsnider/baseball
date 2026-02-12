@@ -24,6 +24,7 @@ class Player < ApplicationRecord
 
     score += confidence_adjustment
     score += stale_adjustment
+    score += club_team_bonus
     score += age_adjustment(team)
     score += expected_availability_bonus(team, depths, total_teams)
     score += positional_cliff_bonus(dropoffs, top_by_position)
@@ -100,6 +101,11 @@ class Player < ApplicationRecord
 
   def effective_baseball_iq
     effective_value(baseball_iq)
+  end
+
+  def club_team_bonus
+    return 0 unless club_team
+    (3.0 * confidence_multiplier).round(1)
   end
 
   def uses_ratings_card?
