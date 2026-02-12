@@ -1,7 +1,12 @@
 %div{ class: "max-w-4xl mx-auto px-6 py-8 text-stone-900" }
 
   %div{ class: "flex justify-between items-start mb-6" }
-    %h1{ class: "text-3xl font-semibold" }= @player.name
+    %div
+      %h1{ class: "text-3xl font-semibold" }= @player.name
+      - display_tier = @player.tier.presence || @player.computed_tier
+      - if display_tier.present?
+        %div{ class: "mt-2" }
+          %span{ class: tier_badge_class(display_tier) }= "Tier #{display_tier}"
 
     %div{ class: "flex gap-4" }
       = link_to "Edit", edit_player_path(@player), class: "underline text-sm"
@@ -17,21 +22,72 @@
       %p= @player.age
 
     %div
+      %p.text-sm.text-stone-600 Confidence
+      %p= @player.confidence_level || "N/A"
+
+    %div
       %p.text-sm.text-stone-600 Manual Adjustment
-      %p= @player.manual_adjustment || 'N/A'
+      %p= @player.manual_adjustment || "N/A"
 
     %div
       %p.text-sm.text-stone-600 Positions
       %p.flex.gap-2
         - @player.positions.each do |position|
           %span= position.name
+
+    %div
+      %p.text-sm.text-stone-600 Can Pitch
+      %p= @player.can_pitch? ? "Yes" : "No"
+
+    %div
+      %p.text-sm.text-stone-600 Can Catch
+      %p= @player.can_catch? ? "Yes" : "No"
+
     %div
       %p.text-sm.text-stone-600 Risk Flag
       %p= @player.risk_flag ? "Yes" : "No"
 
     %div
       %p.text-sm.text-stone-600 Club Team
-      %p= @player.club_team? ? 'Yes' : 'No'
+      %p= @player.club_team? ? "Yes" : "No"
+
+  %hr{ class: "my-6 border-stone-300" }
+
+  %h2{ class: "text-xl font-semibold mb-4" } Ratings
+
+  %div{ class: "grid grid-cols-2 sm:grid-cols-3 gap-4" }
+
+    %div
+      %p.text-sm Pitching
+      %p.font-semibold= @player.pitching_rating || "N/A"
+
+    %div
+      %p.text-sm Hitting
+      %p.font-semibold= @player.hitting_rating || "N/A"
+
+    %div
+      %p.text-sm Infield Defense
+      %p.font-semibold= @player.infield_defense_rating || "N/A"
+
+    %div
+      %p.text-sm Outfield Defense
+      %p.font-semibold= @player.outfield_defense_rating || "N/A"
+
+    %div
+      %p.text-sm Catching
+      %p.font-semibold= @player.catching_rating || "N/A"
+
+    %div
+      %p.text-sm Athleticism
+      %p.font-semibold= @player.athleticism || "N/A"
+
+    %div
+      %p.text-sm Baseball IQ
+      %p.font-semibold= @player.baseball_iq || "N/A"
+
+    %div
+      %p.text-sm Speed
+      %p.font-semibold= @player.speed || "N/A"
 
   %hr{ class: "my-6 border-stone-300" }
 
@@ -40,24 +96,24 @@
   %div{ class: "grid grid-cols-2 sm:grid-cols-3 gap-4" }
 
     %div
-      %p.text-sm Pitcher Score
+      %p.text-sm Overall Score
+      %p.font-semibold.text-lg= @player.overall_score
+
+    %div
+      %p.text-sm Legacy Pitcher Score
       %p.font-semibold= @player.pitcher_score
 
     %div
-      %p.text-sm Defensive Score
+      %p.text-sm Legacy Defensive Score
       %p.font-semibold= @player.defensive_score
 
     %div
-      %p.text-sm Offensive Score
+      %p.text-sm Legacy Offensive Score
       %p.font-semibold= @player.offensive_score
 
     %div
-      %p.text-sm Reliability Score
+      %p.text-sm Legacy Reliability Score
       %p.font-semibold= @player.reliability_score
-
-    %div
-      %p.text-sm Overall Score
-      %p.font-semibold.text-lg= @player.overall_score
 
   - if @player.notes.present?
     %hr{ class: "my-6 border-stone-300" }
