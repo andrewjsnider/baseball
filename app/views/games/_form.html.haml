@@ -1,0 +1,32 @@
+= form_with model: @game, local: true do |f|
+
+  - if @game.errors.any?
+    %div.border.border-red-400.p-4.mb-6
+      %ul.text-red-600.text-sm
+        - @game.errors.full_messages.each do |msg|
+          %li= msg
+
+  %div.grid.grid-cols-1.sm:grid-cols-2.gap-4
+
+    %div
+      = f.label :team_id, class: "block text-sm"
+      = f.collection_select :team_id, Team.all, :id, :name, {}, class: "border border-stone-300 p-2 w-full"
+
+    %div
+      = f.label :opponent, class: "block text-sm"
+      = f.collection_select :team_id, Team.where.not(name: 'Giants'), :id, :name, {}, class: "border border-stone-300 p-2 w-full"
+
+    %div
+      = f.label :date, class: "block text-sm"
+      = f.date_field :date, class: "border border-stone-300 p-2 w-full"
+
+    %div
+      = f.label :location, class: "block text-sm"
+      = f.text_field :location, class: "border border-stone-300 p-2 w-full"
+
+    %div.sm:col-span-2
+      = f.label :notes, class: "block text-sm"
+      = f.text_area :notes, rows: 3, class: "border border-stone-300 p-2 w-full"
+
+  %div.mt-6
+    = f.submit class: "border border-stone-900 px-6 py-2 hover:bg-stone-900 hover:text-white"

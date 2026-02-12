@@ -1,0 +1,11 @@
+%div.max-w-4xl.mx-auto.px-6.py-8
+
+  %h1.text-2xl.font-semibold.mb-4
+    = @game.opponent
+    %span.text-sm.text-stone-600
+      (#{@game.date})
+
+  %p.mb-4 Team: #{@game.team.name}
+  %p.mb-4 Location: #{@game.location}
+
+  = link_to "Edit Lineup", lineup_path(@game.lineup), class: "underline"

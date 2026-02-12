@@ -1,0 +1,21 @@
+%div.max-w-4xl.mx-auto.px-6.py-8
+
+  %div.flex.justify-between.items-center.mb-6
+    %h1.text-2xl.font-semibold Games
+    = link_to "New Game", new_game_path, class: "underline text-sm"
+
+  %table.w-full.text-sm
+    %thead
+      %tr.border-b.border-stone-300
+        %th.py-2 Date
+        %th.py-2 Opponent
+        %th.py-2 Team
+        %th.py-2
+
+    %tbody
+      - @games.each do |game|
+        %tr.border-b.border-stone-200
+          %td.py-3= game.date
+          %td.py-3= game.opponent
+          %td.py-3= game.team.name
+          %td.py-3= link_to "View", game_path(game), class: "underline"

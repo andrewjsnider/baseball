@@ -1,0 +1,15 @@
+%div{ class: "max-w-3xl mx-auto px-6 py-8" }
+
+  %h1.text-2xl.font-semibold.mb-6
+    Batting Order
+
+  %ul#batting-order{
+    class: "space-y-2",
+    data: { update_url: update_order_lineup_path(@lineup) }
+  }
+    - @players.each do |player|
+      %li{
+        class: "border border-stone-300 p-3 bg-white cursor-move",
+        data: { player_id: player.id }
+      }
+        = player.name
