@@ -12,7 +12,7 @@ class LineupSlot < ApplicationRecord
     left_field: 6,
     center_field: 7,
     right_field: 8,
-    bench: 9
+    extra_hitter: 9
   }
 
   validates :batting_order, presence: true

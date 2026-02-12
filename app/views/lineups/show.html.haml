@@ -10,7 +10,7 @@
 
         %div
           %strong= slot.player.name
-          %span{ class: "text-sm text-stone-500 ml-2" }= slot.field_position&.humanize || "No position"
+          %span{ class: "text-sm text-stone-500 ml-2" }= slot.field_position&.humanize || "Extra Hitter"
 
         %div
-          = select_tag "", options_for_select(LineupSlot.field_positions.keys.map { |p| [p.humanize, p] }, slot.field_position), data: { action: "change->lineup#updatePosition", player_id: slot.player.id }, class: "border p-1 text-sm"
+          = select_tag "", options_for_select([["Extra Hitter", ""]] + LineupSlot.field_positions.keys.map { |p| [p.humanize, p] }, slot.field_position), data: { action: "change->lineup#updatePosition", player_id: slot.player.id }, class: "border p-1 text-sm"

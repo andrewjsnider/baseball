@@ -7,15 +7,13 @@
   %table.w-full.text-sm
     %thead
       %tr.border-b.border-stone-300
-        %th.py-2 Date
-        %th.py-2 Opponent
-        %th.py-2 Team
-        %th.py-2
+        %th.text-center.py-2 Date
+        %th.text-center.py-2 Opponent
+        %th.text-center.py-2 Team
 
     %tbody
       - @games.each do |game|
         %tr.border-b.border-stone-200
-          %td.py-3= game.date
-          %td.py-3= game.opponent
-          %td.py-3= game.team.name
-          %td.py-3= link_to "View", game_path(game), class: "underline"
+          %td.py-3.text-center= link_to game.date, game_path(game), class: 'underline'
+          %td.py-3.text-center= game.opponent
+          %td.py-3.text-center= game.team.name

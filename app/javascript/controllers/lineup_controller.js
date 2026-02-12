@@ -65,4 +65,19 @@ export default class extends Controller {
       })
     })
   }
+
+  updatePitchLimit(event) {
+    const value = event.target.value
+
+    fetch(this.baseUrl + "/update_pitch_limit", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": document.querySelector("[name='csrf-token']").content
+      },
+      body: JSON.stringify({
+        planned_pitch_limit: value
+      })
+    })
+  }
 }

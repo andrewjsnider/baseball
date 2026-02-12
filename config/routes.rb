@@ -14,6 +14,7 @@ Rails.application.routes.draw do
     resource :lineup do
       patch :reorder
       patch :assign_positions
+      patch :update_pitch_limit
     end
   end
 

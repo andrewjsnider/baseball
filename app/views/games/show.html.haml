@@ -1,11 +1,54 @@
-%div.max-w-4xl.mx-auto.px-6.py-8
+%div{ class: "max-w-4xl mx-auto px-6 py-8 text-stone-900" }
 
-  %h1.text-2xl.font-semibold.mb-4
-    = @game.opponent
-    %span.text-sm.text-stone-600
-      (#{@game.date})
+  %div{ class: "flex justify-between items-start mb-6" }
+    %div
+      %h1{ class: "text-3xl font-semibold" }
+        = @game.opponent
 
-  %p.mb-4 Team: #{@game.team.name}
-  %p.mb-4 Location: #{@game.location}
+      %p{ class: "text-sm text-stone-600 mt-1" }
+        = @game.date
 
-  = link_to "Edit Lineup", game_lineup_path(@game), class: "underline"
+  .my-3
+    = link_to "Edit Game", edit_game_path(@game), class: "border border-stone-900 px-4 py-2 text-sm hover:bg-stone-900 hover:text-white text-sm"
+
+  %div{ class: "grid grid-cols-2 gap-6 mb-8" }
+
+    %div
+      %p{ class: "text-sm text-stone-600" } Opponent
+      %p{ class: "text-lg font-medium" }= @game.team.name
+
+    %div
+      %p{ class: "text-sm text-stone-600" } Location
+      %p{ class: "text-lg font-medium" }= @game.location.presence || "TBD"
+
+  - if @game.lineup
+    %div{ class: "border-t border-stone-200 pt-6 mt-6" }
+
+      %h2{ class: "text-lg font-semibold mb-4" } Game Plan
+
+      %div{ class: "grid grid-cols-2 gap-6 mb-6" }
+
+        %div
+          %p{ class: "text-sm text-stone-600" } Starting Pitcher
+          %p{ class: "text-lg font-medium" }
+            - pitcher_slot = @game.lineup.lineup_slots.pitcher.first
+            = pitcher_slot&.player&.name || "Not assigned"
+        %div{ data: { controller: "lineup", lineup_url: game_lineup_path(@game) } }
+          %p{ class: "text-sm text-stone-600" } Pitch Limit
+          %p{ class: "text-lg font-medium" }
+            = number_field_tag "planned_pitch_limit", @game.lineup.planned_pitch_limit, data: { action: "change->lineup#updatePitchLimit" }, class: "border p-2 w-24"
+
+      %h3{ class: "text-md font-semibold mb-3" } Batting Order
+      .my-5= link_to "Edit Lineup", game_lineup_path(@game), class: "border border-stone-900 px-4 py-2 text-xs hover:bg-stone-900 hover:text-white"
+
+      %ol{ class: "list-decimal ml-6 space-y-1 text-sm" }
+        - @game.lineup.lineup_slots.order(:batting_order).each do |slot|
+          %li
+            = slot.player.name
+            - if slot.field_position.present?
+              %span{ class: "text-stone-500 ml-2" }
+                (#{slot.field_position.humanize})
+
+  - else
+    %p{ class: "mt-6 text-stone-500" }
+      No lineup created yet.

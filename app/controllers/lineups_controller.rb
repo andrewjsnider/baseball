@@ -16,10 +16,24 @@ class LineupsController < ApplicationController
     head :ok
   end
 
+  def update_pitch_limit
+    @lineup.update!(planned_pitch_limit: params[:planned_pitch_limit])
+    head :ok
+  end
+
   def assign_positions
     params[:positions].each do |player_id, position|
-      slot = @lineup.lineup_slots.find_by!(player_id: player_id)
-      slot.update!(field_position: position)
+      LineupSlot.transaction do
+        slot = @lineup.lineup_slots.find_by!(player_id: player_id)
+
+        if position.present?
+          existing = @lineup.lineup_slots.find_by(field_position: position)
+          existing&.update!(field_position: nil)
+          slot.update!(field_position: position)
+        else
+          slot.update!(field_position: nil)
+        end
+      end
     end
 
     head :ok
