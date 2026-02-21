@@ -8,6 +8,17 @@
         %div{ class: "mt-2" }
           %span{ class: tier_badge_class(display_tier) }= "Tier #{display_tier}"
 
+      :ruby
+        source =  if @player.uses_ratings_card?
+                    "Ratings card"
+                  elsif @player.uses_pcr_sheet?
+                    "PCR"
+                  else
+                    "Legacy"
+                  end
+      %div{ class: "mt-2 text-sm text-stone-600" }
+        Score source: #{source}
+
     %div{ class: "flex gap-4" }
       = link_to "Edit", edit_player_path(@player), class: "underline text-sm"
       = link_to "Delete", player_path(@player),
@@ -18,22 +29,38 @@
   %div{ class: "grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8" }
 
     %div
+      %p.text-sm.text-stone-600 PCR ID
+      %p= @player.pcr_id.presence || "N/A"
+
+    %div
       %p.text-sm.text-stone-600 Age
-      %p= @player.age
+      - age = @player.age.presence || @player.age_from_pcr_id
+      %p= age.presence || "N/A"
+
+    %div
+      %p.text-sm.text-stone-600 Evaluation Date
+      %p= @player.evaluation_date.presence || "N/A"
 
     %div
       %p.text-sm.text-stone-600 Confidence
-      %p= @player.confidence_level || "N/A"
+      %p= @player.confidence_level.presence || "N/A"
 
     %div
       %p.text-sm.text-stone-600 Manual Adjustment
-      %p= @player.manual_adjustment || "N/A"
+      %p= @player.manual_adjustment.presence || "N/A"
+
+    %div
+      %p.text-sm.text-stone-600 Draftable
+      %p= @player.draftable? ? "Yes" : "No"
 
     %div
       %p.text-sm.text-stone-600 Positions
       %p.flex.gap-2
-        - @player.positions.each do |position|
-          %span= position.name
+        - if @player.positions.any?
+          - @player.positions.each do |position|
+            %span= position.name
+        - else
+          %span N/A
 
     %div
       %p.text-sm.text-stone-600 Can Pitch
@@ -51,57 +78,76 @@
       %p.text-sm.text-stone-600 Club Team
       %p= @player.club_team? ? "Yes" : "No"
 
-    %div
+    %div{ class: "sm:col-span-2" }
       %p.text-sm.text-stone-600 Notes
-      %p= @player.notes
+      %p= @player.notes.presence || "N/A"
 
   %hr{ class: "my-6 border-stone-300" }
 
-  %h2{ class: "text-xl font-semibold mb-4" } Ratings
+  %h2{ class: "text-xl font-semibold mb-4" } PCR Scores
 
-  %div{ class: "grid grid-cols-2 sm:grid-cols-3 gap-4" }
-
-    %div
-      %p.text-sm Pitching
-      %p.font-semibold= @player.pitching_rating || "N/A"
-
+  %div{ class: "grid grid-cols-2 sm:grid-cols-5 gap-4" }
     %div
       %p.text-sm Hitting
-      %p.font-semibold= @player.hitting_rating || "N/A"
+      %p.font-semibold= @player.pcr_hitting.presence || "N/A"
+    %div
+      %p.text-sm Fielding
+      %p.font-semibold= @player.pcr_fielding.presence || "N/A"
+    %div
+      %p.text-sm Throwing
+      %p.font-semibold= @player.pcr_throwing.presence || "N/A"
+    %div
+      %p.text-sm Pitching
+      %p.font-semibold= @player.pcr_pitching.presence || "N/A"
+    %div
+      %p.text-sm Total
+      %p.font-semibold= @player.pcr_total.presence || "N/A"
 
+  %hr{ class: "my-6 border-stone-300" }
+
+  %h2{ class: "text-xl font-semibold mb-4" } Ratings Card
+
+  %div{ class: "grid grid-cols-2 sm:grid-cols-3 gap-4" }
+    %div
+      %p.text-sm Pitching
+      %p.font-semibold= @player.pitching_rating.presence || "N/A"
+    %div
+      %p.text-sm Hitting
+      %p.font-semibold= @player.hitting_rating.presence || "N/A"
     %div
       %p.text-sm Infield Defense
-      %p.font-semibold= @player.infield_defense_rating || "N/A"
-
+      %p.font-semibold= @player.infield_defense_rating.presence || "N/A"
     %div
       %p.text-sm Outfield Defense
-      %p.font-semibold= @player.outfield_defense_rating || "N/A"
-
+      %p.font-semibold= @player.outfield_defense_rating.presence || "N/A"
     %div
       %p.text-sm Catching
-      %p.font-semibold= @player.catching_rating || "N/A"
-
+      %p.font-semibold= @player.catching_rating.presence || "N/A"
     %div
       %p.text-sm Athleticism
-      %p.font-semibold= @player.athleticism || "N/A"
-
+      %p.font-semibold= @player.athleticism.presence || "N/A"
     %div
       %p.text-sm Baseball IQ
-      %p.font-semibold= @player.baseball_iq || "N/A"
-
+      %p.font-semibold= @player.baseball_iq.presence || "N/A"
     %div
       %p.text-sm Speed
-      %p.font-semibold= @player.speed || "N/A"
+      %p.font-semibold= @player.speed.presence || "N/A"
 
   %hr{ class: "my-6 border-stone-300" }
 
   %h2{ class: "text-xl font-semibold mb-4" } Scores
 
   %div{ class: "grid grid-cols-2 sm:grid-cols-3 gap-4" }
-
     %div
       %p.text-sm Overall Score
       %p.font-semibold.text-lg= @player.overall_score
+
+    %div
+      %p.text-sm Recommendation Score (Giants)
+      - if (my_team = Team.find_by(name: "Giants")).present?
+        %p.font-semibold= @player.recommendation_score(my_team)
+      - else
+        %p.font-semibold N/A
 
     %div
       %p.text-sm Legacy Pitcher Score
@@ -118,11 +164,6 @@
     %div
       %p.text-sm Legacy Reliability Score
       %p.font-semibold= @player.reliability_score
-
-  - if @player.notes.present?
-    %hr{ class: "my-6 border-stone-300" }
-    %h2{ class: "text-xl font-semibold mb-2" } Notes
-    %p= @player.notes
 
   %div{ class: "mt-8" }
     = link_to "Back to Players", players_path, class: "underline text-sm"
