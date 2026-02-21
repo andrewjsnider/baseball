@@ -2,82 +2,87 @@
   = form_with model: @player, local: true do |f|
 
     - if @player.errors.any?
-      %div{ class: "mb-6 border border-red-400 p-4" }
-        %h2{ class: "font-semibold text-red-600 mb-2" } Errors
-        %ul{ class: "text-sm text-red-600" }
+      %div{ class: "mb-6 border border-red-400 p-4 bg-red-50" }
+        %h2{ class: "font-semibold text-red-700 mb-2" } Errors
+        %ul{ class: "text-sm text-red-700 list-disc pl-5" }
           - @player.errors.full_messages.each do |msg|
             %li= msg
 
     %div{ class: "grid grid-cols-1 sm:grid-cols-2 gap-4" }
 
       %div
-        = f.label :name, class: "block text-sm"
-        = f.text_field :name, class: "border border-stone-300 p-2 w-full"
+        = f.label :name, class: "block text-sm font-medium"
+        = f.text_field :name, class: "mt-1 border border-stone-300 px-3 py-2 w-full"
 
       %div
-        = f.label :age, class: "block text-sm"
-        = f.number_field :age, class: "border border-stone-300 p-2 w-full"
-      %div
-        %label{ class: "flex items-center gap-2 text-sm" }
-          = f.check_box :club_team
-          Plays on a club team
-      -# %div
-        #= f.label :tier, class: "block text-sm"
-        #= f.select :tier, options_for_select(Player::TIERS, @player.tier), { include_blank: true }, class: "border border-stone-300 p-2 w-full"
+        = f.label :age, "Age (optional)", class: "block text-sm font-medium"
+        = f.text_field :age, inputmode: "numeric", class: "mt-1 border border-stone-300 px-3 py-2 w-full"
+        %p{ class: "mt-1 text-xs text-stone-600" }
+          Stored as text. If blank, age can be derived from PCR ID (W12-001 → 12).
+
 
       %div
-        = f.label :confidence_level, class: "block text-sm"
-        = f.number_field :confidence_level, in: 1..5, class: "border border-stone-300 p-2 w-full"
+        = f.label :confidence_level, "Confidence (1–5)", class: "block text-sm font-medium"
+        = f.number_field :confidence_level,
+          in: 1..5,
+          step: 1,
+          value: (@player.confidence_level || 3),
+          class: "mt-1 border border-stone-300 px-3 py-2 w-full"
+        %p{ class: "mt-1 text-xs text-stone-600" }
+          How sure you are about this eval. Default is 3.
 
       %div
-        = f.label :manual_adjustment, class: "block text-sm"
-        = f.number_field :manual_adjustment, class: "border border-stone-300 p-2 w-full"
+        = f.label :manual_adjustment, class: "block text-sm font-medium"
+        = f.number_field :manual_adjustment, step: 1, class: "mt-1 border border-stone-300 px-3 py-2 w-full"
 
-      %div{ class: "sm:col-span-2 mt-6" }
+      %div{ class: "sm:col-span-2 mt-4" }
         %p{ class: "block text-sm mb-2 font-semibold" } Positions
 
         %div{ class: "grid grid-cols-2 sm:grid-cols-4 gap-3" }
-          - Position.order(:name).each do |position|
+          = f.collection_check_boxes :position_ids, Position.order(:name), :id, :name do |cb|
             %label{ class: "flex items-center gap-2 text-sm" }
-              = check_box_tag "player[position_ids][]", position.id, @player.positions.include?(position), class: "border border-stone-400"
-              = position.name
+              = cb.check_box
+              = cb.text
 
-        = hidden_field_tag "player[position_ids][]", ""
+      %div
+        %label{ class: "flex items-center gap-2 text-sm mt-6" }
+          = f.check_box :club_team
+          Plays on a club team
 
-      %div{ class: "sm:col-span-2 mt-6" }
+      %div{ class: "sm:col-span-2 mt-4" }
         %p{ class: "block text-sm mb-2 font-semibold" } Ratings (1–5)
 
       %div
-        = f.label :pitching_rating, class: "block text-sm"
-        = f.number_field :pitching_rating, in: 1..5, class: "border border-stone-300 p-2 w-full"
+        = f.label :pitching_rating, class: "block text-sm font-medium"
+        = f.number_field :pitching_rating, in: 1..5, step: 1, class: "mt-1 border border-stone-300 px-3 py-2 w-full"
 
       %div
-        = f.label :hitting_rating, class: "block text-sm"
-        = f.number_field :hitting_rating, in: 1..5, class: "border border-stone-300 p-2 w-full"
+        = f.label :hitting_rating, class: "block text-sm font-medium"
+        = f.number_field :hitting_rating, in: 1..5, step: 1, class: "mt-1 border border-stone-300 px-3 py-2 w-full"
 
       %div
-        = f.label :infield_defense_rating, class: "block text-sm"
-        = f.number_field :infield_defense_rating, in: 1..5, class: "border border-stone-300 p-2 w-full"
+        = f.label :infield_defense_rating, class: "block text-sm font-medium"
+        = f.number_field :infield_defense_rating, in: 1..5, step: 1, class: "mt-1 border border-stone-300 px-3 py-2 w-full"
 
       %div
-        = f.label :outfield_defense_rating, class: "block text-sm"
-        = f.number_field :outfield_defense_rating, in: 1..5, class: "border border-stone-300 p-2 w-full"
+        = f.label :outfield_defense_rating, class: "block text-sm font-medium"
+        = f.number_field :outfield_defense_rating, in: 1..5, step: 1, class: "mt-1 border border-stone-300 px-3 py-2 w-full"
 
       %div
-        = f.label :catching_rating, class: "block text-sm"
-        = f.number_field :catching_rating, in: 1..5, class: "border border-stone-300 p-2 w-full"
+        = f.label :catching_rating, class: "block text-sm font-medium"
+        = f.number_field :catching_rating, in: 1..5, step: 1, class: "mt-1 border border-stone-300 px-3 py-2 w-full"
 
       %div
-        = f.label :baseball_iq, class: "block text-sm"
-        = f.number_field :baseball_iq, in: 1..5, class: "border border-stone-300 p-2 w-full"
+        = f.label :athleticism, class: "block text-sm font-medium"
+        = f.number_field :athleticism, in: 1..5, step: 1, class: "mt-1 border border-stone-300 px-3 py-2 w-full"
 
       %div
-        = f.label :athleticism, class: "block text-sm"
-        = f.number_field :athleticism, in: 1..5, class: "border border-stone-300 p-2 w-full"
+        = f.label :speed, class: "block text-sm font-medium"
+        = f.number_field :speed, in: 1..5, step: 1, class: "mt-1 border border-stone-300 px-3 py-2 w-full"
 
       %div
-        = f.label :speed, class: "block text-sm"
-        = f.number_field :speed, in: 1..5, class: "border border-stone-300 p-2 w-full"
+        = f.label :baseball_iq, "Baseball IQ (1–5)", class: "block text-sm font-medium"
+        = f.number_field :baseball_iq, in: 1..5, step: 1, class: "mt-1 border border-stone-300 px-3 py-2 w-full"
 
       %div{ class: "sm:col-span-2 mt-4 flex items-center gap-6" }
         %label{ class: "flex items-center gap-2 text-sm" }
@@ -89,12 +94,14 @@
           Can catch (game-usable)
 
     %div{ class: "mt-6" }
-      = f.label :notes, class: "block text-sm"
-      = f.text_area :notes, rows: 4, class: "border border-stone-300 p-2 w-full"
+      = f.label :notes, class: "block text-sm font-medium"
+      = f.text_area :notes, rows: 4, class: "mt-1 border border-stone-300 px-3 py-2 w-full"
 
-    %div{ class: "mt-4 flex items-center gap-2" }
-      = f.check_box :risk_flag
-      = f.label :risk_flag, "Risk Flag"
+    %div{ class: "mt-4" }
+      %label{ class: "flex items-center gap-2 text-sm" }
+        = f.check_box :risk_flag
+        Risk flag
 
-    %div{ class: "mt-8" }
-      = f.submit class: "border border-stone-900 px-6 py-2 hover:bg-stone-900 hover:text-white"
+    %div{ class: "mt-8 flex items-center gap-4" }
+      = f.submit "Save", class: "border border-stone-900 px-6 py-2 hover:bg-stone-900 hover:text-white"
+      = link_to "Cancel", player_path(@player), class: "underline text-stone-700 hover:text-stone-900"
