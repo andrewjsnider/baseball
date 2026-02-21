@@ -11,14 +11,13 @@ class PlayersController < ApplicationController
   def draft
     player = Player.find(params[:id])
     team = Team.find(params[:team_id])
-    player.update!(team: team)
+    player.update!(team: team, drafted: true)
     redirect_back fallback_location: players_path
   end
 
   def undraft
     @player = Player.find(params[:id])
-    @player.update(team_id: nil)
-
+    @player.update!(team_id: nil, drafted: false, draft_round: nil)
     redirect_back fallback_location: players_path
   end
 
@@ -61,8 +60,22 @@ class PlayersController < ApplicationController
   end
 
   def import
-    Player.import(params[:file])
-    redirect_to players_path, notice: "Players imported."
+    file = params[:file]
+    raise ActionController::BadRequest, "Missing file" unless file.present?
+
+    Rails.logger.info("========== IMPORT START #{file.original_filename} #{file.path}")
+
+    result = PcrPlayersImporter.new(path: file.path).import!
+
+    Rails.logger.info("========== IMPORT DONE #{result.inspect}")
+
+    redirect_to players_path,
+                notice: "Imported: #{result[:created]} created, #{result[:updated]} updated, #{result[:skipped]} skipped."
+  rescue => e
+    Rails.logger.error("========== IMPORT FAILED #{e.class}: #{e.message}")
+    Rails.logger.error(e.backtrace.first(20).join("\n"))
+
+    redirect_to import_players_path, alert: "Import failed: #{e.class}: #{e.message}"
   end
 
   def update
@@ -89,9 +102,8 @@ class PlayersController < ApplicationController
   private
 
   def set_player
-    @player = Player.find(params.expect(:id))
+    @player = Player.find(params[:id])
   end
-
 
   def player_params
     params.require(:player).permit(
@@ -117,6 +129,16 @@ class PlayersController < ApplicationController
 
       :can_pitch,
       :can_catch,
+
+      :pcr_id,
+      :first_name,
+      :last_name,
+      :pcr_hitting,
+      :pcr_fielding,
+      :pcr_throwing,
+      :pcr_pitching,
+      :pcr_total,
+      :draftable,
 
       position_ids: []
     )

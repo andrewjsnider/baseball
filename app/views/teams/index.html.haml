@@ -15,4 +15,7 @@
         %tr{ class: "border-b border-stone-200" }
           %td.py-4= link_to team.name, team_path(team), class: "underline"
           %td.py-4= team.players.count
-          %td.py-4= link_to "Edit", edit_team_path(team), class: "underline"
+          %td.py-4
+            .flex.gap-2
+              = link_to "Edit", edit_team_path(team), class: "underline"
+              = button_to "Delete", team_path(team), method: :delete, class: "underline text-red-500", data: { turbo_confirm: 'Are you sure?' }

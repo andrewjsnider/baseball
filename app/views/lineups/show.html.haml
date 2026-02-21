@@ -1,7 +1,15 @@
 %div{ class: "max-w-4xl mx-auto px-6 py-10 text-stone-900" }
 
   %h1{ class: "text-2xl font-semibold mb-6" }
-    = link_to "Lineup for #{@team.name} vs. #{@game.team.name} - #{@game.date}", game_path(@game), class: 'underline'
+
+  - team_name = @team&.name || "Team"
+  - opp_name  = @game&.team&.name || "Opponent"
+  - date_str  = @game&.date || ""
+
+  - if @game.present?
+    = link_to "Lineup for #{team_name} vs. #{opp_name} - #{date_str}", game_path(@game), class: 'underline'
+  - else
+    %span Lineup
 
   %ul{ id: "batting-order", data: { controller: "lineup", lineup_url: game_lineup_path(@game) }, class: "space-y-3" }
 

@@ -1,7 +1,7 @@
 class Team < ApplicationRecord
   ROSTER_SIZE = 12
-  TARGET_PITCHERS = 3
-  TARGET_CATCHERS = 1
+  TARGET_PITCHERS = 5
+  TARGET_CATCHERS = 2
   TARGET_MIDDLE_INFIELD = 2
 
   NAMES = %w[Giants Marlins Braves Phillies Dodgers Padres Diamondbacks].freeze

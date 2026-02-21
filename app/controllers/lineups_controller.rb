@@ -19,10 +19,11 @@ class LineupsController < ApplicationController
   def create
     @lineup = @game.create_lineup
 
-    @team.players.each_with_index do |player, index|
+    @my_team.players.each_with_index do |player, index|
       @lineup.lineup_slots.create!(
         player: player,
-        batting_order: index + 1
+        batting_order: index + 1,
+        field_position: :extra_hitter
       )
     end
 

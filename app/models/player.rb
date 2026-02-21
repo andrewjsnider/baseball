@@ -7,17 +7,24 @@ class Player < ApplicationRecord
 
   validates :name, presence: true
   validates :tier, inclusion: { in: TIERS }, allow_nil: true
-
-  validates :pitching_rating,
-            :hitting_rating,
-            :infield_defense_rating,
-            :outfield_defense_rating,
+  validates :baseball_iq,
+            :arm_strength,
+            :arm_accuracy,
+            :pitching_control,
+            :pitching_velocity,
             :catching_rating,
-            :baseball_iq,
-            :athleticism,
-            :confidence_level,
+            :speed,
+            :fielding,
+            :hitting_contact,
+            :hitting_power,
+            :coachability,
+            :parent_reliability,
             numericality: { only_integer: true, in: 1..5 },
             allow_nil: true
+
+  validates :confidence_level, numericality: { only_integer: true, in: 1..5 }, allow_nil: true
+
+  scope :available, -> { where(team_id: nil).where(draftable: true) }
 
   def recommendation_score(team, dropoffs: {}, depths: {}, top_by_position: {}, total_teams: Team.count)
     score = overall_score.to_f
@@ -70,8 +77,13 @@ class Player < ApplicationRecord
     end
   end
 
-  def effective_value(raw)
-    return nil if raw.nil?
+  def confidence_adjustment
+    return 0 unless confidence_level.present?
+    -(5 - confidence_level) * 2.0
+  end
+
+  def effective_value(raw, default: 3.0)
+    return default if raw.nil?
     raw.to_f * confidence_multiplier
   end
 
@@ -145,7 +157,15 @@ class Player < ApplicationRecord
   end
 
   def overall_score
-    score = uses_ratings_card? ? ratings_overall_score : legacy_overall_score
+    score =
+      if uses_ratings_card?
+        ratings_overall_score
+      elsif uses_pcr_sheet?
+        pcr_overall_score
+      else
+        legacy_overall_score
+      end
+
     score.round(1)
   end
 
@@ -304,5 +324,21 @@ class Player < ApplicationRecord
           .where(positions: { name: position_name })
           .distinct
           .max_by { |p| p.overall_score.to_f }
+  end
+
+  def uses_pcr_sheet?
+    pcr_hitting.present? || pcr_fielding.present? || pcr_throwing.present? ||
+      pcr_pitching.present? || pcr_total.present?
+  end
+
+  def pcr_overall_score
+    return pcr_total.to_f if pcr_total.present?
+    pcr_hitting.to_i + pcr_fielding.to_i + pcr_throwing.to_i + pcr_pitching.to_i
+  end
+
+  def age_from_pcr_id
+    return nil if pcr_id.blank?
+    m = pcr_id.match(/\A(?:W)?(\d{2})-/)
+    m ? m[1].to_i : nil
   end
 end

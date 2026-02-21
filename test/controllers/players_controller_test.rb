@@ -5,7 +5,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     @pitcher = FactoryBot.create(:position, name: "P")
     @shortstop = FactoryBot.create(:position, name: "SS")
 
-    @team = FactoryBot.create(:team, name: "Team A")
+    @team = FactoryBot.create(:team, name: "Giants")
     @other_team = FactoryBot.create(:team, name: "Team B")
 
     @player = FactoryBot.create(

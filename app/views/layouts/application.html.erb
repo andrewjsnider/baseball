@@ -24,6 +24,17 @@
 
   <body>
     <%= render partial: 'layouts/header' %>
+    <% if flash[:notice].present? %>
+      <div class="mx-auto max-w-3xl px-6 mt-4 p-3 border border-stone-300 bg-stone-50 text-stone-900">
+        <%= flash[:notice] %>
+      </div>
+    <% end %>
+
+    <% if flash[:alert].present? %>
+      <div class="mx-auto max-w-3xl px-6 mt-4 p-3 border border-red-300 bg-red-50 text-red-900">
+        <%= flash[:alert] %>
+      </div>
+    <% end %>
     <%= yield %>
   </body>
 </html>

@@ -14,7 +14,7 @@
 
     %div
       = f.label :opponent, class: "block text-sm"
-      = f.collection_select :team_id, Team.where.not(name: 'Giants'), :id, :name, {}, class: "border border-stone-300 p-2 w-full"
+      = f.collection_select :team_id, Team.where.not(name: @my_team.name), :id, :name, {}, class: "border border-stone-300 p-2 w-full"
 
     %div
       = f.label :date, class: "block text-sm"

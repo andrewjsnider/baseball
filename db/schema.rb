@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_12_013025) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_21_000247) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -114,6 +114,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_12_013025) do
     t.boolean "can_pitch", default: false, null: false
     t.boolean "can_catch", default: false, null: false
     t.boolean "club_team"
+    t.string "pcr_id"
+    t.string "first_name"
+    t.string "last_name"
+    t.integer "pcr_hitting"
+    t.integer "pcr_fielding"
+    t.integer "pcr_throwing"
+    t.integer "pcr_pitching"
+    t.integer "pcr_total"
+    t.boolean "draftable", default: true, null: false
+    t.index ["pcr_id"], name: "index_players_on_pcr_id", unique: true
     t.index ["team_id"], name: "index_players_on_team_id"
   end
 

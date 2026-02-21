@@ -24,7 +24,10 @@ Rails.application.routes.draw do
     end
   end
 
+  get 'players/import', to: 'players#import_form', as: :import_players_show
+
   resources :players do
+
     member do
       post :draft
       post :undraft

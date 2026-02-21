@@ -131,7 +131,12 @@ class PlayerTest < ActiveSupport::TestCase
       outfield_defense_rating: 5,
       catching_rating: 5,
       athleticism: 5,
-      confidence_level: 5
+      confidence_level: 5,
+      pcr_total: nil,
+      pcr_hitting: nil,
+      pcr_fielding: nil,
+      pcr_throwing: nil,
+      pcr_pitching: nil
     )
 
     assert @player.uses_ratings_card?

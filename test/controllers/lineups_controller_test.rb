@@ -1,8 +1,11 @@
 require "test_helper"
 
 class LineupsControllerTest < ActionDispatch::IntegrationTest
-  test "should get show" do
-    get lineups_show_url
+  def test_get_show
+    team = FactoryBot.create(:team)
+    game = FactoryBot.create(:game, team: team, opponent: team)
+    lineup = FactoryBot.create(:lineup, game: game)
+    get game_lineup_path(game)
     assert_response :success
   end
 end

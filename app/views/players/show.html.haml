@@ -51,6 +51,10 @@
       %p.text-sm.text-stone-600 Club Team
       %p= @player.club_team? ? "Yes" : "No"
 
+    %div
+      %p.text-sm.text-stone-600 Notes
+      %p= @player.notes
+
   %hr{ class: "my-6 border-stone-300" }
 
   %h2{ class: "text-xl font-semibold mb-4" } Ratings
