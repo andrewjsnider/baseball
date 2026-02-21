@@ -36,7 +36,7 @@
       %p.text-sm.text-stone-600 Recommended Pick
       %h2.text-2xl.font-semibold.mb-3= best.name
       %p.mb-1
-        %span{ class: tier_badge_class(best.tier) }
+        %span{ class: tier_badge_class(best.computed_tier) }
           Tier: #{best.tier}
       %p.mb-2 Positions: #{best.positions.map(&:name).join(", ")}
       %p.mb-2
@@ -87,8 +87,8 @@
             - if player.confidence_level && player.confidence_level <= 2
               %span.text-red-600.text-xs LOW DATA
           %td.text-center.py-5
-            %span{ class: tier_badge_class(player.tier) }
-              = player.tier
+            %span{ class: tier_badge_class(player.computed_tier) }
+              = player.computed_tier
           %td.py-5.flex.gap-2.items-center
             = button_to "Draft", draft_player_path(player, team_id: @team.id), method: :post, class: "border border-stone-900 px-3 py-1 hover:bg-stone-900 hover:text-white"
             = link_to "Assign…", assign_player_path(player), class: "underline text-sm"
