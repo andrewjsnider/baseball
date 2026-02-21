@@ -36,6 +36,7 @@ Rails.application.routes.draw do
     end
 
     collection do
+      get :evals
       post :import
     end
   end

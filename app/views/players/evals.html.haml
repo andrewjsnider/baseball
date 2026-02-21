@@ -1,0 +1,156 @@
+%section{ class: "max-w-6xl mx-auto px-6 py-10 text-stone-900" }
+  %div{ class: "flex items-start justify-between gap-6" }
+    %div
+      %h1{ class: "text-3xl font-semibold" } Rapid Eval
+      %p{ class: "mt-2 text-stone-700" }
+        Search, select a player, enter your ratings, then save. PCR fields are shown for reference.
+
+    %div{ class: "flex items-center gap-3" }
+      = link_to "Players", players_path, class: "underline"
+      = link_to "Import", import_players_show_path, class: "underline"
+
+  %div{ class: "mt-8 grid grid-cols-12 gap-6" }
+    %aside{ class: "col-span-5 border border-stone-300 bg-white shadow-sm" }
+      %div{ class: "p-4 border-b border-stone-200" }
+        = form_with url: evals_players_path, method: :get, data: { turbo: true } do |f|
+          = f.label :q, "Search", class: "block text-sm font-medium text-stone-900"
+          = f.text_field :q,
+            value: params[:q],
+            placeholder: "Name or PCR ID",
+            class: "mt-2 w-full border border-stone-300 px-3 py-2"
+          %div{ class: "mt-3 flex items-center gap-3" }
+            = f.submit "Search", class: "px-4 py-2 bg-stone-900 text-white font-semibold hover:bg-stone-800"
+            - if params[:q].present?
+              = link_to "Clear", evals_players_path, class: "underline text-stone-700 hover:text-stone-900"
+
+      %div{ class: "p-2 max-h-[70vh] overflow-auto" }
+        - if @players.blank?
+          %p{ class: "p-4 text-stone-700" } No players found.
+        - else
+          - selected_id = @player&.id
+          - @players.each do |p|
+            - is_selected = selected_id.present? && p.id == selected_id
+            - row_classes = "block px-3 py-3 border-b border-stone-100 hover:bg-stone-50"
+            - row_classes += " bg-stone-100" if is_selected
+
+            = link_to evals_players_path(q: params[:q], player_id: p.id), class: row_classes, data: { turbo: true } do
+              %div{ class: "flex items-center justify-between gap-3" }
+                %div
+                  %div{ class: "font-semibold" }= p.name
+                  %div{ class: "mt-1 text-xs text-stone-600" }
+                    - if p.pcr_id.present?
+                      PCR: #{p.pcr_id}
+                    - else
+                      PCR: none
+                %div{ class: "text-right" }
+                  %div{ class: "text-sm font-semibold" }
+                    - if p.pcr_total.present?
+                      = p.pcr_total
+                    - else
+                      = p.overall_score
+                  %div{ class: "mt-1 text-xs text-stone-600" }
+                    - if p.uses_ratings_card?
+                      Eval
+                    - elsif p.uses_pcr_sheet?
+                      PCR
+                    - else
+                      Legacy
+
+    %main{ class: "col-span-7 border border-stone-300 bg-white shadow-sm" }
+      - if @player.blank?
+        %div{ class: "p-6" }
+          %p{ class: "text-stone-700" } Select a player to begin.
+      - else
+        %div{ class: "p-6 border-b border-stone-200" }
+          %div{ class: "flex items-start justify-between gap-6" }
+            %div
+              %h2{ class: "text-2xl font-semibold" }= @player.name
+              %div{ class: "mt-2 text-sm text-stone-700" }
+                - if @player.pcr_id.present?
+                  %span PCR ID: #{@player.pcr_id}
+                - else
+                  %span PCR ID: none
+                %span{ class: "mx-2 text-stone-400" } |
+                %span Age: #{@player.age.presence || @player.age_from_pcr_id || "?"}
+
+            %div{ class: "text-right" }
+              %div{ class: "text-sm text-stone-700" } Overall
+              %div{ class: "text-2xl font-semibold" }= @player.overall_score
+
+          %div{ class: "mt-5 grid grid-cols-5 gap-3 text-sm" }
+            %div{ class: "border border-stone-200 p-3" }
+              %div{ class: "text-stone-600" } Hitting
+              %div{ class: "text-lg font-semibold" }= @player.pcr_hitting.presence || "-"
+            %div{ class: "border border-stone-200 p-3" }
+              %div{ class: "text-stone-600" } Fielding
+              %div{ class: "text-lg font-semibold" }= @player.pcr_fielding.presence || "-"
+            %div{ class: "border border-stone-200 p-3" }
+              %div{ class: "text-stone-600" } Throwing
+              %div{ class: "text-lg font-semibold" }= @player.pcr_throwing.presence || "-"
+            %div{ class: "border border-stone-200 p-3" }
+              %div{ class: "text-stone-600" } Pitching
+              %div{ class: "text-lg font-semibold" }= @player.pcr_pitching.presence || "-"
+            %div{ class: "border border-stone-200 p-3" }
+              %div{ class: "text-stone-600" } Total
+              %div{ class: "text-lg font-semibold" }= @player.pcr_total.presence || "-"
+
+        %div{ class: "p-6" }
+          = form_with model: @player,
+            url: player_path(@player),
+            method: :patch,
+            data: { turbo: false } do |f|
+
+            %h3{ class: "text-lg font-semibold" } Your Evaluation
+
+            %div{ class: "mt-4 grid grid-cols-2 gap-4" }
+              :ruby
+                fields = [
+                  [:pitching_rating, "Pitching"],
+                  [:hitting_rating, "Hitting"],
+                  [:infield_defense_rating, "Infield Defense"],
+                  [:outfield_defense_rating, "Outfield Defense"],
+                  [:catching_rating, "Catching"],
+                  [:athleticism, "Athleticism"],
+                  [:speed, "Speed"],
+                  [:baseball_iq, "Baseball IQ"],
+                  [:confidence_level, "Confidence"]
+                ]
+
+              - fields.each do |field, label|
+                %div
+                  = f.label field, label, class: "block text-sm font-medium text-stone-900"
+                  = f.number_field field,
+                    in: 1..5,
+                    step: 1,
+                    class: "mt-2 w-full border border-stone-300 px-3 py-2"
+
+            %div{ class: "mt-5 grid grid-cols-2 gap-4" }
+              %div
+                %label{ class: "inline-flex items-center gap-2 text-sm text-stone-900" }
+                  = f.check_box :can_pitch
+                  Can pitch
+              %div
+                %label{ class: "inline-flex items-center gap-2 text-sm text-stone-900" }
+                  = f.check_box :can_catch
+                  Can catch
+
+              %div
+                %label{ class: "inline-flex items-center gap-2 text-sm text-stone-900" }
+                  = f.check_box :club_team
+                  Club team
+              %div
+                %label{ class: "inline-flex items-center gap-2 text-sm text-stone-900" }
+                  = f.check_box :risk_flag
+                  Risk flag
+
+            %div{ class: "mt-5" }
+              = f.label :manual_adjustment, "Manual adjustment", class: "block text-sm font-medium text-stone-900"
+              = f.number_field :manual_adjustment, step: 1, class: "mt-2 w-full border border-stone-300 px-3 py-2"
+
+            %div{ class: "mt-5" }
+              = f.label :notes, "Notes", class: "block text-sm font-medium text-stone-900"
+              = f.text_area :notes, rows: 3, class: "mt-2 w-full border border-stone-300 px-3 py-2"
+
+            %div{ class: "mt-6 flex items-center gap-4" }
+              = f.submit "Save", class: "px-4 py-2 bg-stone-900 text-white font-semibold hover:bg-stone-800"
+              = link_to "Back to list", evals_players_path(q: params[:q]), class: "underline text-stone-700 hover:text-stone-900"

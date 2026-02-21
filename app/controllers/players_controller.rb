@@ -78,6 +78,19 @@ class PlayersController < ApplicationController
     redirect_to import_players_path, alert: "Import failed: #{e.class}: #{e.message}"
   end
 
+  def evals
+    q = params[:q].to_s.strip
+
+    @players =
+      if q.present?
+        Player.where("name ILIKE ? OR pcr_id ILIKE ?", "%#{q}%", "%#{q}%")
+      else
+        Player.order(:last_name, :first_name, :name)
+      end
+
+    @player = params[:player_id].present? ? Player.find(params[:player_id]) : @players.first
+  end
+
   def update
     respond_to do |format|
       if @player.update(player_params)

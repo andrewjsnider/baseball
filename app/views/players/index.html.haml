@@ -5,6 +5,7 @@
     .flex.gap-2.items-center
       = link_to "New Player", new_player_path, class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white"
       = link_to "Import from CSV", import_players_show_path, class: 'underline'
+      = link_to "Player Evals", evals_players_path, class: 'underline'
   %table{ class: "w-full text-sm border-collapse" }
     %thead
       %tr{ class: "border-b border-stone-300 text-left" }
