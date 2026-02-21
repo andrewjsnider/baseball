@@ -7,6 +7,7 @@ class Player < ApplicationRecord
 
   validates :name, presence: true
   validates :tier, inclusion: { in: TIERS }, allow_nil: true
+
   validates :baseball_iq,
             :arm_strength,
             :arm_accuracy,
@@ -22,9 +23,11 @@ class Player < ApplicationRecord
             numericality: { only_integer: true, in: 1..5 },
             allow_nil: true
 
-  validates :confidence_level, numericality: { only_integer: true, in: 1..5 }, allow_nil: true
+  validates :confidence_level,
+            numericality: { only_integer: true, in: 1..5 },
+            allow_nil: true
 
-  scope :available, -> { where(team_id: nil).where(draftable: true) }
+  scope :available, -> { where(team_id: nil, drafted: false, draftable: true) }
 
   def recommendation_score(team, dropoffs: {}, depths: {}, top_by_position: {}, total_teams: Team.count)
     score = overall_score.to_f
@@ -82,9 +85,10 @@ class Player < ApplicationRecord
     -(5 - confidence_level) * 2.0
   end
 
+  # Treat blanks as "neutral" but still apply confidence.
   def effective_value(raw, default: 3.0)
-    return default if raw.nil?
-    raw.to_f * confidence_multiplier
+    v = raw.nil? ? default.to_f : raw.to_f
+    v * confidence_multiplier
   end
 
   def effective_pitching_rating
@@ -120,13 +124,21 @@ class Player < ApplicationRecord
     (3.0 * confidence_multiplier).round(1)
   end
 
+  # Require a minimum amount of card data so a single filled field does not
+  # cause a mostly-imputed ratings score to dominate.
   def uses_ratings_card?
-    pitching_rating.present? ||
-      hitting_rating.present? ||
-      infield_defense_rating.present? ||
-      outfield_defense_rating.present? ||
-      catching_rating.present? ||
-      athleticism.present?
+    fields = [
+      pitching_rating,
+      hitting_rating,
+      infield_defense_rating,
+      outfield_defense_rating,
+      catching_rating,
+      athleticism,
+      baseball_iq,
+      speed
+    ]
+
+    fields.count(&:present?) >= 4
   end
 
   def ratings_overall_score
@@ -156,6 +168,7 @@ class Player < ApplicationRecord
       reliability_score
   end
 
+  # Rating card beats PCR sheet beats legacy.
   def overall_score
     score =
       if uses_ratings_card?
@@ -169,17 +182,12 @@ class Player < ApplicationRecord
     score.round(1)
   end
 
-  def confidence_adjustment
-    return 0 unless confidence_level.present?
-    -(5 - confidence_level) * 2.0
-  end
-
   def stale_adjustment
     evaluation_stale? ? -(overall_score.to_f * 0.08) : 0
   end
 
   def age_adjustment(team)
-    return 0 unless age == 12
+    return 0 unless effective_age == 12
     team.spots_remaining > 6 ? 4 : 2
   end
 
@@ -187,9 +195,7 @@ class Player < ApplicationRecord
     bonus = 0
     positions.each do |position|
       depth = depths[position.name] || 0
-      if depth <= team.picks_until_next_turn(total_teams)
-        bonus += 8
-      end
+      bonus += 8 if depth <= team.picks_until_next_turn(total_teams)
     end
     bonus
   end
@@ -262,7 +268,7 @@ class Player < ApplicationRecord
   end
 
   def evaluation_stale?
-    return true if evaluation_date.nil?
+    return false if evaluation_date.nil?
     evaluation_date < 1.year.ago
   end
 
@@ -331,14 +337,29 @@ class Player < ApplicationRecord
       pcr_pitching.present? || pcr_total.present?
   end
 
+  # Normalize PCR if values appear to be 1–10 (anything > 5), mapping to 1–5.
+  def pcr_component(v)
+    n = v.to_i
+    return 0.0 if n == 0
+    n > 5 ? (n / 2.0) : n.to_f
+  end
+
   def pcr_overall_score
     return pcr_total.to_f if pcr_total.present?
-    pcr_hitting.to_i + pcr_fielding.to_i + pcr_throwing.to_i + pcr_pitching.to_i
+    pcr_component(pcr_hitting) +
+      pcr_component(pcr_fielding) +
+      pcr_component(pcr_throwing) +
+      pcr_component(pcr_pitching)
   end
 
   def age_from_pcr_id
     return nil if pcr_id.blank?
     m = pcr_id.match(/\A(?:W)?(\d{2})-/)
     m ? m[1].to_i : nil
+  end
+
+  def effective_age
+    return age.to_i if age.present?
+    age_from_pcr_id
   end
 end
