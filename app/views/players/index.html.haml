@@ -2,11 +2,10 @@
 
   %div{ class: "flex justify-between items-center mb-8" }
     %h1{ class: "text-3xl font-semibold" } Players
-    %div{ class: "flex gap-3 items-center" }
-      = link_to "New Player", new_player_path, class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white"
-      = link_to "Import from CSV", import_players_path, class: "underline"
-      = link_to "Player Evals", evals_players_path, class: "underline"
-
+    %div{ class: "flex flex-wrap items-center gap-3" }
+      = link_to "New Player", new_player_path, class: "border border-stone-900 bg-stone-900 text-white px-4 py-2 hover:bg-white hover:text-stone-900"
+      = link_to "Import from CSV", import_players_path, class: "border border-stone-900 bg-white text-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white"
+      = link_to "Player Evals", evals_players_path, class: "border border-amber-600 bg-amber-100 text-stone-900 px-4 py-2 hover:bg-amber-200"
   %table{ class: "w-full text-sm border-collapse" }
     %thead
       %tr{ class: "border-b border-stone-300 text-left" }
