@@ -54,6 +54,7 @@ class PcrPlayersImporter
 
         player.save!
 
+        player.positions.where(name: ["P", "C", "SS", "2B", "OF"]).destroy_all
         assign_positions_from_row!(player, row)
 
         was_new ? created += 1 : updated += 1
