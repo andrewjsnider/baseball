@@ -41,6 +41,7 @@ class Player < ApplicationRecord
     score += pitching_bonus(team)
     score += catcher_bonus(team)
     score += middle_infield_bonus(team)
+    score += up_the_middle_combo_bonus(team)
     score += risk_adjustment(team)
     score += flexibility_bonus(team)
     score += manual_adjustment.to_i
@@ -325,7 +326,19 @@ class Player < ApplicationRecord
     return 0 unless plays_position?("SS") || plays_position?("2B")
     return 0 if team.middle_infield_needed <= 0
 
-    team.middle_infield_needed >= 1 ? 12 : 6
+    team.middle_infield_needed >= 1 ? 16 : 8
+  end
+
+  def up_the_middle_combo_bonus(team)
+    return 0 if team.spots_remaining <= 3
+    return 0 unless pitch_candidate?
+    return 0 unless plays_position?("SS") || plays_position?("2B")
+
+    p = uses_ratings_card? ? effective_pitching_rating.to_f : 3.0
+    i = uses_ratings_card? ? effective_infield_defense_rating.to_f : 3.0
+
+    # ranges roughly 4..10
+    ((p + i) / 2.0).round(1)
   end
 
   def risk_adjustment(team)
