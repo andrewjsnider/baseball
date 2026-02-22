@@ -1,10 +1,10 @@
 class Team < ApplicationRecord
-  ROSTER_SIZE = 12
-  TARGET_PITCHERS = 5
+  ROSTER_SIZE = 13
+  TARGET_PITCHERS = 6
   TARGET_CATCHERS = 2
   TARGET_MIDDLE_INFIELD = 2
 
-  NAMES = %w[Giants Marlins Braves Phillies Dodgers Padres Diamondbacks].freeze
+  NAMES = %w[Giants Marlins Mariners Phillies Dodgers Padres Diamondbacks].freeze
   has_many :players
 
    def roster_count
