@@ -85,10 +85,6 @@ class Player < ApplicationRecord
     -(5 - confidence_level) * 2.0
   end
 
-  def middle_inf_tag?
-    infield_defense_rating.to_i >= 4
-  end
-
   def assistant_eval_present?
     assistant_pitching_rating.present? ||
       assistant_hitting_rating.present? ||
@@ -101,33 +97,69 @@ class Player < ApplicationRecord
     v.nil? ? default.to_f : v.to_f
   end
 
-  def assistant_agg_value(v)
-    return nil unless assistant_eval_present?
-    v.nil? ? 3.0 : v.to_f
+  def sources_for_agg(coach:, assistant:, pcr:)
+    vals = []
+
+    # Coach always contributes (blank -> 3)
+    vals << coach_agg_value(coach)
+
+    # Assistant contributes only if assistant eval exists at all
+    if assistant_eval_present?
+      vals << (assistant.nil? ? 3.0 : assistant.to_f)
+    end
+
+    # PCR contributes only if present; normalize to 1–5 if needed
+    if pcr.present?
+      vals << pcr_component(pcr)
+    end
+
+    vals
   end
 
-  def aggregate_value(coach_v, assistant_v)
-    values = []
-    values << coach_agg_value(coach_v)
-    av = assistant_agg_value(assistant_v)
-    values << av if av.present?
-    (values.sum / values.size).round(2)
+  def avg(vals)
+    return nil if vals.empty?
+    (vals.sum / vals.size).round(2)
   end
 
   def agg_infield
-    aggregate_value(infield_defense_rating, assistant_infield_defense_rating)
+    avg(
+      sources_for_agg(
+        coach: infield_defense_rating,
+        assistant: assistant_infield_defense_rating,
+        pcr: pcr_fielding
+      )
+    )
   end
 
   def agg_outfield
-    aggregate_value(outfield_defense_rating, assistant_outfield_defense_rating)
+    # PCR has a single "Fielding" score, so reuse it here too
+    avg(
+      sources_for_agg(
+        coach: outfield_defense_rating,
+        assistant: assistant_outfield_defense_rating,
+        pcr: pcr_fielding
+      )
+    )
   end
 
   def agg_pitch
-    aggregate_value(pitching_rating, assistant_pitching_rating)
+    avg(
+      sources_for_agg(
+        coach: pitching_rating,
+        assistant: assistant_pitching_rating,
+        pcr: pcr_pitching
+      )
+    )
   end
 
   def agg_bat
-    aggregate_value(hitting_rating, assistant_hitting_rating)
+    avg(
+      sources_for_agg(
+        coach: hitting_rating,
+        assistant: assistant_hitting_rating,
+        pcr: pcr_hitting
+      )
+    )
   end
 
   # Treat blanks as "neutral" but still apply confidence.
