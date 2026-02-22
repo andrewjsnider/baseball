@@ -135,6 +135,46 @@
 
   %hr{ class: "my-6 border-stone-300" }
 
+  %h2{ class: "text-xl font-semibold mb-4" } Assistant Evaluation
+
+  %div{ class: "grid grid-cols-2 sm:grid-cols-3 gap-4" }
+    %div
+      %p.text-sm Pitching
+      %p.font-semibold= @player.assistant_pitching_rating.presence || "N/A"
+    %div
+      %p.text-sm Hitting
+      %p.font-semibold= @player.assistant_hitting_rating.presence || "N/A"
+    %div
+      %p.text-sm Infield Defense
+      %p.font-semibold= @player.assistant_infield_defense_rating.presence || "N/A"
+    %div
+      %p.text-sm Outfield Defense
+      %p.font-semibold= @player.assistant_outfield_defense_rating.presence || "N/A"
+
+  %div{ class: "mt-4" }
+    %p.text-sm.text-stone-600 Assistant Notes
+    %p= @player.assistant_notes.presence || "N/A"
+
+  %hr{ class: "my-6 border-stone-300" }
+
+  %h2{ class: "text-xl font-semibold mb-4" } Averages
+
+  %div{ class: "grid grid-cols-2 sm:grid-cols-4 gap-4" }
+    %div
+      %p.text-sm INF avg
+      %p.font-semibold= @player.agg_infield
+    %div
+      %p.text-sm OUT avg
+      %p.font-semibold= @player.agg_outfield
+    %div
+      %p.text-sm BAT avg
+      %p.font-semibold= @player.agg_bat
+    %div
+      %p.text-sm PITCH avg
+      %p.font-semibold= @player.agg_pitch
+
+  %hr{ class: "my-6 border-stone-300" }
+
   %h2{ class: "text-xl font-semibold mb-4" } Scores
 
   %div{ class: "grid grid-cols-2 sm:grid-cols-3 gap-4" }

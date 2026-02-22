@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   root to: 'dashboard#index'
+  get "dashboard/export", to: "dashboard#export", as: :export_dashboard
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

@@ -23,7 +23,7 @@
             - if params[:q].present?
               = link_to "Clear", evals_players_path, class: "underline text-stone-700 hover:text-stone-900"
 
-      %div{ class: "p-2 max-h-[70vh] overflow-auto" }
+      %div{ class: "p-2 overflow-auto" }
         - if @players.blank?
           %p{ class: "p-4 text-stone-700" } No players found.
         - else
@@ -150,6 +150,44 @@
             %div{ class: "mt-5" }
               = f.label :notes, "Notes", class: "block text-sm font-medium text-stone-900"
               = f.text_area :notes, rows: 3, class: "mt-2 w-full border border-stone-300 px-3 py-2"
+
+            %hr{ class: "my-8 border-stone-200" }
+
+            %div{ class: "flex items-start justify-between gap-6" }
+              %div
+                %h3{ class: "text-lg font-semibold" } Assistant Evaluation
+                %p{ class: "mt-1 text-sm text-stone-600" }
+                  Optional. Leave blank if you do not have assistant scores.
+
+              %div{ class: "text-right text-sm" }
+                %div{ class: "text-stone-600" } Averages
+                %div{ class: "font-semibold" }
+                  INF #{ @player.agg_infield } |
+                  OUT #{ @player.agg_outfield } |
+                  BAT #{ @player.agg_bat } |
+                  PITCH #{ @player.agg_pitch }
+
+            %div{ class: "mt-4 grid grid-cols-2 gap-4" }
+              :ruby
+                assistant_fields = [
+                  [:assistant_pitching_rating, "Pitching (Assistant)"],
+                  [:assistant_hitting_rating, "Hitting (Assistant)"],
+                  [:assistant_infield_defense_rating, "Infield Defense (Assistant)"],
+                  [:assistant_outfield_defense_rating, "Outfield Defense (Assistant)"]
+                ]
+
+              - assistant_fields.each do |field, label|
+                %div
+                  = f.label field, label, class: "block text-sm font-medium text-stone-900"
+                  = f.number_field field,
+                    in: 1..5,
+                    step: 1,
+                    include_blank: true,
+                    class: "mt-2 w-full border border-stone-300 px-3 py-2"
+
+            %div{ class: "mt-5" }
+              = f.label :assistant_notes, "Assistant notes", class: "block text-sm font-medium text-stone-900"
+              = f.text_area :assistant_notes, rows: 3, class: "mt-2 w-full border border-stone-300 px-3 py-2"
 
             %div{ class: "mt-6 flex items-center gap-4" }
               = f.submit "Save", class: "px-4 py-2 bg-stone-900 text-white font-semibold hover:bg-stone-800"

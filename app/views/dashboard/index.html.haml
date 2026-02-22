@@ -1,6 +1,7 @@
 %div{ class: "max-w-6xl mx-auto px-6 py-10 text-stone-900" }
-
-  %h1{ class: "text-3xl font-semibold mb-6" } Draft Board
+  .mb-6
+    %h1{ class: "text-3xl font-semibold mb-6" } Draft Board
+    = link_to "Export CSV", export_dashboard_path, class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white"
 
   %div{ class: "border border-stone-300 p-6 mb-10 bg-stone-50" }
     %h2{ class: "text-lg font-semibold mb-4" } Remaining Needs
@@ -47,6 +48,11 @@
           %p.text-red-600.text-sm.mb-1 Low confidence evaluation
 
       %p.mb-4 Overall Score: #{best.overall_score}
+      %div{ class: "text-sm mb-4" }
+        %p INF avg: #{best.agg_infield}
+        %p OUT avg: #{best.agg_outfield}
+        %p BAT avg: #{best.agg_bat}
+        %p PITCH avg: #{best.agg_pitch}
 
       %p.mb-2 Club Team: #{best.club_team? ? 'Yes' : 'No'}
 
@@ -66,6 +72,10 @@
         %th.py-3 Positions
         %th.py-3.text-center Rec
         %th.py-3.text-center Overall
+        %th.py-3.text-center INF avg
+        %th.py-3.text-center OUT avg
+        %th.py-3.text-center BAT avg
+        %th.py-3.text-center PITCH avg
         %th.py-3.text-center Adjusted
         %th.py-3.text-center Data
         %th.py-3.text-center Tier
@@ -74,12 +84,17 @@
       - @ranked_players.each_with_index do |player, index|
         %tr{ class: "border-b border-stone-200 hover:bg-stone-50" }
           %td.py-5= index + 1
+          %td.py-5= player.pcr_id
           %td.py-5= link_to player.name, player_path(player), class: "underline"
           %td.py-5= player.age
           %td.py-5.text-center= player.club_team? ? 'Yes' : 'No'
           %td.py-5= player.positions.pluck(:name).join(", ")
           %td.py-5.text-center= player.recommendation_score( @team, dropoffs: @dropoffs, depths: @position_depths, top_by_position: @top_by_position, total_teams: Team.count)
           %td.py-5.text-center= player.overall_score
+          %td.py-5.text-center= player.agg_infield
+          %td.py-5.text-center= player.agg_outfield
+          %td.py-5.text-center= player.agg_bat
+          %td.py-5.text-center= player.agg_pitch
           %td.py-5.text-center= player.manual_adjustment ? "(#{player.manual_adjustment})" : '-'
           %td.py-5.text-center.flex.flex-col.gap-2
             - if player.evaluation_stale?

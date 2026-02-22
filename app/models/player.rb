@@ -85,6 +85,51 @@ class Player < ApplicationRecord
     -(5 - confidence_level) * 2.0
   end
 
+  def middle_inf_tag?
+    infield_defense_rating.to_i >= 4
+  end
+
+  def assistant_eval_present?
+    assistant_pitching_rating.present? ||
+      assistant_hitting_rating.present? ||
+      assistant_infield_defense_rating.present? ||
+      assistant_outfield_defense_rating.present? ||
+      assistant_notes.present?
+  end
+
+  def coach_agg_value(v, default: 3.0)
+    v.nil? ? default.to_f : v.to_f
+  end
+
+  def assistant_agg_value(v)
+    return nil unless assistant_eval_present?
+    v.nil? ? 3.0 : v.to_f
+  end
+
+  def aggregate_value(coach_v, assistant_v)
+    values = []
+    values << coach_agg_value(coach_v)
+    av = assistant_agg_value(assistant_v)
+    values << av if av.present?
+    (values.sum / values.size).round(2)
+  end
+
+  def agg_infield
+    aggregate_value(infield_defense_rating, assistant_infield_defense_rating)
+  end
+
+  def agg_outfield
+    aggregate_value(outfield_defense_rating, assistant_outfield_defense_rating)
+  end
+
+  def agg_pitch
+    aggregate_value(pitching_rating, assistant_pitching_rating)
+  end
+
+  def agg_bat
+    aggregate_value(hitting_rating, assistant_hitting_rating)
+  end
+
   # Treat blanks as "neutral" but still apply confidence.
   def effective_value(raw, default: 3.0)
     v = raw.nil? ? default.to_f : raw.to_f

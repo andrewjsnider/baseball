@@ -20,7 +20,6 @@
         %p{ class: "mt-1 text-xs text-stone-600" }
           Stored as text. If blank, age can be derived from PCR ID (W12-001 → 12).
 
-
       %div
         = f.label :confidence_level, "Confidence (1–5)", class: "block text-sm font-medium"
         = f.number_field :confidence_level,
@@ -101,6 +100,44 @@
       %label{ class: "flex items-center gap-2 text-sm" }
         = f.check_box :risk_flag
         Risk flag
+
+    %hr{ class: "my-8 border-stone-300" }
+
+    %div{ class: "flex items-start justify-between gap-6" }
+      %div
+        %p{ class: "block text-sm mb-1 font-semibold" } Assistant Evaluation
+        %p{ class: "text-sm text-stone-600" }
+          Optional. Leave blank if you do not have assistant scores.
+
+      %div{ class: "text-right text-sm" }
+        %div{ class: "text-stone-600" } Averages
+        %div{ class: "font-semibold" }
+          INF #{ @player.agg_infield } |
+          OUT #{ @player.agg_outfield } |
+          BAT #{ @player.agg_bat } |
+          PITCH #{ @player.agg_pitch }
+
+    %div{ class: "mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4" }
+      :ruby
+        assistant_fields = [
+          [:assistant_pitching_rating, "Pitching"],
+          [:assistant_hitting_rating, "Hitting"],
+          [:assistant_infield_defense_rating, "Infield Defense"],
+          [:assistant_outfield_defense_rating, "Outfield Defense"]
+        ]
+
+      - assistant_fields.each do |field, label|
+        %div
+          = f.label field, label, class: "block text-sm font-medium"
+          = f.number_field field,
+            in: 1..5,
+            step: 1,
+            include_blank: true,
+            class: "mt-1 border border-stone-300 px-3 py-2 w-full"
+
+    %div{ class: "mt-6" }
+      = f.label :assistant_notes, "Assistant notes", class: "block text-sm font-medium"
+      = f.text_area :assistant_notes, rows: 3, class: "mt-1 border border-stone-300 px-3 py-2 w-full"
 
     %div{ class: "mt-8 flex items-center gap-4" }
       = f.submit "Save", class: "border border-stone-900 px-6 py-2 hover:bg-stone-900 hover:text-white"

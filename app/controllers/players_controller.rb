@@ -143,6 +143,12 @@ class PlayersController < ApplicationController
       :can_pitch,
       :can_catch,
 
+      :assistant_pitching_rating,
+      :assistant_hitting_rating,
+      :assistant_infield_defense_rating,
+      :assistant_outfield_defense_rating,
+      :assistant_notes,
+
       :pcr_id,
       :first_name,
       :last_name,
