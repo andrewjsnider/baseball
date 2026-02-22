@@ -45,6 +45,7 @@ class PcrPlayersImporter
         player.pcr_throwing = int_or_nil(row["Throwing"])
         player.pcr_pitching = int_or_nil(row["Pitching"])
         player.pcr_total    = int_or_nil(row["TOTAL"])
+
         age = age_from_pcr_id(pcr_id)
         player.age = age if age.present? && player.age.blank?
 
@@ -52,6 +53,8 @@ class PcrPlayersImporter
         player.notes = notes.presence if notes.present?
 
         player.save!
+
+        assign_positions_from_row!(player, row)
 
         was_new ? created += 1 : updated += 1
       end
@@ -61,6 +64,36 @@ class PcrPlayersImporter
   end
 
   private
+
+  def assign_positions_from_row!(player, row)
+    # Pitcher if they have pitching data
+    if int_or_nil(row["Pitching"]).present?
+      add_position!(player, "P")
+    end
+
+    # Catcher if they have catching data (expects a "Catching" column)
+    if int_or_nil(row["Catching"]).present?
+      add_position!(player, "C")
+    end
+
+    # Middle INF if they have INF 4+ (expects an "INF" column)
+    fielding = int_or_nil(row["Fielding"])
+    if fielding.present?
+      if fielding >= 4
+        add_position!(player, "SS")
+        add_position!(player, "2B")
+      elsif fielding <= 3
+        add_position!(player, "OF")
+      end
+    end
+  end
+
+  def add_position!(player, pos_name)
+    position = Position.find_by(name: pos_name) || Position.create!(name: pos_name)
+    return if player.positions.exists?(id: position.id)
+
+    player.positions << position
+  end
 
   def find_header(lines)
     lines.first(30).each_with_index do |line, idx|
