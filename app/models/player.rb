@@ -341,7 +341,7 @@ class Player < ApplicationRecord
   def up_the_middle_combo_bonus(team)
     return 0 if team.spots_remaining <= 3
     return 0 unless pitch_candidate?
-    return 0 unless plays_position?("SS") || plays_position?("2B")
+    return 0 unless plays_position?("SS")
 
     p = uses_ratings_card? ? effective_pitching_rating.to_f : 3.0
     i = uses_ratings_card? ? effective_infield_defense_rating.to_f : 3.0

@@ -54,7 +54,7 @@ class PcrPlayersImporter
 
         player.save!
 
-        player.positions.where(name: ["P", "C", "SS", "2B", "OF"]).destroy_all
+        player.positions.where(name: ["P", "C", "SS", "OF"]).destroy_all
         assign_positions_from_row!(player, row)
 
         was_new ? created += 1 : updated += 1
@@ -82,7 +82,6 @@ class PcrPlayersImporter
     if fielding.present?
       if fielding >= 4
         add_position!(player, "SS")
-        add_position!(player, "2B")
       elsif fielding <= 3
         add_position!(player, "OF")
       end
