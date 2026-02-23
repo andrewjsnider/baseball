@@ -29,6 +29,16 @@ class Player < ApplicationRecord
 
   scope :available, -> { where(team_id: nil, drafted: false, draftable: true) }
 
+  scope :eval_fields_filled_count_lt, ->(n) {
+    fields = %w[
+      pitching_rating hitting_rating infield_defense_rating outfield_defense_rating
+      catching_rating athleticism speed baseball_iq confidence_level
+    ]
+
+    expr = fields.map { |f| "CASE WHEN #{f} IS NULL THEN 0 ELSE 1 END" }.join(" + ")
+    where("(#{expr}) < ?", n)
+  }
+
   def recommendation_score(team, dropoffs: {}, depths: {}, top_by_position: {}, total_teams: Team.count)
     score = overall_score.to_f
 

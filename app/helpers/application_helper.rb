@@ -12,4 +12,8 @@ module ApplicationHelper
       "#{base} bg-stone-200 text-stone-800"
     end
   end
+
+  def limited_info_badge
+    %(<span class="px-2 py-1 text-xs font-semibold bg-yellow-200 text-yellow-900">Limited info</span>).html_safe
+  end
 end

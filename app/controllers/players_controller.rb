@@ -3,6 +3,7 @@ class PlayersController < ApplicationController
 
   def index
     @players = Player.all
+    @limited_info_player_ids = Player.eval_fields_filled_count_lt(2).pluck(:id).to_set
   end
 
   def show

@@ -30,7 +30,10 @@
 
         %tr{ class: "border-b border-stone-200 hover:bg-stone-50" }
           %td.py-4= player.pcr_id.presence || "-"
-          %td.py-4= link_to player.name, player_path(player), class: "underline"
+          %td.py-4
+            = link_to player.name, player_path(player), class: "underline"
+            - if @limited_info_player_ids&.include?(player.id)
+              = limited_info_badge
           %td.py-4= (player.age.presence || player.age_from_pcr_id || "-")
           %td.py-4= source
           %td.py-4= player.positions.pluck(:name).join(", ").presence || "-"

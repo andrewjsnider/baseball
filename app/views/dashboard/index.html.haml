@@ -65,10 +65,10 @@
   %table{ class: "w-full text-sm border-collapse" }
     %thead
       %tr{ class: "border-b border-stone-300 text-left" }
-        %th.py-3 Rank
+        %th.py-3.text-center Rank
+        %th.py-3.text-center PCR ID
         %th.py-3 Name
-        %th.py-3 Age
-        %th.py-3.text-center Club Team
+        %th.py-3.text-center Age
         %th.py-3 Positions
         %th.py-3.text-center Rec
         %th.py-3.text-center Overall
@@ -85,9 +85,11 @@
         %tr{ class: "border-b border-stone-200 hover:bg-stone-50" }
           %td.py-5= index + 1
           %td.py-5= player.pcr_id
-          %td.py-5= link_to player.name, player_path(player), class: "underline"
+          %td.py-5
+            = link_to player.name, player_path(player), class: "underline"
+            - if @limited_info_player_ids&.include?(player.id)
+              = limited_info_badge
           %td.py-5= player.age
-          %td.py-5.text-center= player.club_team? ? 'Yes' : 'No'
           %td.py-5= player.positions.pluck(:name).join(", ")
           %td.py-5.text-center= player.recommendation_score( @team, dropoffs: @dropoffs, depths: @position_depths, top_by_position: @top_by_position, total_teams: Team.count)
           %td.py-5.text-center= player.overall_score

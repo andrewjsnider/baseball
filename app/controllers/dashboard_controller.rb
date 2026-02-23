@@ -4,6 +4,7 @@ class DashboardController < ApplicationController
     @teams_count = Team.count
 
     @available_players = Player.where(team_id: nil)
+    @limited_info_player_ids = @available_players.eval_fields_filled_count_lt(2).pluck(:id).to_set
 
     available = Player.where(team_id: nil).includes(:positions).to_a
 
