@@ -31,8 +31,7 @@ class Player < ApplicationRecord
 
   scope :eval_fields_filled_count_lt, ->(n) {
     fields = %w[
-      pitching_rating hitting_rating infield_defense_rating outfield_defense_rating
-      catching_rating athleticism speed baseball_iq confidence_level
+      pitching_rating hitting_rating infield_defense_rating outfield_defense_rating speed
     ]
 
     expr = fields.map { |f| "CASE WHEN #{f} IS NULL THEN 0 ELSE 1 END" }.join(" + ")
