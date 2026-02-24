@@ -24,7 +24,7 @@ class PlayersController < ApplicationController
 
   def assign
     @player = Player.find(params[:id])
-    @teams = Team.all
+    @teams = Team.where.not(name: @my_team.name)
   end
 
   def assign_to_team
