@@ -43,7 +43,6 @@ class DashboardController < ApplicationController
     team = Team.first || Team.create!(name: "My Team")
     available = Player.where(team_id: nil).includes(:positions).to_a
 
-    # Build the same supporting hashes your recommendation_score expects
     position_depths = Hash.new(0)
     top_by_position = {}
     dropoffs = {}
@@ -74,49 +73,48 @@ class DashboardController < ApplicationController
 
     csv = CSV.generate(headers: true) do |out|
       out << [
-        "Rank", "First", "Last", "Name", "Age", "Positions", "Tier",
-        "INF(coach)", "OUT(coach)", "BAT(coach)", "PITCH(coach)", "Catch(coach)",
-        "INF(asst)", "OUT(asst)", "BAT(asst)", "PITCH(asst)",
-        "INF(avg)", "OUT(avg)", "BAT(avg)", "PITCH(avg)",
-        "PCR H", "PCR F", "PCR T", "PCR P", "PCR TOTAL",
-        "Rec", "Overall", "Manual Adj", "Notes"
+        "Rank",
+        "PCR ID",
+        "Name",
+        "Age",
+        "Positions",
+        "Tier",
+        "Rec",
+        "Overall",
+        "BAT",
+        "INF",
+        "OUT",
+        "PITCH",
+        "Catch?",
+        "PCR TOTAL",
+        "Manual Adj",
+        "Notes"
       ]
 
       ranked.each_with_index do |p, i|
+        rec = p.recommendation_score(
+          team,
+          dropoffs: dropoffs,
+          depths: position_depths,
+          top_by_position: top_by_position,
+          total_teams: Team.count
+        )
+
         out << [
           i + 1,
-          p.first_name,
-          p.last_name,
-          p.name,
+          (p.respond_to?(:pcr_id) ? p.pcr_id : p.try(:pcr_player_id) || p.try(:pcr_identifier)),
+          p.name, # keep just one name column
           p.age,
-          p.positions.pluck(:name).join(", "),
+          p.positions.map(&:name).join(", "),
           p.tier,
+          rec,
+          p.overall_score,
+          p.hitting_rating,
           p.infield_defense_rating,
           p.outfield_defense_rating,
-          p.hitting_rating,
           p.pitching_rating,
           (p.can_catch ? "Y" : "N"),
-          p.assistant_infield_defense_rating,
-          p.assistant_outfield_defense_rating,
-          p.assistant_hitting_rating,
-          p.assistant_pitching_rating,
-          p.agg_infield,
-          p.agg_outfield,
-          p.agg_bat,
-          p.agg_pitch,
-          p.pcr_hitting,
-          p.pcr_fielding,
-          p.pcr_throwing,
-          p.pcr_pitching,
           p.pcr_total,
-          p.recommendation_score(
-            team,
-            dropoffs: dropoffs,
-            depths: position_depths,
-            top_by_position: top_by_position,
-            total_teams: Team.count
-          ),
-          p.overall_score,
           p.manual_adjustment,
           p.notes
         ]
