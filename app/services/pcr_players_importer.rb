@@ -40,21 +40,29 @@ class PcrPlayersImporter
         player.last_name  = last.presence
         player.name       = [first, last].reject(&:blank?).join(" ").presence || player.name
 
-        player.pcr_hitting  = int_or_nil(row["Hitting"])
-        player.pcr_fielding = int_or_nil(row["Fielding"])
-        player.pcr_throwing = int_or_nil(row["Throwing"])
-        player.pcr_pitching = int_or_nil(row["Pitching"])
-        player.pcr_total    = int_or_nil(row["TOTAL"])
+        player.pcr_hitting  = dec_or_nil(row["Hitting"])
+        player.pcr_fielding = dec_or_nil(row["Fielding"])
+        player.pcr_throwing = dec_or_nil(row["Throwing"])
+        player.pcr_pitching = dec_or_nil(row["Pitching"])
+        player.pcr_total    = dec_or_nil(row["TOTAL"])
 
         age = age_from_pcr_id(pcr_id)
         player.age = age if age.present? && player.age.blank?
 
         notes = row["NOTES"].to_s.strip
-        player.notes = notes.presence if notes.present?
+        if notes.present?
+          secs = secs_from_notes(notes)
+          player.speed = speed_rating_from_secs(secs) if secs.present?
+
+          player.notes = notes
+        end
 
         player.save!
 
-        player.positions.where(name: ["P", "C", "SS", "OF"]).destroy_all
+        player.player_positions.joins(:position)
+              .where(positions: { name: ["P", "C", "SS", "OF"] })
+              .destroy_all
+
         assign_positions_from_row!(player, row)
 
         was_new ? created += 1 : updated += 1
@@ -67,22 +75,13 @@ class PcrPlayersImporter
   private
 
   def assign_positions_from_row!(player, row)
-    # Pitcher if they have pitching data
-    if int_or_nil(row["Pitching"]).present?
-      add_position!(player, "P")
-    end
+    add_position!(player, "P") if dec_or_nil(row["Pitching"]).present?
 
-    # Catcher if they have catching data (expects a "Catching" column)
-    if int_or_nil(row["Catching"]).present?
-      add_position!(player, "C")
-    end
-
-    # Middle INF if they have INF 4+ (expects an "INF" column)
-    fielding = int_or_nil(row["Fielding"])
+    fielding = dec_or_nil(row["Fielding"])
     if fielding.present?
-      if fielding >= 4
+      if fielding >= 4.0
         add_position!(player, "SS")
-      elsif fielding <= 3
+      elsif fielding <= 3.0
         add_position!(player, "OF")
       end
     end
@@ -117,12 +116,29 @@ class PcrPlayersImporter
     [cols, ","]
   end
 
-  def int_or_nil(value)
+  def dec_or_nil(value)
     s = value.to_s.strip
     return nil if s.blank?
-    Integer(s)
+    Float(s)
   rescue ArgumentError
     nil
+  end
+
+  def secs_from_notes(notes)
+    m = notes.match(/(\d+(?:\.\d+)?)\s*secs?\b/i)
+    return nil unless m
+    m[1].to_f
+  end
+
+  # Map 30-yard dash time (seconds) to 1..5 speed grade.
+  def speed_rating_from_secs(secs)
+    return nil unless secs.present?
+
+    return 5 if secs <= 3.40
+    return 4 if secs <= 3.60
+    return 3 if secs <= 3.90
+    return 2 if secs <= 4.20
+    1
   end
 
   def age_from_pcr_id(pcr_id)

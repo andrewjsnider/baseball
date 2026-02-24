@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_22_194239) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_23_234225) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -117,11 +117,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_22_194239) do
     t.string "pcr_id"
     t.string "first_name"
     t.string "last_name"
-    t.integer "pcr_hitting"
-    t.integer "pcr_fielding"
-    t.integer "pcr_throwing"
-    t.integer "pcr_pitching"
-    t.integer "pcr_total"
+    t.decimal "pcr_hitting", precision: 3, scale: 1
+    t.decimal "pcr_fielding", precision: 3, scale: 1
+    t.decimal "pcr_throwing", precision: 3, scale: 1
+    t.decimal "pcr_pitching", precision: 3, scale: 1
+    t.decimal "pcr_total", precision: 4, scale: 1
     t.boolean "draftable", default: true, null: false
     t.integer "assistant_pitching_rating"
     t.integer "assistant_hitting_rating"

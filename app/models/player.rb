@@ -438,9 +438,9 @@ class Player < ApplicationRecord
 
   # Normalize PCR if values appear to be 1–10 (anything > 5), mapping to 1–5.
   def pcr_component(v)
-    n = v.to_i
-    return 0.0 if n == 0
-    n > 5 ? (n / 2.0) : n.to_f
+    n = v.to_f
+    return 0.0 if n == 0.0
+    n > 5 ? (n / 2.0) : n
   end
 
   def pcr_overall_score

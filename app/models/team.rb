@@ -4,7 +4,7 @@ class Team < ApplicationRecord
   TARGET_CATCHERS = 2
   TARGET_MIDDLE_INFIELD = 2
 
-  NAMES = %w[Giants Marlins Mariners Phillies Dodgers Padres Diamondbacks].freeze
+  NAMES = %w[Giants Marlins Mariners Phillies Dodgers Padres].freeze
   has_many :players
 
    def roster_count

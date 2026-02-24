@@ -76,6 +76,7 @@
         %th.py-3.text-center OUT avg
         %th.py-3.text-center BAT avg
         %th.py-3.text-center PITCH avg
+        %th.py-3.text-center Speed
         %th.py-3.text-center Adjusted
         %th.py-3.text-center Data
         %th.py-3.text-center Tier
@@ -97,6 +98,7 @@
           %td.py-5.text-center= player.agg_outfield
           %td.py-5.text-center= player.agg_bat
           %td.py-5.text-center= player.agg_pitch
+          %td.py-5.text-center= player.speed
           %td.py-5.text-center= player.manual_adjustment ? "(#{player.manual_adjustment})" : '-'
           %td.py-5.text-center.flex.flex-col.gap-2
             - if player.evaluation_stale?
