@@ -49,7 +49,7 @@ class Player < ApplicationRecord
     score += positional_cliff_bonus(dropoffs, top_by_position)
     score += pitching_bonus(team)
     score += catcher_bonus(team)
-    score += middle_infield_bonus(team)
+    score += short_stop_bonus(team)
     score += up_the_middle_combo_bonus(team)
     score += risk_adjustment(team)
     score += flexibility_bonus(team)
@@ -331,11 +331,11 @@ class Player < ApplicationRecord
     16
   end
 
-  def middle_infield_bonus(team)
+  def short_stop_bonus(team)
     return 0 unless plays_position?("SS") || plays_position?("2B")
-    return 0 if team.middle_infield_needed <= 0
+    return 0 if team.short_stops_needed <= 0
 
-    team.middle_infield_needed >= 1 ? 16 : 8
+    team.short_stops_needed >= 1 ? 16 : 8
   end
 
   def up_the_middle_combo_bonus(team)
@@ -367,8 +367,15 @@ class Player < ApplicationRecord
   end
 
   def evaluation_stale?
-    return false if evaluation_date.nil?
-    evaluation_date < 1.year.ago
+    n = notes.to_s.downcase
+
+    return true if n.include?("dnae")
+    return true if n.include?("last years scores")
+    return true if n.include?("last year's scores")
+    return true if n.include?("last years numbers")
+    return true if n.include?("last year's numbers")
+
+    false
   end
 
   def plays_position?(name)

@@ -18,7 +18,7 @@
 
       %div
         %p.text-stone-600 Middle Infield Needed
-        %p.text-xl.font-semibold= @team.middle_infield_needed
+        %p.text-xl.font-semibold= @team.short_stops_needed
 
       %div
         %p.text-stone-600 Bench Spots Left
@@ -28,7 +28,7 @@
   %div{ class: "mb-8 text-sm" }
     Pitchers: #{@team.pitchers_count} |
     Catchers: #{@team.catchers_count} |
-    Middle Infield: #{@team.middle_infield_count}
+    Middle Infield: #{@team.short_stops_count}
 
   - best = @ranked_players.first
 

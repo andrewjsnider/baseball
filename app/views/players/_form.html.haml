@@ -141,4 +141,5 @@
 
     %div{ class: "mt-8 flex items-center gap-4" }
       = f.submit "Save", class: "border border-stone-900 px-6 py-2 hover:bg-stone-900 hover:text-white"
-      = link_to "Cancel", player_path(@player), class: "underline text-stone-700 hover:text-stone-900"
+      - path = @player.new_record? ? players_path : player_path(@player)
+      = link_to "Cancel", path, class: "underline text-stone-700 hover:text-stone-900"
