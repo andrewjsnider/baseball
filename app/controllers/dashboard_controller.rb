@@ -1,3 +1,5 @@
+require 'CSV'
+
 class DashboardController < ApplicationController
   def index
     @team = Team.first || Team.create!(name: "My Team")
