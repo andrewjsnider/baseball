@@ -3,6 +3,7 @@ class Player < ApplicationRecord
 
   belongs_to :team, optional: true
   has_many :player_positions, dependent: :destroy
+  has_many :pitcher_appearances, dependent: :destroy
   has_many :positions, through: :player_positions
 
   validates :name, presence: true
@@ -467,5 +468,38 @@ class Player < ApplicationRecord
   def effective_age
     return age.to_i if age.present?
     age_from_pcr_id
+  end
+
+    def required_rest_days_for_pitches(pitches_thrown)
+    pitches = pitches_thrown.to_i
+    return 0 if pitches <= 20
+    return 1 if pitches <= 35
+    return 2 if pitches <= 50
+    return 3 if pitches <= 65
+    4
+  end
+
+  # Uses game.date (not created_at) and ignores the current game unless you include it.
+  def last_pitch_appearance(before_date: nil)
+    scope = pitch_appearances.joins(:game)
+    scope = scope.where("games.date < ?", before_date) if before_date.present?
+    scope = scope.where("pitch_appearances.pitches_thrown IS NOT NULL AND pitch_appearances.pitches_thrown > 0")
+    scope.order("games.date DESC").first
+  end
+
+  def next_eligible_pitching_date(before_date: nil)
+    last = last_pitch_appearance(before_date: before_date)
+    return nil if last.nil? # means "no history", caller can treat as eligible
+
+    outing_date = last.game.date
+    rest_days = required_rest_days_for_pitches(last.pitches_thrown)
+
+    outing_date + 1 + rest_days
+  end
+
+  def eligible_to_pitch_on?(date, before_date: nil)
+    eligible_on = next_eligible_pitching_date(before_date: before_date)
+    return true if eligible_on.nil?
+    date >= eligible_on
   end
 end

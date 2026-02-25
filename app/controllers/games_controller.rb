@@ -7,14 +7,15 @@ class GamesController < ApplicationController
 
   def show
     @game = Game.includes(lineup: { lineup_slots: :player }).find(params[:id])
-
     @opponent_team = @game.opponent_team
     @opponent_players =
-      if @opponent_team
-        @opponent_team.players.order(Arel.sql("COALESCE(pcr_total, 0) DESC"))
-      else
-        Player.none
-      end
+    if @opponent_team
+      @opponent_team.players.order(Arel.sql("COALESCE(pcr_total, 0) DESC"))
+    else
+      Player.none
+    end
+
+    @show = GameShowPresenter.new(game: @game, opponent_team: @opponent_team, opponent_players: @opponent_players)
 
     @opponent_top_hitters = @opponent_players.sort_by { |p| -(p.hitting_rating.to_i) }.first(5)
     @opponent_top_pitchers = @opponent_players.select(&:can_pitch).sort_by { |p| -(p.pitching_rating.to_i) }.first(3)
