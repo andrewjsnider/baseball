@@ -21,70 +21,8 @@
 
   = render partial: "scouting_report"
 
-  %div{ class: "border border-stone-200 bg-white p-5 mb-8" }
-    %div{ class: "flex items-start justify-between gap-4 mb-4" }
-      %div
-        %h2{ class: "text-lg font-semibold" } Game Plan
-        %p{ class: "text-sm text-stone-600 mt-1" } Pitching, limits, and alignment
-      %div{ class: "flex items-center gap-3" }
-        - if @show.has_lineup?
-          = link_to "Edit Lineup", game_lineup_path(@game), class: "underline text-sm"
+  = render partial: 'gameplan'
 
-    %div{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" }
-      %div
-        %p{ class: "text-sm text-stone-600" } Starting Pitcher
-        %p{ class: "text-lg font-medium" }= @show.starting_pitcher_slot&.player&.name || "Not assigned"
+  = render partial: 'lineup'
 
-      %div{ data: { controller: "lineup", lineup_url: game_lineup_path(@game) } }
-        %p{ class: "text-sm text-stone-600" } Team Pitch Limit
-        %p{ class: "text-lg font-medium" }
-          - if @show.has_lineup?
-            = number_field_tag "planned_pitch_limit", @game.lineup.planned_pitch_limit, data: { action: "change->lineup#updatePitchLimit" }, class: "border p-2 w-24"
-          - else
-            %span{ class: "text-stone-500" } Create a lineup to set this.
-
-    - if @show.has_lineup? && @show.missing_positions.any?
-      %div{ class: "my-4 p-4 border border-red-300 bg-red-50 text-red-700 text-sm" }
-        %strong Incomplete Defensive Alignment
-        %p{ class: "mt-1" } Missing: #{@show.missing_positions.map(&:humanize).join(", ")}
-
-    %div{ class: "mt-6" }
-      %h3{ class: "text-md font-semibold mb-3" } Pitch Counter
-      - if @show.my_pitchers.none?
-        %p{ class: "text-sm text-stone-600" } No pitchers marked on your roster.
-      - else
-        %div{ class: "space-y-3" }
-          - @show.pitcher_rows.each do |row|
-            %div{ class: "flex items-center justify-between border border-stone-200 p-3" }
-              %div
-                %div{ class: "font-medium" }= row.player.name
-                %div{ class: "text-xs text-stone-600 mt-1" }
-                  - if row.last_date.present?
-                    - if row.eligible_today
-                      Last: #{row.last_date} (#{row.last_pitches}) · Available
-                    - else
-                      Last: #{row.last_date} (#{row.last_pitches}) · Resting until #{row.eligible_on}
-                  - else
-                    No history · Available
-              %div{ class: "flex items-center gap-2" }
-                = button_to "-", game_pitch_appearance_path(@game, row.player.id, delta: -1), method: :patch, class: "border border-stone-900 px-3 py-1 text-sm hover:bg-stone-900 hover:text-white"
-                %div{ class: "w-12 text-center font-semibold" }= row.today_pitches
-                = button_to "+", game_pitch_appearance_path(@game, row.player.id, delta: 1), method: :patch, class: "border border-stone-900 px-3 py-1 text-sm hover:bg-stone-900 hover:text-white"
-                = button_to "+5", game_pitch_appearance_path(@game, row.player.id, delta: 5), method: :patch, class: "border border-stone-900 px-3 py-1 text-sm hover:bg-stone-900 hover:text-white"
-
-  %div{ class: "border border-stone-200 bg-white p-5" }
-    %div{ class: "flex items-center justify-between gap-4 mb-4" }
-      %h2{ class: "text-lg font-semibold" } Batting Order
-      %div{ class: "flex items-center gap-3" }
-        - if @show.has_lineup?
-          = link_to "Edit Lineup", game_lineup_path(@game), class: "underline text-sm"
-
-    - if !@show.has_lineup?
-      %p{ class: "text-sm text-stone-600" } No lineup created yet.
-    - else
-      %ol{ class: "list-decimal ml-6 space-y-1 text-sm" }
-        - @game.lineup.lineup_slots.order(:batting_order).each do |slot|
-          %li
-            = slot.player.name
-            - if slot.field_position.present?
-              %span{ class: "text-stone-500 ml-2" } (#{slot.field_position.humanize})
+  = render partial: 'pitch_counter'
