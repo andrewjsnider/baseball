@@ -19,12 +19,9 @@
       %div{ class: "mt-2 text-sm text-stone-600" }
         Score source: #{source}
 
-    %div{ class: "flex gap-4" }
+    %div{ class: "flex items-center gap-4" }
       = link_to "Edit", edit_player_path(@player), class: "underline text-sm"
-      = link_to "Delete", player_path(@player),
-        method: :delete,
-        data: { confirm: "Are you sure?" },
-        class: "underline text-sm text-red-600"
+      = button_to "Delete", player_path(@player), method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "underline text-sm text-red-600"
 
   %div{ class: "grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8" }
 
