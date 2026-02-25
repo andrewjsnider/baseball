@@ -1,20 +1,25 @@
 = form_with model: @game, local: true do |f|
 
   - if @game.errors.any?
-    %div.border.border-red-400.p-4.mb-6
-      %ul.text-red-600.text-sm
+    %div{ class: "border border-red-400 p-4 mb-6" }
+      %ul{ class: "text-red-600 text-sm" }
         - @game.errors.full_messages.each do |msg|
           %li= msg
 
-  %div.grid.grid-cols-1.sm:grid-cols-2.gap-4
+  %div{ class: "grid grid-cols-1 sm:grid-cols-2 gap-4" }
 
     %div
-      = f.label :team_id, class: "block text-sm"
-      = f.collection_select :team_id, Team.all, :id, :name, {}, class: "border border-stone-300 p-2 w-full"
+      = f.label :team_id, "My Team", class: "block text-sm"
+      = f.collection_select :team_id, Team.all.order(:name), :id, :name, {}, class: "border border-stone-300 p-2 w-full"
 
     %div
-      = f.label :opponent, class: "block text-sm"
-      = f.collection_select :team_id, Team.where.not(name: @my_team.name), :id, :name, {}, class: "border border-stone-300 p-2 w-full"
+      = f.label :opponent_team_id, "Opponent Team", class: "block text-sm"
+      - opponent_scope = Team.where.not(id: @game.team_id || @my_team.id).order(:name)
+      = f.collection_select :opponent_team_id, opponent_scope, :id, :name, { include_blank: true }, class: "border border-stone-300 p-2 w-full"
+
+    %div
+      = f.label :opponent, "Opponent (free text fallback)", class: "block text-sm"
+      = f.text_field :opponent, class: "border border-stone-300 p-2 w-full", placeholder: "Optional if Opponent Team selected"
 
     %div
       = f.label :date, class: "block text-sm"
@@ -24,9 +29,9 @@
       = f.label :location, class: "block text-sm"
       = f.text_field :location, class: "border border-stone-300 p-2 w-full"
 
-    %div.sm:col-span-2
+    %div{ class: "sm:col-span-2" }
       = f.label :notes, class: "block text-sm"
       = f.text_area :notes, rows: 3, class: "border border-stone-300 p-2 w-full"
 
-  %div.mt-6
+  %div{ class: "mt-6" }
     = f.submit class: "border border-stone-900 px-6 py-2 hover:bg-stone-900 hover:text-white"

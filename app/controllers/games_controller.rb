@@ -6,6 +6,19 @@ class GamesController < ApplicationController
   end
 
   def show
+    @game = Game.includes(lineup: { lineup_slots: :player }).find(params[:id])
+
+    @opponent_team = @game.opponent_team
+    @opponent_players =
+      if @opponent_team
+        @opponent_team.players.order(Arel.sql("COALESCE(pcr_total, 0) DESC"))
+      else
+        Player.none
+      end
+
+    @opponent_top_hitters = @opponent_players.sort_by { |p| -(p.hitting_rating.to_i) }.first(5)
+    @opponent_top_pitchers = @opponent_players.select(&:can_pitch).sort_by { |p| -(p.pitching_rating.to_i) }.first(3)
+    @opponent_top_runners = @opponent_players.sort_by { |p| -(p.speed.to_i) }.first(5)
   end
 
   def new
@@ -48,6 +61,7 @@ class GamesController < ApplicationController
   def game_params
     params.require(:game).permit(
       :team_id,
+      :opponent_team_id,
       :opponent,
       :date,
       :location,

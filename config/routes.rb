@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       patch :assign_positions
       patch :update_pitch_limit
     end
+    resources :pitch_appearances, only: [:create, :update]
   end
 
   resources :lineups, only: [:show] do

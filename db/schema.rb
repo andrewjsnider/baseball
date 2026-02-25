@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_23_234225) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_25_072207) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,6 +23,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_23_234225) do
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "opponent_team_id"
+    t.index ["opponent_team_id"], name: "index_games_on_opponent_team_id"
     t.index ["team_id"], name: "index_games_on_team_id"
   end
 
@@ -62,6 +64,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_23_234225) do
     t.integer "pitches_thrown"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["game_id", "player_id"], name: "index_pitch_appearances_on_game_id_and_player_id", unique: true
     t.index ["game_id"], name: "index_pitch_appearances_on_game_id"
     t.index ["player_id"], name: "index_pitch_appearances_on_player_id"
   end
@@ -145,6 +148,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_23_234225) do
   end
 
   add_foreign_key "games", "teams"
+  add_foreign_key "games", "teams", column: "opponent_team_id"
   add_foreign_key "lineup_slots", "lineups"
   add_foreign_key "lineup_slots", "players"
   add_foreign_key "lineup_spots", "lineups"

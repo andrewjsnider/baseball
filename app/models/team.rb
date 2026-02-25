@@ -6,6 +6,7 @@ class Team < ApplicationRecord
 
   NAMES = %w[Giants Marlins Mariners Phillies Dodgers Padres].freeze
   has_many :players
+  has_many :opponent_games, class_name: "Game", foreign_key: :opponent_team_id, dependent: :nullify
 
    def roster_count
     players.count
