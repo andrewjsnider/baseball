@@ -120,6 +120,23 @@ class GameShowPresenter
     4
   end
 
+  def pitch_plan_slots
+    game.ensure_pitch_plan_slots!
+    @pitch_plan_slots ||= game.game_pitch_plan_slots.order(:role).includes(:player)
+  end
+
+  def eligible_pitchers_for_game
+    pitcher_rows.select(&:eligible_today).map(&:player)
+  end
+
+  def projected_next_eligible_date(player, target_pitches)
+    return nil if player.nil?
+    return nil if target_pitches.to_i <= 0
+
+    rest_days = required_rest_days_for(target_pitches)
+    game_date + 1 + rest_days
+  end
+
   def scouting_report
     @scouting_report ||= ScoutingReportPresenter.new(
       game: game,

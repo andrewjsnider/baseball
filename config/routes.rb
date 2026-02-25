@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       patch :assign_positions
       patch :update_pitch_limit
     end
+    resources :game_pitch_plan_slots, only: [:update]
     resources :pitch_appearances, only: [:create, :update]
   end
 
