@@ -38,12 +38,14 @@
       %tr{ class: "border-b border-stone-300 text-left" }
         %th.py-3 Name
         %th.py-3 Positions
+        %th.py-3 Speed
         %th.py-3 Age
     %tbody
       - @players.each do |player|
         %tr{ class: "border-b border-stone-200" }
           %td.py-4= link_to player.name, player_path(player), class: "underline"
           %td.py-4= player.positions.pluck(:name).join(", ")
+          %td.py-4= player.speed
           %td.py-4= player.age
           %td.py-4= button_to "Remove", undraft_player_path(player), method: :post, class: "underline text-red-600"
 
