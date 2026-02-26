@@ -265,6 +265,59 @@ class GameShowPresenter
     end
   end
 
+  PitchPlanRowUI = Struct.new(
+    :slot,
+    :label,
+    :locked_from_lineup,
+    :player_id,
+    :player_name,
+    :availability_label,
+    :projected_eligible_on,
+    :target_pitches,
+    :selected_id,
+    :selected_ineligible,
+    :wrapper_classes,
+    :select_options,
+    keyword_init: true
+  )
+
+  def pitch_plan_row_uis
+    pitch_plan_rows.map do |row|
+      slot = row.slot
+      selected_id = slot.player_id
+      selected_ineligible = selected_id.present? && !pitcher_eligible_today?(selected_id)
+
+      wrapper_classes =
+        if selected_ineligible
+          "border border-stone-200 p-3 bg-stone-50 opacity-60"
+        else
+          "border border-stone-200 p-3"
+        end
+
+      select_options =
+        my_pitchers.map do |p|
+          attrs = {}
+          attrs[:disabled] = true unless pitcher_eligible_today?(p.id)
+          [p.name, p.id, attrs]
+        end
+
+      PitchPlanRowUI.new(
+        slot: slot,
+        label: row.label,
+        locked_from_lineup: row.locked_from_lineup,
+        player_id: row.player_id,
+        player_name: row.player_name,
+        availability_label: row.availability_label,
+        projected_eligible_on: row.projected_eligible_on,
+        target_pitches: row.target_pitches,
+        selected_id: selected_id,
+        selected_ineligible: selected_ineligible,
+        wrapper_classes: wrapper_classes,
+        select_options: select_options
+      )
+    end
+  end
+
   def scouting_report
     @scouting_report ||= ScoutingReportPresenter.new(
       game: game,

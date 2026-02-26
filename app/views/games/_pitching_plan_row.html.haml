@@ -1,0 +1,29 @@
+- slot = row_ui.slot
+
+%div{ class: row_ui.wrapper_classes }
+  %div{ class: "flex items-start justify-between gap-4" }
+    %div
+      %div{ class: "font-semibold" }= row_ui.label
+      %div{ class: "text-xs text-stone-600 mt-1" }= row_ui.availability_label
+
+      - if row_ui.selected_ineligible
+        %div{ class: "text-xs text-stone-700 mt-1" } Selected pitcher is not eligible for this game
+
+      - if row_ui.projected_eligible_on
+        %div{ class: "text-xs text-stone-600 mt-1" }= "If used for #{row_ui.target_pitches}, eligible again on #{row_ui.projected_eligible_on}"
+
+    %div
+      %div{ class: "flex items-center gap-2" }
+        - if row_ui.locked_from_lineup
+          %div{ class: "border p-2 text-sm w-48 bg-stone-50" }= row_ui.player_name || "Not assigned"
+          %input{ type: "hidden", name: "pitch_plan_slots[#{slot.id}][player_id]", value: row_ui.player_id }
+        - else
+          = select_tag("pitch_plan_slots[#{slot.id}][player_id]", options_for_select(row_ui.select_options, row_ui.selected_id), include_blank: true, class: "border p-2 text-sm")
+
+        = number_field_tag("pitch_plan_slots[#{slot.id}][target_pitches]", row_ui.target_pitches, placeholder: "Target", class: "border p-2 w-24 text-sm")
+
+        = button_tag "Save",
+          type: "submit",
+          name: "only_slot_id",
+          value: slot.id,
+          class: "border border-stone-900 px-3 py-2 text-sm hover:bg-stone-900 hover:text-white"
