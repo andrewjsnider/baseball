@@ -12,6 +12,28 @@ class GameShowPresenter
     keyword_init: true
   )
 
+  PitchingAvailabilitySummary = Struct.new(
+    :eligible_count,
+    :resting_count,
+    :next_up_rows,
+    keyword_init: true
+  )
+
+  NextUpRow = Struct.new(:player_name, :eligible_on, keyword_init: true)
+
+  PitchPlanRow = Struct.new(
+    :slot,
+    :label,
+    :player,
+    :player_id,
+    :player_name,
+    :locked_from_lineup,
+    :availability_label,
+    :projected_eligible_on,
+    :target_pitches,
+    keyword_init: true
+  )
+
   attr_reader :game, :opponent_team, :opponent_players
 
   def initialize(game:, opponent_team: nil, opponent_players: nil)
@@ -120,6 +142,24 @@ class GameShowPresenter
     4
   end
 
+  def starting_pitcher
+    return nil unless has_lineup?
+    starting_pitcher_slot&.player
+  end
+
+  def starting_pitcher_name
+    starting_pitcher&.name
+  end
+
+  def plan_player_for(slot)
+    return starting_pitcher if slot.starter? && starting_pitcher.present?
+    slot.player
+  end
+
+  def starter_locked_from_lineup?
+    starting_pitcher.present?
+  end
+
   def pitch_plan_slots
     game.ensure_pitch_plan_slots!
     @pitch_plan_slots ||= game.game_pitch_plan_slots.order(:role).includes(:player)
@@ -135,6 +175,81 @@ class GameShowPresenter
 
     rest_days = required_rest_days_for(target_pitches)
     game_date + 1 + rest_days
+  end
+
+  def missing_positions_human
+    missing_positions.map(&:humanize)
+  end
+
+  def missing_positions_label
+    missing_positions_human.join(", ")
+  end
+
+  def pitching_availability_summary
+    eligible = pitcher_rows.select(&:eligible_today)
+    resting = pitcher_rows.reject(&:eligible_today)
+    next_up =
+      resting
+        .select { |r| r.eligible_on.present? }
+        .sort_by(&:eligible_on)
+        .first(3)
+        .map { |r| NextUpRow.new(player_name: r.player.name, eligible_on: r.eligible_on) }
+
+    PitchingAvailabilitySummary.new(
+      eligible_count: eligible.size,
+      resting_count: resting.size,
+      next_up_rows: next_up
+    )
+  end
+
+  def pitch_plan_role_label(role)
+    case role.to_s
+    when "starter" then "Starter"
+    when "relief_1" then "Relief 1"
+    when "relief_2" then "Relief 2"
+    when "relief_3" then "Relief 3"
+    when "emergency" then "Emergency"
+    else role.to_s.humanize
+    end
+  end
+
+  def pitch_plan_rows
+    eligible_ids = eligible_pitchers_for_game.map(&:id)
+
+    pitch_plan_slots.map do |slot|
+      label = pitch_plan_role_label(slot.role)
+
+      player = plan_player_for(slot)
+      locked = slot.starter? && starter_locked_from_lineup?
+
+      projected =
+        if player && slot.target_pitches.to_i > 0
+          projected_next_eligible_date(player, slot.target_pitches)
+        end
+
+      availability_label =
+        if locked
+          "Starter is derived from lineup"
+        elsif player.nil?
+          "Not assigned"
+        elsif eligible_ids.include?(player.id)
+          "Available today"
+        else
+          "Not eligible today"
+        end
+
+      PitchPlanRow.new(
+        slot: slot,
+        label: label,
+        player: player,
+        player_id: player&.id,
+        player_name: player&.name,
+        locked_from_lineup: locked,
+        availability_label: availability_label,
+        projected_eligible_on: projected,
+        target_pitches: slot.target_pitches
+      )
+    end
   end
 
   def scouting_report
