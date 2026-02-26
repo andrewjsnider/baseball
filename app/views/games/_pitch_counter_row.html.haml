@@ -1,7 +1,25 @@
-= turbo_frame_tag dom_id(@game, "pitch_counter_player_#{row.player.id}") do
-  %div{ class: "flex items-center justify-between border border-stone-200 p-3" }
+- disabled = !row.eligible_today
+
+:ruby
+  row_classes =
+    if disabled
+      "flex items-center justify-between border border-stone-200 p-3 bg-stone-50"
+    else
+      "flex items-center justify-between border border-stone-200 p-3"
+    end
+
+- btn_base = "border border-stone-900 px-3 py-1 text-sm"
+- btn_enabled = "#{btn_base} hover:bg-stone-900 hover:text-white"
+- btn_disabled = "#{btn_base} opacity-40 cursor-not-allowed"
+
+= turbo_frame_tag dom_id(game, "pitch_counter_player_#{row.player.id}") do
+  %div{ class: row_classes }
     %div
-      %div{ class: "font-medium" }= row.player.name
+      %div{ class: "font-medium flex items-center gap-2" }
+        = row.player.name
+        - if disabled
+          %span{ class: "text-xs px-2 py-0.5 border border-stone-400 text-stone-700" } Resting
+
       %div{ class: "text-xs text-stone-600 mt-1" }
         - if row.last_date.present?
           - if row.eligible_today
@@ -10,8 +28,24 @@
             Last: #{row.last_date} (#{row.last_pitches}) · Resting until #{row.eligible_on}
         - else
           No history · Available
+
     %div{ class: "flex items-center gap-2" }
-      = button_to "-", game_pitch_appearance_path(game, row.player.id, delta: -1), method: :patch, class: "border border-stone-900 px-3 py-1 text-sm hover:bg-stone-900 hover:text-white"
+      = button_to "-", game_pitch_appearance_path(game, row.player.id, delta: -1),
+        method: :patch,
+        disabled: disabled,
+        aria: { disabled: disabled },
+        class: (disabled ? btn_disabled : btn_enabled)
+
       %div{ class: "w-12 text-center font-semibold" }= row.today_pitches
-      = button_to "+", game_pitch_appearance_path(game, row.player.id, delta: 1), method: :patch, class: "border border-stone-900 px-3 py-1 text-sm hover:bg-stone-900 hover:text-white"
-      = button_to "+5", game_pitch_appearance_path(game, row.player.id, delta: 5), method: :patch, class: "border border-stone-900 px-3 py-1 text-sm hover:bg-stone-900 hover:text-white"
+
+      = button_to "+", game_pitch_appearance_path(game, row.player.id, delta: 1),
+        method: :patch,
+        disabled: disabled,
+        aria: { disabled: disabled },
+        class: (disabled ? btn_disabled : btn_enabled)
+
+      = button_to "+5", game_pitch_appearance_path(game, row.player.id, delta: 5),
+        method: :patch,
+        disabled: disabled,
+        aria: { disabled: disabled },
+        class: (disabled ? btn_disabled : btn_enabled)
