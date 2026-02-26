@@ -5,19 +5,4 @@
   - else
     %div{ class: "space-y-3" }
       - @show.pitcher_rows.each do |row|
-        %div{ class: "flex items-center justify-between border border-stone-200 p-3" }
-          %div
-            %div{ class: "font-medium" }= row.player.name
-            %div{ class: "text-xs text-stone-600 mt-1" }
-              - if row.last_date.present?
-                - if row.eligible_today
-                  Last: #{row.last_date} (#{row.last_pitches}) · Available
-                - else
-                  Last: #{row.last_date} (#{row.last_pitches}) · Resting until #{row.eligible_on}
-              - else
-                No history · Available
-          %div{ class: "flex items-center gap-2" }
-            = button_to "-", game_pitch_appearance_path(@game, row.player.id, delta: -1), method: :patch, class: "border border-stone-900 px-3 py-1 text-sm hover:bg-stone-900 hover:text-white"
-            %div{ class: "w-12 text-center font-semibold" }= row.today_pitches
-            = button_to "+", game_pitch_appearance_path(@game, row.player.id, delta: 1), method: :patch, class: "border border-stone-900 px-3 py-1 text-sm hover:bg-stone-900 hover:text-white"
-            = button_to "+5", game_pitch_appearance_path(@game, row.player.id, delta: 5), method: :patch, class: "border border-stone-900 px-3 py-1 text-sm hover:bg-stone-900 hover:text-white"
+        = render partial: "games/pitch_counter_row", locals: { game: @game, row: row }
