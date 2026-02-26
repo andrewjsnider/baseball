@@ -7,11 +7,11 @@
   - date_str  = @game&.date || ""
 
   - if @game.present?
-    = link_to "Lineup for #{team_name} vs. #{opp_name} - #{date_str}", game_path(@game), class: 'underline'
+    = link_to "Lineup for #{team_name} vs. #{opp_name} - #{date_str}", game_path(@game), class: 'underline font-semibold text-2xl text-stone-900 hover:text-stone-700'
   - else
     %span Lineup
 
-  %ul{ id: "batting-order", data: { controller: "lineup", lineup_url: game_lineup_path(@game) }, class: "space-y-3" }
+  %ul{ id: "batting-order", data: { controller: "lineup", lineup_url: game_lineup_path(@game) }, class: "space-y-3 my-6" }
 
     - @lineup.lineup_slots.each do |slot|
       %li{ data: { player_id: slot.player.id }, class: "border p-4 bg-white cursor-move flex justify-between items-center" }
