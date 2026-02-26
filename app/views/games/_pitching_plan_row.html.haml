@@ -23,7 +23,6 @@
         = number_field_tag("pitch_plan_slots[#{slot.id}][target_pitches]", row_ui.target_pitches, placeholder: "Target", class: "border p-2 w-24 text-sm")
 
         = button_tag "Save",
-          type: "submit",
-          name: "only_slot_id",
-          value: slot.id,
+          type: "button",
+          data: { action: "click->pitch-plan#submitOnlyRow", slot_id: slot.id, skip_auto_submit: "true" },
           class: "border border-stone-900 px-3 py-2 text-sm hover:bg-stone-900 hover:text-white"

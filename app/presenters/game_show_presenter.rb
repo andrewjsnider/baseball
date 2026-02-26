@@ -282,9 +282,20 @@ class GameShowPresenter
   )
 
   def pitch_plan_row_uis
-    pitch_plan_rows.map do |row|
+    rows = pitch_plan_rows
+
+    # player_ids already assigned anywhere in the plan
+    used_player_ids =
+      rows
+        .map(&:player_id)
+        .compact
+        .map(&:to_i)
+        .uniq
+
+    rows.map do |row|
       slot = row.slot
-      selected_id = slot.player_id
+      selected_id = slot.player_id&.to_i
+
       selected_ineligible = selected_id.present? && !pitcher_eligible_today?(selected_id)
 
       wrapper_classes =
@@ -296,9 +307,18 @@ class GameShowPresenter
 
       select_options =
         my_pitchers.map do |p|
+          pid = p.id
           attrs = {}
-          attrs[:disabled] = true unless pitcher_eligible_today?(p.id)
-          [p.name, p.id, attrs]
+
+          # ineligible for this game
+          attrs[:disabled] = true unless pitcher_eligible_today?(pid)
+
+          # already used in another slot (but allow current selection)
+          if used_player_ids.include?(pid) && pid != selected_id
+            attrs[:disabled] = true
+          end
+
+          [p.name, pid, attrs]
         end
 
       PitchPlanRowUI.new(

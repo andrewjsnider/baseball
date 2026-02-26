@@ -9,3 +9,6 @@ application.register("hello", HelloController)
 
 import LineupController from "./lineup_controller"
 application.register("lineup", LineupController)
+
+import PitchPlanController from "./pitch_plan_controller"
+application.register("pitch-plan", PitchPlanController)

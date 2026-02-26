@@ -9,7 +9,8 @@
       - if show.has_lineup?
         = link_to "Edit Lineup", game_lineup_path(game), class: "underline text-sm"
 
-  = form_with url: pitch_plan_game_path(game), method: :patch, local: true do
+  = form_with url: pitch_plan_game_path(game), method: :patch, local: true, data: { controller: "pitch-plan", pitch_plan_target: "form" } do
+    %input{ type: "hidden", name: "only_slot_id", value: "" }
     %div{ class: "space-y-3" }
       - row_uis.each do |row_ui|
         = render partial: "games/pitching_plan_row", locals: { row_ui: row_ui }
