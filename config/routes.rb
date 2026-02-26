@@ -13,6 +13,7 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   resources :games do
+
     resource :lineup do
       patch :reorder
       patch :assign_positions
@@ -20,6 +21,7 @@ Rails.application.routes.draw do
     end
     resources :game_pitch_plan_slots, only: [:update]
     resources :pitch_appearances, only: [:create, :update]
+    patch :pitch_plan, on: :member
   end
 
   resources :lineups, only: [:show] do

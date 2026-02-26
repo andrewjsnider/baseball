@@ -22,6 +22,38 @@ class GamesController < ApplicationController
     @opponent_top_runners = @opponent_players.sort_by { |p| -(p.speed.to_i) }.first(5)
   end
 
+  def pitch_plan
+    @game = Game.find(params[:id])
+
+    slot_params = params.fetch(:pitch_plan_slots, {})
+    only_slot_id = params[:only_slot_id].presence
+
+    ids =
+      if only_slot_id
+        [only_slot_id.to_s]
+      else
+        slot_params.keys
+      end
+
+    slots_by_id = @game.game_pitch_plan_slots.where(id: ids).index_by { |s| s.id.to_s }
+
+    ids.each do |slot_id|
+      slot = slots_by_id[slot_id]
+      next if slot.nil?
+
+      attrs = slot_params[slot_id] || {}
+      player_id = attrs[:player_id].presence
+      target_pitches = attrs[:target_pitches].presence
+
+      slot.update!(
+        player_id: player_id,
+        target_pitches: target_pitches
+      )
+    end
+
+    redirect_to game_path(@game)
+  end
+
   def new
     @game = Game.new
   end
