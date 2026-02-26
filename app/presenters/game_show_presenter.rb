@@ -202,6 +202,19 @@ class GameShowPresenter
     )
   end
 
+  def eligible_pitcher_ids_for_game
+    @eligible_pitcher_ids_for_game ||= pitcher_rows.select(&:eligible_today).map { |r| r.player.id }
+  end
+
+  def eligible_pitcher_id_set_for_game
+    @eligible_pitcher_id_set_for_game ||= eligible_pitcher_ids_for_game.to_h { |id| [id, true] }
+  end
+
+  def pitcher_eligible_today?(player_id)
+    return false if player_id.blank?
+    eligible_pitcher_id_set_for_game[player_id.to_i] == true
+  end
+
   def pitch_plan_role_label(role)
     case role.to_s
     when "starter" then "Starter"
