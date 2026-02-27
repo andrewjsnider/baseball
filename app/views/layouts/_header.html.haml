@@ -2,12 +2,20 @@
   %div{ class: "max-w-7xl mx-auto px-6 py-4 flex items-center justify-between text-stone-900 text-sm" }
 
     %div{ class: "flex items-center gap-8" }
-      = link_to "My Team", team_path(@my_team), class: "font-semibold underline"
-      = link_to 'Games', games_path, class: 'underline'
+      = link_to "Home", root_path, class: "font-semibold underline"
+      = link_to "My Team", team_path(@my_team), class: "underline"
+      = link_to "Games", games_path, class: "underline"
       = link_to "Teams", teams_path, class: "underline"
-      = link_to "Players", players_path, class: "underline"
-      = link_to "Evals", evals_players_path, class: "underline"
-      = link_to "Draft Board", draft_board_path, class: "underline"
+
+      %div{ class: "relative group" }
+        %button{ class: "underline focus:outline-none whitespace-nowrap" }
+          Draft
+
+        %div{ class: "absolute left-0 mt-0 w-40 bg-white border border-stone-300 hidden group-hover:block z-50" }
+          %div{ class: "flex flex-col text-sm" }
+            = link_to "Players", players_path, class: "px-4 py-2 hover:bg-stone-100"
+            = link_to "Evals", evals_players_path, class: "px-4 py-2 hover:bg-stone-100"
+            = link_to "Draft Board", draft_board_path, class: "px-4 py-2 hover:bg-stone-100"
 
     %div{ class: "flex items-center gap-6" }
       = link_to "New Player", new_player_path, class: "underline"
