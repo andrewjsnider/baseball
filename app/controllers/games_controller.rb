@@ -138,7 +138,8 @@ class GamesController < ApplicationController
       :date,
       :location,
       :notes,
-      :status
+      :status,
+      :home_away,
     )
   end
 end

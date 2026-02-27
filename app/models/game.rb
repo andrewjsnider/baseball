@@ -8,6 +8,8 @@ class Game < ApplicationRecord
 
   validates :date, presence: true
 
+  enum :home_away, { home: "home", away: "away" }
+
   def ensure_pitch_plan_slots!
     GamePitchPlanSlot::ROLES.values.sort.each do |role_int|
       game_pitch_plan_slots.find_or_create_by!(role: role_int)

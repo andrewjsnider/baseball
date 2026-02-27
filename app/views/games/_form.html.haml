@@ -10,7 +10,7 @@
 
     %div
       = f.label :team_id, "My Team", class: "block text-sm"
-      = f.collection_select :team_id, Team.all.order(:name), :id, :name, {}, class: "border border-stone-300 p-2 w-full"
+      = f.collection_select :team_id, Team.order(:name), :id, :name, { selected: @my_team&.id }, class: "border border-stone-300 p-2 w-full"
 
     %div
       = f.label :opponent_team_id, "Opponent Team", class: "block text-sm"
@@ -18,8 +18,8 @@
       = f.collection_select :opponent_team_id, opponent_scope, :id, :name, { include_blank: true }, class: "border border-stone-300 p-2 w-full"
 
     %div
-      = f.label :opponent, "Opponent (free text fallback)", class: "block text-sm"
-      = f.text_field :opponent, class: "border border-stone-300 p-2 w-full", placeholder: "Optional if Opponent Team selected"
+      = f.label :home_away, "Home/Away", class: "block text-sm"
+      = f.select :home_away, Game.home_aways.keys.map { |k| [k.titleize, k] }, {}, class: "border border-stone-300 p-2 w-full"
 
     %div
       = f.label :date, class: "block text-sm"
