@@ -1,8 +1,10 @@
 Rails.application.routes.draw do
-  # root to: 'dashboard#index'
   root to: 'teams#index'
-  get 'draft_board', to: 'dashboard#index', as: :draft_board
-  get "dashboard/export", to: "dashboard#export", as: :export_dashboard
+
+  # In Draft Mode
+  # root to: 'draft_dashboard#index'
+  get 'draft_board', to: 'draft_dashboard#index', as: :draft_board
+  get "draft_dashboard/export", to: "draft_dashboard#export", as: :export_dashboard
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

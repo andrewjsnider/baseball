@@ -1,6 +1,6 @@
 require "test_helper"
 
-class DashboardControllerTest < ActionDispatch::IntegrationTest
+class DraftDashboardControllerTest < ActionDispatch::IntegrationTest
   def test_index
     FactoryBot.create(:team, name: 'Giants')
     get draft_board_path
