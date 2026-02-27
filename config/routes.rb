@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   # root to: 'dashboard#index'
+  root to: 'teams#index'
   get 'draft_board', to: 'dashboard#index', as: :draft_board
   get "dashboard/export", to: "dashboard#export", as: :export_dashboard
 
