@@ -9,9 +9,6 @@
 
     %div{ class: "flex flex-wrap gap-2 items-center justify-end" }
       = link_to "New Game", new_game_path, class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white whitespace-nowrap"
-      = link_to "Games", games_path, class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
-      = link_to "Roster", players_path, class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
-      = link_to "Draft Dashboard", draft_board_path, class: "underline text-stone-700 hover:text-stone-900 whitespace-nowrap"
 
   %div{ class: "grid grid-cols-1 lg:grid-cols-3 gap-6" }
 
@@ -62,10 +59,7 @@
             = link_to "View Game", game_path(@next_game), class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white whitespace-nowrap"
             - if @next_game.respond_to?(:id)
               = link_to "Edit", edit_game_path(@next_game), class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
-            - if defined?(pitch_plan_game_path)
-              = link_to "Pitch Plan", pitch_plan_game_path(@next_game), class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
-            - if defined?(lineup_game_path)
-              = link_to "Lineup", lineup_game_path(@next_game), class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
+
       - else
         %p{ class: "text-stone-700" } No upcoming games yet.
         %div{ class: "mt-4" }
@@ -131,7 +125,7 @@
 
               %div{ class: "flex flex-wrap gap-2 items-center justify-end" }
                 = link_to "View", game_path(g), class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
-                = link_to "Edit", edit_game_path(g), class: "underline text-stone-700 hover:text-stone-900 whitespace-nowrap"
+                = link_to "Edit", edit_game_path(g), class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
       - else
         %p{ class: "text-stone-700" } No upcoming games.
 
@@ -180,55 +174,3 @@
       - else
         %p{ class: "text-stone-700" } No completed games yet.
 
-  %div{ class: "grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6" }
-
-    %div{ class: "border border-stone-300 p-6 bg-white lg:col-span-2" }
-      %h2{ class: "text-lg font-semibold mb-4" } Pitching Options
-
-      - if @pitchers.present?
-        %div{ class: "grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm" }
-          - @pitchers.each do |p|
-            %div{ class: "border border-stone-200 p-4 bg-stone-50 flex items-start justify-between gap-3" }
-              %div
-                - pname = p.respond_to?(:name) ? p.name : "Player"
-                %div{ class: "font-semibold" }= pname
-                %div{ class: "text-stone-700 mt-1" }
-                  - if p.respond_to?(:pitching_velocity) && p.pitching_velocity.present?
-                    = "Velo: #{p.pitching_velocity}"
-                  - if p.respond_to?(:pitching_control) && p.pitching_control.present?
-                    = (p.respond_to?(:pitching_velocity) && p.pitching_velocity.present?) ? " · Control: #{p.pitching_control}" : "Control: #{p.pitching_control}"
-              %div{ class: "flex flex-wrap gap-2 items-center justify-end" }
-                - if defined?(player_path)
-                  = link_to "View", player_path(p), class: "underline text-stone-700 hover:text-stone-900 whitespace-nowrap"
-      - else
-        %p{ class: "text-stone-700" } No pitchers flagged yet.
-
-    %div{ class: "border border-stone-300 p-6 bg-white" }
-      %h2{ class: "text-lg font-semibold mb-4" } Roster Alerts
-
-      - alerts = []
-
-      - if @roster.present?
-        :ruby
-          stale =
-            @roster.select do |p|
-              p.respond_to?(:evaluation_stale?) && p.evaluation_stale?
-            end
-          limited =
-            @roster.select do |p|
-              p.respond_to?(:eval_fields_filled_count) && p.eval_fields_filled_count.to_i < 2
-            end
-          alerts << { label: "Stale evals", count: stale.size, path: (defined?(evals_players_path) ? evals_players_path : players_path) }
-          alerts << { label: "Limited info", count: limited.size, path: players_path }
-
-      - if alerts.any?
-        %div{ class: "space-y-3" }
-          - alerts.each do |a|
-            %div{ class: "flex items-center justify-between gap-4 border border-stone-200 p-4 bg-stone-50" }
-              %div
-                %div{ class: "font-semibold" }= a[:label]
-                %div{ class: "text-sm text-stone-700 mt-1" }= "#{a[:count]} player(s)"
-              %div
-                = link_to "View", a[:path], class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
-      - else
-        %p{ class: "text-stone-700" } No alerts right now.
