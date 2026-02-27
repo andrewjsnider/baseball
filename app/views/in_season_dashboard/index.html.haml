@@ -1,0 +1,234 @@
+-# app/views/in_season_dashboard/index.html.haml
+
+%div{ class: "max-w-6xl mx-auto px-6 py-10 text-stone-900" }
+
+  %div{ class: "flex items-start justify-between gap-4 mb-8" }
+    %div
+      %h1{ class: "text-3xl font-semibold" } In-Season Dashboard
+      %p{ class: "text-sm text-stone-600 mt-1" } This week at a glance.
+
+    %div{ class: "flex flex-wrap gap-2 items-center justify-end" }
+      = link_to "New Game", new_game_path, class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white whitespace-nowrap"
+      = link_to "Games", games_path, class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
+      = link_to "Roster", players_path, class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
+      = link_to "Draft Dashboard", draft_board_path, class: "underline text-stone-700 hover:text-stone-900 whitespace-nowrap"
+
+  %div{ class: "grid grid-cols-1 lg:grid-cols-3 gap-6" }
+
+    %div{ class: "border border-stone-300 p-6 bg-stone-50 lg:col-span-2" }
+      %h2{ class: "text-lg font-semibold mb-4" } Next Game
+
+      - if @next_game.present?
+        %div{ class: "flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4" }
+          %div
+            %div{ class: "text-2xl font-semibold" }
+              :ruby
+                opponent_name =
+                  if @next_game.respond_to?(:opponent_team) && @next_game.opponent_team.present?
+                    @next_game.opponent_team.name
+                  elsif @next_game.respond_to?(:opponent_name) && @next_game.opponent_name.present?
+                    @next_game.opponent_name
+                  else
+                    "Opponent TBD"
+                  end
+              = opponent_name
+
+            %div{ class: "text-sm text-stone-700 mt-2" }
+              :ruby
+                dt =
+                  if @next_game.respond_to?(:starts_at) && @next_game.starts_at.present?
+                    @next_game.starts_at
+                  elsif @next_game.respond_to?(:date) && @next_game.date.present?
+                    @next_game.date
+                  end
+              - if dt.present?
+                %span{ class: "font-semibold" } When:
+                = " #{l(dt, format: :long)}"
+              - else
+                %span{ class: "font-semibold" } When:
+                = " TBD"
+
+            - if @next_game.respond_to?(:location) && @next_game.location.present?
+              %div{ class: "text-sm text-stone-700 mt-1" }
+                %span{ class: "font-semibold" } Where:
+                = " #{@next_game.location}"
+
+            - if @next_game.respond_to?(:home_away) && @next_game.home_away.present?
+              %div{ class: "text-sm text-stone-700 mt-1" }
+                %span{ class: "font-semibold" } Home/Away:
+                = " #{@next_game.home_away.to_s.titleize}"
+
+          %div{ class: "flex flex-wrap gap-2 items-center justify-start sm:justify-end" }
+            = link_to "View Game", game_path(@next_game), class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white whitespace-nowrap"
+            - if @next_game.respond_to?(:id)
+              = link_to "Edit", edit_game_path(@next_game), class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
+            - if defined?(pitch_plan_game_path)
+              = link_to "Pitch Plan", pitch_plan_game_path(@next_game), class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
+            - if defined?(lineup_game_path)
+              = link_to "Lineup", lineup_game_path(@next_game), class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
+      - else
+        %p{ class: "text-stone-700" } No upcoming games yet.
+        %div{ class: "mt-4" }
+          = link_to "Create the first game", new_game_path, class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white"
+
+    %div{ class: "border border-stone-300 p-6 bg-white" }
+      %h2{ class: "text-lg font-semibold mb-4" } Quick Snapshot
+
+      - total_games = (@recent_games&.size.to_i + @upcoming_games&.size.to_i)
+      %div{ class: "grid grid-cols-2 gap-4 text-sm" }
+        %div
+          %div{ class: "text-stone-600" } Upcoming
+          %div{ class: "text-2xl font-semibold" }= @upcoming_games&.size.to_i
+        %div
+          %div{ class: "text-stone-600" } Recent
+          %div{ class: "text-2xl font-semibold" }= @recent_games&.size.to_i
+        %div
+          %div{ class: "text-stone-600" } Pitchers
+          %div{ class: "text-2xl font-semibold" }= @pitchers&.size.to_i
+        %div
+          %div{ class: "text-stone-600" } Roster
+          %div{ class: "text-2xl font-semibold" }= @roster&.size.to_i
+
+      %div{ class: "mt-5 flex flex-wrap gap-2 items-center" }
+        = link_to "Add Game", new_game_path, class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
+        = link_to "Manage Players", players_path, class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
+
+  %div{ class: "grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6" }
+
+    %div{ class: "border border-stone-300 p-6 bg-white" }
+      %h2{ class: "text-lg font-semibold mb-4" } Upcoming Games
+
+      - if @upcoming_games.present?
+        %div{ class: "divide-y divide-stone-200" }
+          - @upcoming_games.each do |g|
+            %div{ class: "py-3 flex items-start justify-between gap-4" }
+              %div
+                :ruby
+                  opp =
+                    if g.respond_to?(:opponent_team) && g.opponent_team.present?
+                      g.opponent_team.name
+                    elsif g.respond_to?(:opponent_name) && g.opponent_name.present?
+                      g.opponent_name
+                    else
+                      "Opponent TBD"
+                    end
+                %div{ class: "font-semibold" }= opp
+
+                :ruby
+                  gdt =
+                    if g.respond_to?(:starts_at) && g.starts_at.present?
+                      g.starts_at
+                    elsif g.respond_to?(:date) && g.date.present?
+                      g.date
+                    end
+                %div{ class: "text-sm text-stone-700 mt-1" }
+                  - if gdt.present?
+                    = l(gdt, format: :long)
+                  - else
+                    = "Date/Time TBD"
+                  - if g.respond_to?(:location) && g.location.present?
+                    = " · #{g.location}"
+
+              %div{ class: "flex flex-wrap gap-2 items-center justify-end" }
+                = link_to "View", game_path(g), class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
+                = link_to "Edit", edit_game_path(g), class: "underline text-stone-700 hover:text-stone-900 whitespace-nowrap"
+      - else
+        %p{ class: "text-stone-700" } No upcoming games.
+
+    %div{ class: "border border-stone-300 p-6 bg-white" }
+      %h2{ class: "text-lg font-semibold mb-4" } Recent Games
+
+      - if @recent_games.present?
+        %div{ class: "divide-y divide-stone-200" }
+          - @recent_games.each do |g|
+            %div{ class: "py-3 flex items-start justify-between gap-4" }
+              %div
+                :ruby
+                  opp =
+                    if g.respond_to?(:opponent_team) && g.opponent_team.present?
+                      g.opponent_team.name
+                    elsif g.respond_to?(:opponent_name) && g.opponent_name.present?
+                      g.opponent_name
+                    else
+                      "Opponent TBD"
+                    end
+                %div{ class: "font-semibold" }= opp
+
+                :ruby
+                  gdt =
+                    if g.respond_to?(:starts_at) && g.starts_at.present?
+                      g.starts_at
+                    elsif g.respond_to?(:date) && g.date.present?
+                      g.date
+                    end
+                %div{ class: "text-sm text-stone-700 mt-1" }
+                  - if gdt.present?
+                    = l(gdt, format: :long)
+                  - else
+                    = "Date/Time TBD"
+
+                - if g.respond_to?(:result) && g.result.present?
+                  %div{ class: "text-sm mt-1" }
+                    %span{ class: "text-stone-600" } Result:
+                    %span{ class: "font-semibold" }= " #{g.result}"
+                - elsif g.respond_to?(:our_score) && g.respond_to?(:their_score) && (g.our_score.present? || g.their_score.present?)
+                  %div{ class: "text-sm mt-1" }
+                    %span{ class: "text-stone-600" } Score:
+                    %span{ class: "font-semibold" }= " #{g.our_score.to_i} - #{g.their_score.to_i}"
+              %div{ class: "flex flex-wrap gap-2 items-center justify-end" }
+                = link_to "View", game_path(g), class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
+      - else
+        %p{ class: "text-stone-700" } No completed games yet.
+
+  %div{ class: "grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6" }
+
+    %div{ class: "border border-stone-300 p-6 bg-white lg:col-span-2" }
+      %h2{ class: "text-lg font-semibold mb-4" } Pitching Options
+
+      - if @pitchers.present?
+        %div{ class: "grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm" }
+          - @pitchers.each do |p|
+            %div{ class: "border border-stone-200 p-4 bg-stone-50 flex items-start justify-between gap-3" }
+              %div
+                - pname = p.respond_to?(:name) ? p.name : "Player"
+                %div{ class: "font-semibold" }= pname
+                %div{ class: "text-stone-700 mt-1" }
+                  - if p.respond_to?(:pitching_velocity) && p.pitching_velocity.present?
+                    = "Velo: #{p.pitching_velocity}"
+                  - if p.respond_to?(:pitching_control) && p.pitching_control.present?
+                    = (p.respond_to?(:pitching_velocity) && p.pitching_velocity.present?) ? " · Control: #{p.pitching_control}" : "Control: #{p.pitching_control}"
+              %div{ class: "flex flex-wrap gap-2 items-center justify-end" }
+                - if defined?(player_path)
+                  = link_to "View", player_path(p), class: "underline text-stone-700 hover:text-stone-900 whitespace-nowrap"
+      - else
+        %p{ class: "text-stone-700" } No pitchers flagged yet.
+
+    %div{ class: "border border-stone-300 p-6 bg-white" }
+      %h2{ class: "text-lg font-semibold mb-4" } Roster Alerts
+
+      - alerts = []
+
+      - if @roster.present?
+        :ruby
+          stale =
+            @roster.select do |p|
+              p.respond_to?(:evaluation_stale?) && p.evaluation_stale?
+            end
+          limited =
+            @roster.select do |p|
+              p.respond_to?(:eval_fields_filled_count) && p.eval_fields_filled_count.to_i < 2
+            end
+          alerts << { label: "Stale evals", count: stale.size, path: (defined?(evals_players_path) ? evals_players_path : players_path) }
+          alerts << { label: "Limited info", count: limited.size, path: players_path }
+
+      - if alerts.any?
+        %div{ class: "space-y-3" }
+          - alerts.each do |a|
+            %div{ class: "flex items-center justify-between gap-4 border border-stone-200 p-4 bg-stone-50" }
+              %div
+                %div{ class: "font-semibold" }= a[:label]
+                %div{ class: "text-sm text-stone-700 mt-1" }= "#{a[:count]} player(s)"
+              %div
+                = link_to "View", a[:path], class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
+      - else
+        %p{ class: "text-stone-700" } No alerts right now.

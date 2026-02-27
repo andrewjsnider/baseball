@@ -1,8 +1,10 @@
 Rails.application.routes.draw do
-  root to: 'teams#index'
 
-  # In Draft Mode
+  root 'in_season_dashboard#index'
+
+  # In Draft Mode #####
   # root to: 'draft_dashboard#index'
+  # #####
   get 'draft_board', to: 'draft_dashboard#index', as: :draft_board
   get "draft_dashboard/export", to: "draft_dashboard#export", as: :export_dashboard
 
