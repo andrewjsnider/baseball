@@ -3,7 +3,7 @@ class Player < ApplicationRecord
 
   belongs_to :team, optional: true
   has_many :player_positions, dependent: :destroy
-  has_many :pitcher_appearances, dependent: :destroy
+  has_many :pitch_appearances, dependent: :destroy
   has_many :positions, through: :player_positions
 
   validates :name, presence: true
