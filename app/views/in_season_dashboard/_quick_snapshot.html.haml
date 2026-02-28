@@ -28,9 +28,13 @@
 
   - if next_up_rows.any?
     %div{ class: "mt-4 text-sm" }
-      %div{ class: "text-stone-600 mb-1" } Next up
+      %div{ class: "text-stone-600 mb-1" } Resting pitchers
       %div{ class: "space-y-1" }
         - next_up_rows.each do |row|
           %div
             %span{ class: "font-semibold" }= row.player.name
-            %span{ class: "text-stone-600" }= row.eligible_on.present? ? " (#{l(row.eligible_on)})" : ""
+            %span{ class: "text-stone-600" }
+              - if row.eligible_on.present?
+                = " eligible again on #{l(row.eligible_on)}"
+              - else
+                = " eligible date unknown"
