@@ -106,34 +106,25 @@ class GameShowPresenter
         today = pitch_appearances_today_by_player_id[p.id]
         today_pitches = today&.pitches_thrown.to_i
 
-        last = p.last_pitch_appearance(before_game: game)
-        last_date = last&.game&.date
-        last_pitches = last&.pitches_thrown.to_i
+        gate = p.rest_gate_before_game(game)
 
-        eligible_on = p.next_eligible_pitching_date(before_game: game)
-        eligible_today = p.eligible_to_pitch_on?(game_date, before_game: game)
+        last_date = gate&.last_day
+        last_pitches = gate&.day_total.to_i
+        eligible_on = gate&.eligible_on
+        eligible_today = p.eligible_to_pitch_in_game?(game)
 
-        last_day = p.last_pitching_day_before_game(game)
-
-        day_total =
-          if last_day.present?
-            p.pitches_thrown_on_date(last_day, before_game: game)
+        rest_days =
+          if gate.present?
+            p.required_rest_days_for_pitches(gate.day_total)
           else
             0
           end
-
-        rest_days =
-          if day_total > 0
-            p.required_rest_days_for_pitches(day_total)
-          else
-            0
-  end
 
         PitcherRow.new(
           player: p,
           today_appearance: today,
           today_pitches: today_pitches,
-          last_appearance: last,
+          last_appearance: nil,
           last_date: last_date,
           last_pitches: last_pitches,
           rest_days: rest_days,
