@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_27_154445) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_28_233007) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -79,9 +79,23 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_27_154445) do
     t.integer "pitches_thrown"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["game_id", "player_id"], name: "index_pitch_appearances_on_game_id_and_player_id", unique: true
+    t.date "pitched_on", null: false
+    t.boolean "removed_from_mound", default: false, null: false
+    t.datetime "ended_at"
+    t.index ["game_id", "player_id", "pitched_on"], name: "index_pitch_appearances_on_game_id_player_id_pitched_on", unique: true
     t.index ["game_id"], name: "index_pitch_appearances_on_game_id"
     t.index ["player_id"], name: "index_pitch_appearances_on_player_id"
+  end
+
+  create_table "player_days", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.date "date", null: false
+    t.boolean "caught_any", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["date"], name: "index_player_days_on_date"
+    t.index ["player_id", "date"], name: "index_player_days_on_player_id_and_date", unique: true
+    t.index ["player_id"], name: "index_player_days_on_player_id"
   end
 
   create_table "player_positions", force: :cascade do |t|
@@ -173,6 +187,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_27_154445) do
   add_foreign_key "lineups", "games"
   add_foreign_key "pitch_appearances", "games"
   add_foreign_key "pitch_appearances", "players"
+  add_foreign_key "player_days", "players"
   add_foreign_key "player_positions", "players"
   add_foreign_key "player_positions", "positions"
   add_foreign_key "players", "teams"

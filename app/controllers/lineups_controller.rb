@@ -36,18 +36,54 @@ class LineupsController < ApplicationController
   end
 
   def assign_positions
-    params[:positions].each do |player_id, position|
-      LineupSlot.transaction do
-        slot = @lineup.lineup_slots.find_by!(player_id: player_id)
+    errors = []
 
-        if position.present?
-          existing = @lineup.lineup_slots.find_by(field_position: position)
+    LineupSlot.transaction do
+      params[:positions].each do |player_id, position|
+        slot = @lineup.lineup_slots.find_by!(player_id: player_id)
+        requested = position.to_s.strip.presence
+        player = slot.player
+
+        if requested == "pitcher"
+          if player.removed_as_pitcher_in_game?(@game, on_date: @game.date)
+            errors << "#{player.name} cannot return as pitcher after being removed."
+            next
+          end
+
+          unless player.eligible_to_pitch_in_game?(@game)
+            next_date = player.next_eligible_pitching_date(before_game: @game)
+            msg = "#{player.name} is not eligible to pitch."
+            msg += " Next eligible: #{next_date}." if next_date.present?
+            errors << msg
+            next
+          end
+        end
+
+        if requested == "catcher"
+          if player.pitches_thrown_on_date(@game.date) >= 71
+            errors << "#{player.name} cannot play catcher after throwing 71+ pitches today."
+            next
+          end
+
+          day = player.player_day_for(@game.date)
+          day.update!(caught_any: true) unless day.caught_any?
+        end
+
+        if requested.present?
+          existing = @lineup.lineup_slots.find_by(field_position: requested)
           existing&.update!(field_position: nil)
-          slot.update!(field_position: position)
+          slot.update!(field_position: requested)
         else
           slot.update!(field_position: nil)
         end
       end
+
+      raise ActiveRecord::Rollback if errors.any?
+    end
+
+    if errors.any?
+      render json: { errors: errors }, status: :unprocessable_entity
+      return
     end
 
     head :ok

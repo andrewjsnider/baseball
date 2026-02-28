@@ -27,7 +27,8 @@
           - else
             Last: #{row.last_date} (#{row.last_pitches}) · Resting until #{row.eligible_on}
         - else
-          No history · Available
+          No history ·
+          %span.text-lime-600 Available
 
     %div{ class: "flex items-center gap-2" }
       = button_to "-", game_pitch_appearance_path(game, row.player.id, delta: -1),

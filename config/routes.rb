@@ -28,7 +28,10 @@ Rails.application.routes.draw do
       patch :update_pitch_limit
     end
     resources :game_pitch_plan_slots, only: [:update]
-    resources :pitch_appearances, only: [:create, :update]
+
+    resources :pitch_appearances, only: [:create, :update] do
+      post :remove, on: :collection
+    end
 
     patch :pitch_plan, on: :member
   end

@@ -2,6 +2,8 @@ class Player < ApplicationRecord
   TIERS = %w[A B C].freeze
 
   belongs_to :team, optional: true
+
+  has_many :player_days, dependent: :destroy
   has_many :player_positions, dependent: :destroy
   has_many :pitch_appearances, dependent: :destroy
   has_many :positions, through: :player_positions
@@ -43,4 +45,8 @@ class Player < ApplicationRecord
     expr = fields.map { |f| "CASE WHEN #{f} IS NULL THEN 0 ELSE 1 END" }.join(" + ")
     where("(#{expr}) < ?", n)
   }
+
+  def player_day_for(date)
+    player_days.find_or_create_by!(date: date)
+  end
 end

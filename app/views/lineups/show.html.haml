@@ -13,7 +13,7 @@
       = link_to 'Back to Game', game_path(@game), class: 'p-2 outline text-stone-900 text-sm hover:bg-stone-900 hover:text-white'
   - else
     %span Lineup
-
+  %div#flash
   %ul{ id: "batting-order", data: { controller: "lineup", lineup_url: game_lineup_path(@game) }, class: "space-y-3 my-6" }
 
     - @lineup.lineup_slots.each do |slot|
