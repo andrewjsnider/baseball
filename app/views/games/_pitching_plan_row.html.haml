@@ -4,7 +4,7 @@
   %div{ class: "flex items-start justify-between gap-4" }
     %div
       %div{ class: "font-semibold" }= row_ui.label
-      %div{ class: "text-xs text-stone-600 mt-1" }= row_ui.availability_label
+      %div{ class: "text-xs mt-1 #{row_ui.text_class}" }= row_ui.availability_label
 
       - if row_ui.selected_ineligible
         %div{ class: "text-xs text-stone-700 mt-1" } Selected pitcher is not eligible for this game

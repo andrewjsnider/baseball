@@ -278,6 +278,7 @@ class GameShowPresenter
     :selected_id,
     :selected_ineligible,
     :wrapper_classes,
+    :text_class,
     :select_options,
     keyword_init: true
   )
@@ -298,6 +299,15 @@ class GameShowPresenter
       selected_id = slot.player_id&.to_i
 
       selected_ineligible = selected_id.present? && !pitcher_eligible_today?(selected_id)
+
+      text_class =
+        if selected_id.blank?
+          "text-stone-700"
+        elsif selected_ineligible
+          "text-red-700"
+        else
+          "text-lime-600"
+        end
 
       wrapper_classes =
         if selected_ineligible
@@ -334,6 +344,7 @@ class GameShowPresenter
         selected_id: selected_id,
         selected_ineligible: selected_ineligible,
         wrapper_classes: wrapper_classes,
+        text_class: text_class,
         select_options: select_options
       )
     end
