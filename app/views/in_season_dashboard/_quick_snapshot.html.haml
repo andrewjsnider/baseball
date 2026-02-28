@@ -1,17 +1,36 @@
+- presenter = @presenter
+
 %div{ class: "border border-stone-300 p-6 bg-white" }
   %h2{ class: "text-lg font-semibold mb-4" } Quick Snapshot
 
-  - total_games = (@recent_games&.size.to_i + @upcoming_games&.size.to_i)
+  - next_up_rows = presenter.next_up_rows
+
   %div{ class: "grid grid-cols-2 gap-4 text-sm" }
     %div
-      %div{ class: "text-stone-600" } Upcoming
-      %div{ class: "text-2xl font-semibold" }= @upcoming_games&.size.to_i
+      %div{ class: "text-stone-600" } Available Pitchers
+      %div{ class: "text-2xl font-semibold" }= presenter.eligible_pitchers.size
+
     %div
-      %div{ class: "text-stone-600" } Recent
-      %div{ class: "text-2xl font-semibold" }= @recent_games&.size.to_i
+      %div{ class: "text-stone-600" } Resting Pitchers
+      %div{ class: "text-2xl font-semibold" }= presenter.resting_pitchers.size
+
     %div
-      %div{ class: "text-stone-600" } Pitchers
-      %div{ class: "text-2xl font-semibold" }= @pitchers&.size.to_i
+      %div{ class: "text-stone-600" } Probable Starter
+      %div{ class: "text-base font-semibold" }= presenter.probable_starter_name.presence || "Not set"
+
     %div
-      %div{ class: "text-stone-600" } Roster
-      %div{ class: "text-2xl font-semibold" }= @roster&.size.to_i
+      %div{ class: "text-stone-600" } Next Game
+      %div{ class: "text-base font-semibold" }
+        - if presenter.next_game.present?
+          = l(presenter.next_game.date)
+        - else
+          None scheduled
+
+  - if next_up_rows.any?
+    %div{ class: "mt-4 text-sm" }
+      %div{ class: "text-stone-600 mb-1" } Next up
+      %div{ class: "space-y-1" }
+        - next_up_rows.each do |row|
+          %div
+            %span{ class: "font-semibold" }= row.player.name
+            %span{ class: "text-stone-600" }= row.eligible_on.present? ? " (#{l(row.eligible_on)})" : ""
