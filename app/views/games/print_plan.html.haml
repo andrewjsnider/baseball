@@ -93,3 +93,26 @@
 
       - else
         %div{ class: "text-stone-600" } No lineup set
+
+
+  %div{ class: "mt-10 border-t border-stone-300 pt-6 text-stone-900" }
+    %h3{ class: "font-semibold text-base" } Pitching Rules (Majors)
+
+    %div{ class: "mt-3 text-sm" }
+      %div{ class: "font-semibold" } Daily max
+      %div{ class: "mt-1" } 85 pitches per day (pitches are cumulative across all games that day, including doubleheaders).
+
+    %div{ class: "mt-4 text-sm" }
+      %div{ class: "font-semibold" } Required calendar days of rest (based on pitches thrown in a day)
+      %ul{ class: "mt-1 list-disc pl-5 space-y-1" }
+        %li 1–20 pitches: 0 days rest
+        %li 21–35 pitches: 1 day rest
+        %li 36–50 pitches: 2 days rest
+        %li 51–65 pitches: 3 days rest
+        %li 66+ pitches: 4 days rest
+
+    %div{ class: "mt-4 text-sm" }
+      %div{ class: "font-semibold" } Catcher rule (71+)
+      %ul{ class: "mt-1 list-disc pl-5 space-y-1" }
+        %li If a pitcher throws 71 or more pitches in a day, they cannot play catcher for the rest of that day (including later games).
+        %li If a player has already played catcher in a day, they may not reach 71 or more pitches that day (exception: may finish the current batter).
