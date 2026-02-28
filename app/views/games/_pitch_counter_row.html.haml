@@ -18,12 +18,12 @@
       %div{ class: "font-medium flex items-center gap-2" }
         = row.player.name
         - if disabled
-          %span{ class: "text-xs px-2 py-0.5 border border-stone-400 text-stone-700" } Resting
-
+          %span{ class: "text-xs px-2 py-0.5 border border-red-500 text-red-700 bg-red-50" } Resting
       %div{ class: "text-xs text-stone-600 mt-1" }
         - if row.last_date.present?
           - if row.eligible_today
-            Last: #{row.last_date} (#{row.last_pitches}) · Available
+            Last: #{row.last_date} (#{row.last_pitches}) ·
+            %span.text-lime-600 Available
           - else
             Last: #{row.last_date} (#{row.last_pitches}) · Resting until #{row.eligible_on}
         - else
