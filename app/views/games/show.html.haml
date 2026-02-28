@@ -10,6 +10,7 @@
         = link_to "Edit Lineup", game_lineup_path(@game), class: "border border-stone-900 px-4 py-2 text-sm hover:bg-stone-900 hover:text-white"
       - else
         = button_to "Create Lineup", game_lineup_path(@game), method: :post, class: "border border-stone-900 px-4 py-2 text-sm hover:bg-stone-900 hover:text-white"
+      = link_to "Print Plan", print_plan_game_path(@game), target: "_blank", class: "border border-stone-900 px-4 py-2 text-sm hover:bg-stone-900 hover:text-white"
 
   %div{ class: "grid grid-cols-2 gap-6 mb-8" }
     %div

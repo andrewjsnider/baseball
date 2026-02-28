@@ -1,0 +1,16 @@
+!!!
+%html
+  %head
+    %title Game Plan
+    = csrf_meta_tags
+    = csp_meta_tag
+    = stylesheet_link_tag "application", "data-turbo-track": "reload"
+
+    :css
+      @page { size: letter; margin: 0.35in; }
+      @media print {
+        .no-print { display: none !important; }
+      }
+
+  %body{ class: "text-stone-900" }
+    = yield

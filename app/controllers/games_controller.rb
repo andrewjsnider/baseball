@@ -22,6 +22,12 @@ class GamesController < ApplicationController
     @opponent_top_runners = @opponent_players.sort_by { |p| -(p.speed.to_i) }.first(5)
   end
 
+  def print_plan
+    @game = Game.find(params[:id])
+    @presenter = GameShowPresenter.new(game: @game)
+    render layout: "print"
+  end
+
   def pitch_plan
     @game = Game.find(params[:id])
 
