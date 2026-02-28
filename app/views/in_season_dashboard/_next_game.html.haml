@@ -1,0 +1,52 @@
+%div{ class: "border border-stone-300 p-6 bg-stone-50 lg:col-span-2" }
+  %h2{ class: "text-lg font-semibold mb-4" } Next Game
+
+  - if @next_game.present?
+    %div{ class: "flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4" }
+      %div
+        %div{ class: "text-2xl font-semibold" }
+          :ruby
+            opponent_name =
+              if @next_game.respond_to?(:opponent_team) && @next_game.opponent_team.present?
+                @next_game.opponent_team.name
+              elsif @next_game.respond_to?(:opponent_name) && @next_game.opponent_name.present?
+                @next_game.opponent_name
+              else
+                "Opponent TBD"
+              end
+          = opponent_name
+
+        %div{ class: "text-sm text-stone-700 mt-2" }
+          :ruby
+            dt =
+              if @next_game.respond_to?(:starts_at) && @next_game.starts_at.present?
+                @next_game.starts_at
+              elsif @next_game.respond_to?(:date) && @next_game.date.present?
+                @next_game.date
+              end
+          - if dt.present?
+            %span{ class: "font-semibold" } When:
+            = " #{l(dt, format: :long)}"
+          - else
+            %span{ class: "font-semibold" } When:
+            = " TBD"
+
+        - if @next_game.respond_to?(:location) && @next_game.location.present?
+          %div{ class: "text-sm text-stone-700 mt-1" }
+            %span{ class: "font-semibold" } Where:
+            = " #{@next_game.location}"
+
+        - if @next_game.respond_to?(:home_away) && @next_game.home_away.present?
+          %div{ class: "text-sm text-stone-700 mt-1" }
+            %span{ class: "font-semibold" } Home/Away:
+            = " #{@next_game.home_away.to_s.titleize}"
+
+      %div{ class: "flex flex-wrap gap-2 items-center justify-start sm:justify-end" }
+        = link_to "View Game", game_path(@next_game), class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white whitespace-nowrap"
+        - if @next_game.respond_to?(:id)
+          = link_to "Edit", edit_game_path(@next_game), class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
+
+  - else
+    %p{ class: "text-stone-700" } No upcoming games yet.
+    %div{ class: "mt-4" }
+      = link_to "Create the first game", new_game_path, class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white"

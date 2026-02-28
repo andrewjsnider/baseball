@@ -1,0 +1,39 @@
+%div{ class: "border border-stone-300 p-6 bg-white" }
+  %h2{ class: "text-lg font-semibold mb-4" } Upcoming Games
+
+  - if @upcoming_games.present?
+    %div{ class: "divide-y divide-stone-200" }
+      - @upcoming_games.each do |g|
+        %div{ class: "py-3 flex items-start justify-between gap-4" }
+          %div
+            :ruby
+              opp =
+                if g.respond_to?(:opponent_team) && g.opponent_team.present?
+                  g.opponent_team.name
+                elsif g.respond_to?(:opponent_name) && g.opponent_name.present?
+                  g.opponent_name
+                else
+                  "Opponent TBD"
+                end
+            %div{ class: "font-semibold" }= opp
+
+            :ruby
+              gdt =
+                if g.respond_to?(:starts_at) && g.starts_at.present?
+                  g.starts_at
+                elsif g.respond_to?(:date) && g.date.present?
+                  g.date
+                end
+            %div{ class: "text-sm text-stone-700 mt-1" }
+              - if gdt.present?
+                = l(gdt, format: :long)
+              - else
+                = "Date/Time TBD"
+              - if g.respond_to?(:location) && g.location.present?
+                = " · #{g.location}"
+
+          %div{ class: "flex flex-wrap gap-2 items-center justify-end" }
+            = link_to "View", game_path(g), class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
+            = link_to "Edit", edit_game_path(g), class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
+  - else
+    %p{ class: "text-stone-700" } No upcoming games.

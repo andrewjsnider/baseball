@@ -1,0 +1,17 @@
+%div{ class: "border border-stone-300 p-6 bg-white" }
+  %h2{ class: "text-lg font-semibold mb-4" } Quick Snapshot
+
+  - total_games = (@recent_games&.size.to_i + @upcoming_games&.size.to_i)
+  %div{ class: "grid grid-cols-2 gap-4 text-sm" }
+    %div
+      %div{ class: "text-stone-600" } Upcoming
+      %div{ class: "text-2xl font-semibold" }= @upcoming_games&.size.to_i
+    %div
+      %div{ class: "text-stone-600" } Recent
+      %div{ class: "text-2xl font-semibold" }= @recent_games&.size.to_i
+    %div
+      %div{ class: "text-stone-600" } Pitchers
+      %div{ class: "text-2xl font-semibold" }= @pitchers&.size.to_i
+    %div
+      %div{ class: "text-stone-600" } Roster
+      %div{ class: "text-2xl font-semibold" }= @roster&.size.to_i
