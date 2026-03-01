@@ -1,20 +1,5 @@
 - row_uis = show.pitch_plan_row_uis
-
-:ruby
-  primary_roles = %w[starter relief_1 relief_2 relief_3]
-  primary_rows = row_uis.select { |r| primary_roles.include?(r.slot.role.to_s) }
-  primary_target_total = primary_rows.sum { |r| r.target_pitches.to_i }
-  primary_goal = 115
-  primary_remaining = primary_goal - primary_target_total
-
-  emergency_row = row_uis.find { |r| r.slot.role.to_s == "emergency" }
-  emergency_needed = primary_remaining.positive?
-  emergency_needed_label =
-    if emergency_needed
-      "Emergency needed after #{primary_target_total} pitches (short #{primary_remaining} pitches of #{primary_goal})"
-    else
-      "Emergency only if needed (primary plan covers #{primary_target_total} pitches)"
-    end
+- coverage = show.pitch_plan_coverage
 
 %div{ class: "border border-stone-200 bg-white p-5 mb-8" }
   %div{ class: "flex items-start justify-between gap-4 mb-4" }
@@ -30,23 +15,25 @@
       %div
         %div{ class: "font-semibold text-sm" } Primary plan target
         %div{ class: "text-xs text-stone-700 mt-1" }
-          = "Starter + Relief 1–3 should cover #{primary_goal} pitches total."
+          = "Starter + Relief 1–3 should cover #{coverage.primary_goal} pitches total."
       %div{ class: "text-right" }
-        - if emergency_needed
-          %div{ class: "text-sm font-semibold text-red-700" }= "#{primary_target_total} pitches planned"
-          %div{ class: "text-xs text-red-700 mt-1" }= "Short #{primary_remaining}p (Emergency will be needed)"
+        - if coverage.emergency_needed
+          %div{ class: "text-sm font-semibold text-red-700" }= "#{coverage.primary_target_total} pitches planned"
+          %div{ class: "text-xs text-red-700 mt-1" }= "Short #{coverage.primary_remaining}p (Emergency will be needed)"
         - else
-          %div{ class: "text-sm font-semibold text-lime-600" }= "#{primary_target_total} piches planned"
+          %div{ class: "text-sm font-semibold text-lime-600" }= "#{coverage.primary_target_total} pitches planned"
           %div{ class: "text-xs text-lime-600 mt-1" } On track (Emergency is backup)
 
   = form_with url: pitch_plan_game_path(game), method: :patch, local: true, data: { controller: "pitch-plan", pitch_plan_target: "form" } do
     %input{ type: "hidden", name: "only_slot_id", value: "" }
+
     %div{ class: "space-y-3" }
       - row_uis.each do |row_ui|
         - is_emergency = row_ui.slot.role.to_s == "emergency"
+
         - if is_emergency
-          %div{ class: emergency_needed ? "border border-red-300 bg-red-50 p-3" : "border border-stone-200 bg-stone-50 p-3" }
-            %div{ class: "text-xs #{emergency_needed ? 'text-red-700' : 'text-stone-700'} mb-2" }= emergency_needed_label
+          %div{ class: coverage.emergency_needed ? "border border-red-300 bg-red-50 p-3" : "border border-stone-200 bg-stone-50 p-3" }
+            %div{ class: "text-xs #{coverage.emergency_needed ? 'text-red-700' : 'text-stone-700'} mb-2" }= coverage.emergency_needed_label
             = render partial: "games/pitching_plan_row", locals: { row_ui: row_ui }
         - else
           = render partial: "games/pitching_plan_row", locals: { row_ui: row_ui }

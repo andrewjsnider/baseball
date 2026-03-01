@@ -34,6 +34,15 @@ class GameShowPresenter
     keyword_init: true
   )
 
+  PitchPlanCoverage = Struct.new(
+    :primary_goal,
+    :primary_target_total,
+    :primary_remaining,
+    :emergency_needed,
+    :emergency_needed_label,
+    keyword_init: true
+  )
+
   attr_reader :game, :opponent_team, :opponent_players
 
   def initialize(game:, opponent_team: nil, opponent_players: nil)
@@ -365,5 +374,31 @@ class GameShowPresenter
   def opponent_players
     return [] unless opponent_team.present?
     @opponent_players ||= opponent_team.players.to_a
+  end
+
+  def pitch_plan_coverage(goal: 115)
+    rows = pitch_plan_row_uis
+
+    primary_roles = %w[starter relief_1 relief_2 relief_3]
+    primary_rows = rows.select { |r| primary_roles.include?(r.slot.role.to_s) }
+
+    primary_target_total = primary_rows.sum { |r| r.target_pitches.to_i }
+    primary_remaining = goal - primary_target_total
+    emergency_needed = primary_remaining.positive?
+
+    label =
+      if emergency_needed
+        "Emergency needed after #{primary_target_total} pitches (short #{primary_remaining} pitches of #{goal})"
+      else
+        "Emergency only if needed (primary plan covers #{primary_target_total} pitches)"
+      end
+
+    PitchPlanCoverage.new(
+      primary_goal: goal,
+      primary_target_total: primary_target_total,
+      primary_remaining: primary_remaining,
+      emergency_needed: emergency_needed,
+      emergency_needed_label: label
+    )
   end
 end
