@@ -10,7 +10,7 @@
         %div{ class: "text-xs text-stone-700 mt-1" } Selected pitcher is not eligible for this game
 
       - if row_ui.projected_eligible_on
-        %div{ class: "text-xs text-stone-600 mt-1" }= "If used for #{row_ui.target_pitches}, eligible again on #{row_ui.projected_eligible_on.strftime('%d-%m-%Y')}"
+        %div{ class: "text-xs text-stone-600 mt-1" }= "If used for #{row_ui.target_pitches}, eligible again on #{row_ui.projected_eligible_on.strftime('%m-%d-%Y')}"
 
     %div
       %div{ class: "flex items-center gap-2" }
