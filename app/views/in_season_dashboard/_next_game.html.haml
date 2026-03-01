@@ -47,6 +47,6 @@
           = link_to "Edit", edit_game_path(@next_game), class: "border border-stone-300 px-4 py-2 hover:bg-stone-100 whitespace-nowrap"
 
   - else
-    %p{ class: "text-stone-700" } No upcoming games yet.
+    %p{ class: "text-stone-700" } No upcoming games.
     %div{ class: "mt-4" }
-      = link_to "Create the first game", new_game_path, class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white"
+      = link_to "Create new game", new_game_path, class: "border border-stone-900 px-4 py-2 hover:bg-stone-900 hover:text-white"
