@@ -35,6 +35,6 @@
             %span{ class: "font-semibold" }= row.player.name
             %span{ class: "text-stone-600" }
               - if row.eligible_on.present?
-                = " eligible again on #{l(row.eligible_on)}"
+                = " eligible again on #{row.eligible_on.strftime('%d-%m-%Y')}"
               - else
                 = " eligible date unknown"

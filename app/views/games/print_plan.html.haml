@@ -42,7 +42,7 @@
           %div{ class: "font-semibold mb-1" } Resting pitchers (eligible again)
           %div{ class: "space-y-0.5" }
             - summary.next_up_rows.each do |r|
-              %div{ class: "text-red-700" }= "#{r.player_name}: #{l(r.eligible_on)}"
+              %div{ class: "text-red-700" }= "#{r.player_name}: #{r.eligible_on.strftime("%m-%d-%Y")}"
         - else
           %div{ class: "font-semibold mb-1" } Resting pitchers
           %div{ class: "text-stone-600" } None
@@ -51,26 +51,32 @@
 
     %div{ class: "col-span-5 border border-stone-300 p-2" }
       %div{ class: "font-semibold mb-1" } Pitch plan
-      %div{ class: "space-y-1" }
+
+      %div{ class: "border border-stone-200" }
+        %div{ class: "grid grid-cols-12 px-2 py-1 border-b border-stone-200 bg-stone-50 font-semibold" }
+          %div{ class: "col-span-4" } Role
+          %div{ class: "col-span-6" } Pitcher
+          %div{ class: "col-span-2 text-right" } Target
+
         - plan_rows.each do |row|
           - name = row.player_name.presence || "Not assigned"
           - pitches = row.target_pitches.to_i > 0 ? "#{row.target_pitches}p" : "-"
-          %div{ class: "flex justify-between gap-2" }
-            %div
-              %span{ class: "font-semibold" }= row.label
-              %span{ class: "text-stone-600" }= "  #{name}"
-            %div{ class: "text-right text-stone-700" }= pitches
+          - eligible = row.player_id.present? && show.pitcher_eligible_today?(row.player_id)
+          - status_class = eligible ? "text-lime-600" : (row.player_id.present? ? "text-red-700" : "text-stone-600")
+
+          %div{ class: "grid grid-cols-12 px-2 py-2 border-b border-stone-200" }
+            %div{ class: "col-span-4 font-semibold" }= row.label
+            %div{ class: "col-span-6 font-semibold" }= name
+            %div{ class: "col-span-2 text-right text-stone-700" }= pitches
+
+        %div.font-semibold.text-sm.py-5.text-center Average 6-Inning Game: 90 - 130 pitches
 
     %div{ class: "col-span-7 border border-stone-300 p-2" }
       %div{ class: "font-semibold mb-1" } Lineup (batting order)
       - if lineup_slots.any?
 
         :ruby
-          # Treat the lineup slots order as the batting order.
-          # If you have an explicit batting_order column, swap this to sort by it.
           ordered = lineup_slots
-
-          # Map field positions for quick lookup by player id
           pos_by_player_id = {}
           ordered.each { |s| pos_by_player_id[s.player_id] = s.field_position }
 
@@ -93,7 +99,6 @@
 
       - else
         %div{ class: "text-stone-600" } No lineup set
-
 
   %div{ class: "mt-10 border-t border-stone-300 pt-6 text-stone-900" }
     %h3{ class: "font-semibold text-base" } Pitching Rules (Majors)

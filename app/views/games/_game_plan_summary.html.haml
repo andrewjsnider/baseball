@@ -35,7 +35,7 @@
             - summary.next_up_rows.each do |r|
               %div.text-red-700
                 %span{ class: "font-semibold" }= r.player_name
-                %span= " eligible again on #{l(r.eligible_on)}"
+                %span= " eligible again on #{r.eligible_on.strftime('%d-%m-%Y')}"
 
   - if show.has_lineup? && show.missing_positions.any?
     %div{ class: "my-4 p-4 border border-red-300 bg-red-50 text-red-700 text-sm" }
