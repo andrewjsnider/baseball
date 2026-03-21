@@ -28,7 +28,7 @@ class GamesController < ApplicationController
     render layout: "print"
   end
 
-  def pitch_plan
+ def pitch_plan
     @game = Game.find(params[:id])
 
     slot_params = params.fetch(:pitch_plan_slots, {})
@@ -43,60 +43,23 @@ class GamesController < ApplicationController
 
     slots_by_id = @game.game_pitch_plan_slots.where(id: ids).index_by { |s| s.id.to_s }
 
-    # Build the "final" player assignments after this update, so we can enforce
-    # "a pitcher can only appear once" even when saving a single slot.
-    final_player_ids_by_slot_id = {}
-
-    @game.game_pitch_plan_slots.each do |slot|
-      existing_player_id =
-        if slot.starter? && @game.lineup&.lineup_slots&.pitcher&.first&.player_id.present?
-          @game.lineup.lineup_slots.pitcher.first.player_id
-        else
-          slot.player_id
-        end
-
-      final_player_ids_by_slot_id[slot.id.to_s] = existing_player_id.presence&.to_i
-    end
-
     ids.each do |slot_id|
       slot = slots_by_id[slot_id]
-      next if slot.nil?
+      next unless slot
 
-      # Starter is derived from lineup, do not allow overriding via params
-      next if slot.starter? && @game.lineup&.lineup_slots&.pitcher&.first&.player_id.present?
+      attrs = slot_params[slot_id] || slot_params[slot_id.to_sym] || {}
 
-      attrs = slot_params[slot_id] || {}
-      incoming_player_id = attrs[:player_id].presence&.to_i
-
-      final_player_ids_by_slot_id[slot_id] = incoming_player_id
-    end
-
-    assigned_player_ids = final_player_ids_by_slot_id.values.compact
-    if assigned_player_ids.uniq.size != assigned_player_ids.size
-      redirect_to game_path(@game), alert: "A pitcher can only be assigned to one role in the plan."
-      return
-    end
-
-    ids.each do |slot_id|
-      slot = slots_by_id[slot_id]
-      next if slot.nil?
-
-      # Starter is derived from lineup, do not allow overriding via params
-      if slot.starter? && @game.lineup&.lineup_slots&.pitcher&.first&.player_id.present?
-        next
+      if slot.starter?
+        slot.target_pitches = attrs[:target_pitches].presence || attrs["target_pitches"].presence
+      else
+        slot.player_id = attrs[:player_id].presence || attrs["player_id"].presence
+        slot.target_pitches = attrs[:target_pitches].presence || attrs["target_pitches"].presence
       end
 
-      attrs = slot_params[slot_id] || {}
-      player_id = attrs[:player_id].presence
-      target_pitches = attrs[:target_pitches].presence
-
-      slot.update!(
-        player_id: player_id,
-        target_pitches: target_pitches
-      )
+      slot.save!
     end
 
-    redirect_to game_path(@game)
+    redirect_to game_path(@game), notice: "Pitching plan updated."
   end
 
   def new
