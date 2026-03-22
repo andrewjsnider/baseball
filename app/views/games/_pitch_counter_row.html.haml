@@ -50,3 +50,16 @@
         disabled: disabled,
         aria: { disabled: disabled },
         class: (disabled ? btn_disabled : btn_enabled)
+
+      = form_with url: game_pitch_appearance_path(game, row.player.id),
+        method: :patch,
+        class: "flex items-center gap-2",
+        data: { turbo_frame: dom_id(game, "pitch_counter_player_#{row.player.id}") } do |f|
+        = f.number_field :pitches,
+          value: row.today_pitches,
+          min: 0,
+          disabled: disabled,
+          class: "w-16 border border-stone-300 px-2 py-1 text-sm"
+        = f.submit "Set",
+          disabled: disabled,
+          class: (disabled ? btn_disabled : btn_enabled)

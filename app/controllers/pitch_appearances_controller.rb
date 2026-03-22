@@ -31,11 +31,21 @@ class PitchAppearancesController < ApplicationController
       return render_pitch_error("#{@player.name} cannot pitch again after being removed.")
     end
 
-    delta = params[:delta].to_i
-    requested_val = [pa.pitches_thrown.to_i + delta, 0].max
+    requested_val =
+      if params[:pitches].present?
+        [params[:pitches].to_i, 0].max
+      else
+        delta = params[:delta].to_i
+        [pa.pitches_thrown.to_i + delta, 0].max
+      end
 
     if requested_val != pa.pitches_thrown.to_i
-      ok, msg = validate_day_rules!(player: @player, game: @game, pa: pa, new_game_pitches: requested_val)
+      ok, msg = validate_day_rules!(
+        player: @player,
+        game: @game,
+        pa: pa,
+        new_game_pitches: requested_val
+      )
       return render_pitch_error(msg) unless ok
     end
 
