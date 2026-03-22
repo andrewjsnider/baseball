@@ -59,7 +59,5 @@
           value: row.today_pitches,
           min: 0,
           disabled: disabled,
-          class: "w-16 border border-stone-300 px-2 py-1 text-sm"
-        = f.submit "Set",
-          disabled: disabled,
-          class: (disabled ? btn_disabled : btn_enabled)
+          class: "w-16 border border-stone-300 px-2 py-1 text-sm",
+          onchange: "this.form.requestSubmit()"
