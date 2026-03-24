@@ -22,8 +22,7 @@ export default class extends Controller {
   }
 
   updateOrder() {
-    const playerIds = Array.from(this.element.children)
-      .map(el => el.dataset.playerId)
+    const playerIds = Array.from(this.element.children).map((el) => el.dataset.playerId)
 
     fetch(this.baseUrl + "/reorder", {
       method: "PATCH",
@@ -38,6 +37,7 @@ export default class extends Controller {
   updatePosition(event) {
     const select = event.target
     const playerId = select.dataset.playerId
+    const fieldName = select.dataset.fieldName
     const position = select.value
     const prevValue = select.dataset.prevValue || ""
 
@@ -49,12 +49,15 @@ export default class extends Controller {
         "Content-Type": "application/json",
         "X-CSRF-Token": document.querySelector("[name='csrf-token']").content
       },
-      body: JSON.stringify({ positions: { [playerId]: position } })
+      body: JSON.stringify({
+        field_name: fieldName,
+        positions: { [playerId]: position }
+      })
     })
       .then(async (response) => {
         if (response.ok) {
           select.dataset.prevValue = position
-          this.refreshDisabledOptions()
+          window.location.reload()
           return
         }
 
@@ -85,20 +88,32 @@ export default class extends Controller {
 
   refreshDisabledOptions() {
     const selects = this.element.querySelectorAll("select")
+    const groups = {}
 
-    const selectedPositions = Array.from(selects)
-      .map(select => select.value)
-      .filter(value => value !== "")
+    selects.forEach((select) => {
+      const fieldName = select.dataset.fieldName
+      if (!groups[fieldName]) groups[fieldName] = []
+      groups[fieldName].push(select)
+    })
 
-    selects.forEach(select => {
-      Array.from(select.options).forEach(option => {
-        if (option.value === "") return
+    Object.values(groups).forEach((groupSelects) => {
+      const selectedPositions = groupSelects
+        .map((select) => select.value)
+        .filter((value) => value !== "" && value !== "extra_hitter")
 
-        if (selectedPositions.includes(option.value) && select.value !== option.value) {
-          option.disabled = true
-        } else {
-          option.disabled = false
-        }
+      groupSelects.forEach((select) => {
+        Array.from(select.options).forEach((option) => {
+          if (option.value === "" || option.value === "extra_hitter") {
+            option.disabled = false
+            return
+          }
+
+          if (selectedPositions.includes(option.value) && select.value !== option.value) {
+            option.disabled = true
+          } else {
+            option.disabled = false
+          }
+        })
       })
     })
   }

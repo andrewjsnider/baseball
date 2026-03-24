@@ -1,27 +1,65 @@
-%div{ class: "max-w-4xl mx-auto px-6 py-10 text-stone-900" }
-
-  %h1{ class: "text-2xl font-semibold mb-6" }
-
+%div{ class: "max-w-5xl mx-auto px-6 py-10 text-stone-900" }
   - team_name = @game&.team&.name || "Team"
-  - opp_name  = @game&.opponent_team&.name || "Opponent"
-  - date_str  = @game&.date || ""
+  - opp_name = @game&.opponent_team&.name || "Opponent"
+  - date_str = @game&.date || ""
 
   - if @game.present?
-    .flex.justify-between.items-center
-      %h1.text-stone-900.font-semibold.text-2xl
-        = "Lineup for #{team_name} vs. #{opp_name} - #{date_str}"
+    %div{ class: "flex justify-between items-center" }
+      %h1{ class: "text-stone-900 font-semibold text-2xl" }= "Lineup for #{team_name} vs. #{opp_name} - #{date_str}"
       = link_to 'Back to Game', game_path(@game), class: 'p-2 outline text-stone-900 text-sm hover:bg-stone-900 hover:text-white'
   - else
     %span Lineup
+
   %div#flash
+
+  %div{ class: "my-4 text-sm text-stone-600" }
+    Drag players to set batting order. Then assign defense for innings 1-2 and innings 3-4.
+
   %ul{ id: "batting-order", data: { controller: "lineup", lineup_url: game_lineup_path(@game) }, class: "space-y-3 my-6" }
+    - @lineup.lineup_slots.order(:batting_order).each do |slot|
+      %li{ data: { player_id: slot.player.id }, class: "border p-4 bg-white cursor-move" }
+        %div{ class: "flex items-start justify-between gap-4" }
+          %div{ class: "min-w-0 flex-1" }
+            %div
+              %strong= slot.player.name
+              %span{ class: "text-sm text-stone-500 ml-2" }= "Batting #{slot.batting_order}"
+            %div{ class: "mt-2 text-sm text-stone-600" }= "Planned field innings: #{slot.field_innings_count}"
 
-    - @lineup.lineup_slots.each do |slot|
-      %li{ data: { player_id: slot.player.id }, class: "border p-4 bg-white cursor-move flex justify-between items-center" }
+          %div{ class: "grid grid-cols-2 gap-3 w-[28rem]" }
+            %div
+              %div{ class: "text-xs text-stone-500 mb-1" } Innings 1-2
+              = select_tag "", options_for_select(LineupSlot::POSITIONS.keys.map { |p| [p.to_s.humanize, p] }, slot.field_position_first_two), data: { action: "change->lineup#updatePosition", player_id: slot.player.id, field_name: "field_position_first_two" }, class: "border p-1 text-sm w-full"
 
-        %div
-          %strong= slot.player.name
-          %span{ class: "text-sm text-stone-500 ml-2" }= slot.field_position&.humanize || "Extra Hitter"
+            %div
+              %div{ class: "text-xs text-stone-500 mb-1" } Innings 3-4
+              = select_tag "", options_for_select(LineupSlot::POSITIONS.keys.map { |p| [p.to_s.humanize, p] }, slot.field_position_second_two), data: { action: "change->lineup#updatePosition", player_id: slot.player.id, field_name: "field_position_second_two" }, class: "border p-1 text-sm w-full"
 
-        %div
-          = select_tag "", options_for_select([["Extra Hitter", ""]] + LineupSlot.field_positions.keys.map { |p| [p.humanize, p] }, slot.field_position), data: { action: "change->lineup#updatePosition", player_id: slot.player.id }, class: "border p-1 text-sm"
+  :ruby
+    required_positions = %w[pitcher catcher first_base second_base third_base shortstop left_field center_field right_field]
+    first_two_filled = @lineup.lineup_slots.map(&:field_position_first_two).compact.uniq
+    second_two_filled = @lineup.lineup_slots.map(&:field_position_second_two).compact.uniq
+    first_two_missing = required_positions - first_two_filled
+    second_two_missing = required_positions - second_two_filled
+    underplayed = @lineup.lineup_slots.select { |slot| slot.field_innings_count < 2 }
+
+  %div{ class: "grid grid-cols-3 gap-4 mt-8 text-sm" }
+    %div{ class: "border p-4 bg-white" }
+      %div{ class: "font-semibold mb-2" } Missing in innings 1-2
+      - if first_two_missing.any?
+        %div{ class: "text-red-700" }= first_two_missing.map(&:humanize).join(", ")
+      - else
+        %div{ class: "text-lime-700" } All positions filled
+
+    %div{ class: "border p-4 bg-white" }
+      %div{ class: "font-semibold mb-2" } Missing in innings 3-4
+      - if second_two_missing.any?
+        %div{ class: "text-red-700" }= second_two_missing.map(&:humanize).join(", ")
+      - else
+        %div{ class: "text-lime-700" } All positions filled
+
+    %div{ class: "border p-4 bg-white" }
+      %div{ class: "font-semibold mb-2" } Under 2 innings
+      - if underplayed.any?
+        %div{ class: "text-red-700" }= underplayed.map { |slot| "#{slot.player.name} (#{slot.field_innings_count})" }.join(", ")
+      - else
+        %div{ class: "text-lime-700" } Everyone has at least 2

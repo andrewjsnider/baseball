@@ -23,7 +23,9 @@ class LineupsController < ApplicationController
       @lineup.lineup_slots.create!(
         player: player,
         batting_order: index + 1,
-        field_position: :extra_hitter
+        field_position: :extra_hitter,
+        field_position_first_two: :extra_hitter,
+        field_position_second_two: :extra_hitter
       )
     end
 
@@ -36,28 +38,20 @@ class LineupsController < ApplicationController
   end
 
   def assign_positions
+    field_name = params[:field_name].to_s
+
+    unless allowed_position_fields.include?(field_name)
+      render json: { errors: ["Invalid position field."] }, status: :unprocessable_entity
+      return
+    end
+
     errors = []
 
     LineupSlot.transaction do
       params[:positions].each do |player_id, position|
         slot = @lineup.lineup_slots.find_by!(player_id: player_id)
-        requested = position.to_s.strip.presence
+        requested = normalized_position_value(position)
         player = slot.player
-
-        if requested == "pitcher"
-          if player.removed_as_pitcher_in_game?(@game, on_date: @game.date)
-            errors << "#{player.name} cannot return as pitcher after being removed."
-            next
-          end
-
-          unless player.eligible_to_pitch_in_game?(@game)
-            next_date = player.next_eligible_pitching_date(before_game: @game)
-            msg = "#{player.name} is not eligible to pitch."
-            msg += " Next eligible: #{next_date}." if next_date.present?
-            errors << msg
-            next
-          end
-        end
 
         if requested == "catcher"
           if player.pitches_thrown_on_date(@game.date) >= 71
@@ -70,11 +64,16 @@ class LineupsController < ApplicationController
         end
 
         if requested.present?
-          existing = @lineup.lineup_slots.find_by(field_position: requested)
-          existing&.update!(field_position: nil)
-          slot.update!(field_position: requested)
+          existing = @lineup.lineup_slots.find_by(field_name => requested)
+
+          if existing && existing != slot && requested != "extra_hitter"
+            errors << "#{requested.humanize} is already assigned for this inning block."
+            next
+          end
+
+          slot.update!(field_name => requested)
         else
-          slot.update!(field_position: nil)
+          slot.update!(field_name => :extra_hitter)
         end
       end
 
@@ -106,8 +105,20 @@ class LineupsController < ApplicationController
           player: player,
           batting_order: index + 1,
           field_position: :extra_hitter,
+          field_position_first_two: :extra_hitter,
+          field_position_second_two: :extra_hitter
         )
       end
     end
+  end
+
+  def allowed_position_fields
+    %w[field_position_first_two field_position_second_two]
+  end
+
+  def normalized_position_value(position)
+    value = position.to_s.strip
+    return "extra_hitter" if value.blank?
+    value
   end
 end
