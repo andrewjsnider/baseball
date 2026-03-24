@@ -31,6 +31,7 @@ class GameShowPresenter
     :availability_label,
     :projected_eligible_on,
     :target_pitches,
+    :projected_options,
     keyword_init: true
   )
 
@@ -40,6 +41,23 @@ class GameShowPresenter
     :primary_remaining,
     :emergency_needed,
     :emergency_needed_label,
+    keyword_init: true
+  )
+
+  PitchPlanRowUI = Struct.new(
+    :slot,
+    :label,
+    :locked_from_lineup,
+    :player_id,
+    :player_name,
+    :availability_label,
+    :projected_eligible_on,
+    :target_pitches,
+    :selected_id,
+    :selected_ineligible,
+    :wrapper_classes,
+    :text_class,
+    :select_options,
     keyword_init: true
   )
 
@@ -179,12 +197,43 @@ class GameShowPresenter
     pitcher_rows.select(&:eligible_today).map(&:player)
   end
 
-  def projected_next_eligible_date(player, target_pitches)
+  def projected_next_eligible_date(player, added_pitches)
     return nil if player.nil?
-    return nil if target_pitches.to_i <= 0
+    return nil if added_pitches.to_i <= 0
 
-    rest_days = player.required_rest_days_for_pitches(target_pitches)
-    game_date + 1 + rest_days
+    added_pitches = added_pitches.to_i
+    current_gate = player.rest_gate_before_game(game)
+    today_total = pitches_for_projection(player, added_pitches)
+
+    projected_rest_days = player.required_rest_days_for_pitches(today_total)
+    projected_from_today = game_date + 1 + projected_rest_days
+
+    if current_gate&.eligible_on.present?
+      [current_gate.eligible_on, projected_from_today].max
+    else
+      projected_from_today
+    end
+  end
+
+  def pitches_for_projection(player, added_pitches)
+    current_today = pitch_appearances_today_by_player_id[player.id]&.pitches_thrown.to_i
+    current_today + added_pitches.to_i
+  end
+
+  def projected_eligibility_options(player, target_pitches, max_pitches: 85, step: 5)
+    return [] if player.nil?
+
+    start = target_pitches.to_i
+    return [] if start <= 0
+
+    pitches_list = (start..max_pitches).step(step).to_a
+
+    pitches_list.map do |pitches|
+      {
+        pitches: pitches,
+        eligible_on: projected_next_eligible_date(player, pitches)
+      }
+    end
   end
 
   def missing_positions_human
@@ -198,6 +247,7 @@ class GameShowPresenter
   def pitching_availability_summary
     eligible = pitcher_rows.select(&:eligible_today)
     resting = pitcher_rows.reject(&:eligible_today)
+
     next_up =
       resting
         .select { |r| r.eligible_on.present? }
@@ -250,6 +300,13 @@ class GameShowPresenter
           projected_next_eligible_date(player, slot.target_pitches)
         end
 
+      projected_options =
+        if player && slot.target_pitches.to_i > 0
+          projected_eligibility_options(player, slot.target_pitches)
+        else
+          []
+        end
+
       availability_label =
         if locked
           "Starter is derived from lineup"
@@ -270,27 +327,11 @@ class GameShowPresenter
         locked_from_lineup: locked,
         availability_label: availability_label,
         projected_eligible_on: projected,
-        target_pitches: slot.target_pitches
+        target_pitches: slot.target_pitches,
+        projected_options: projected_options
       )
     end
   end
-
-  PitchPlanRowUI = Struct.new(
-    :slot,
-    :label,
-    :locked_from_lineup,
-    :player_id,
-    :player_name,
-    :availability_label,
-    :projected_eligible_on,
-    :target_pitches,
-    :selected_id,
-    :selected_ineligible,
-    :wrapper_classes,
-    :text_class,
-    :select_options,
-    keyword_init: true
-  )
 
   def pitch_plan_row_uis
     rows = pitch_plan_rows
@@ -305,7 +346,6 @@ class GameShowPresenter
     rows.map do |row|
       slot = row.slot
       selected_id = row.player_id&.to_i
-
       selected_ineligible = selected_id.present? && !pitcher_eligible_today?(selected_id)
 
       text_class =

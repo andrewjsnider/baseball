@@ -6,7 +6,7 @@
 - lineup = game.lineup
 - lineup_slots = lineup&.lineup_slots&.includes(:player)&.to_a || []
 
-%div{ class: "no-print flex justify-end mb-3" }
+%div{ class: "no-print flex justify-end mb-1" }
   %button{ class: "border border-stone-900 px-3 py-1 text-sm hover:bg-stone-900 hover:text-white",
            onclick: "window.print()" } Print
 
@@ -41,11 +41,21 @@
           - eligible = row.player_id.present? && show.pitcher_eligible_today?(row.player_id)
           - status_class = eligible ? "text-lime-600" : (row.player_id.present? ? "text-red-700" : "text-stone-600")
 
-          %div{ class: "grid grid-cols-12 px-2 py-2 border-b border-stone-200" }
-            %div{ class: "col-span-4 font-semibold" }= row.label
-            %div{ class: "col-span-6 font-semibold" }= name
-            %div{ class: "col-span-2 text-right text-stone-700" }= pitches
+          - projected_lines = row.projected_options || []
 
+          %div{ class: "border-b border-stone-200" }
+            %div{ class: "grid grid-cols-12 px-2 py-1" }
+              %div{ class: "col-span-4 font-semibold" }= row.label
+              %div{ class: "col-span-6 font-semibold" }= name
+              %div{ class: "col-span-2 text-right text-stone-700" }= pitches
+
+            - if projected_lines.any?
+              %div{ class: "px-2 pb-2 text-[10px] leading-tight text-stone-900" }
+                %div{ class: "font-semibold text-stone-900 mb-1" } Next Available:
+                %div{ class: "flex flex-wrap gap-x-3 gap-y-1" }
+                  - projected_lines.each do |proj|
+                    %span{ class: "whitespace-nowrap" }
+                      = "#{proj[:pitches]}p #{proj[:eligible_on]&.strftime('%m/%d') || '-'}"
         %div.font-semibold.text-sm.py-5.text-center Average 6-Inning Game: 90 - 130 pitches
 
     %div{ class: "col-span-6 border border-stone-300 p-2" }
@@ -58,20 +68,23 @@
           ordered.each { |s| pos_by_player_id[s.player_id] = s.field_position }
 
         %div{ class: "border border-stone-200" }
-          %div{ class: "grid grid-cols-12 px-2 py-1 border-b border-stone-200 bg-stone-50 font-semibold" }
+          %div{ class: "grid grid-cols-12 gap-4 px-2 py-1 border-b border-stone-200 bg-stone-50 font-semibold" }
             %div{ class: "col-span-1" } #
-            %div{ class: "col-span-5" } Batter
-            %div{ class: "col-span-3 text-right" } Defense
-            %div{ class: "col-span-3 text-right" } Next Pos.
-
+            %div{ class: "col-span-4" } Batter
+            %div{ class: "col-span-1 text-right whitespace-nowrap" } Def
+            %div{ class: "col-span-2 text-center whitespace-nowrap" } Next
+            %div{ class: "col-span-2 text-center whitespace-nowrap" } Next
+            %div{ class: "col-span-2 text-center whitespace-nowrap" } Next
           - ordered.each_with_index do |slot, idx|
             - name = slot.player&.name || "-"
             - pos = slot.field_position.presence || "extra_hitter"
-            %div{ class: "grid grid-cols-12 px-2 py-1 border-b border-stone-200" }
+            %div{ class: "grid grid-cols-12 gap-4 px-2 py-1 border-b border-stone-200" }
               %div{ class: "col-span-1 text-stone-600" }= idx + 1
-              %div{ class: "col-span-5 font-semibold" }= name
-              %div{ class: "col-span-3 text-right text-stone-700" }= pos.to_s.humanize
-              %div{ class: "col-span-3 text-right text-stone-400" } __________
+              %div{ class: "col-span-4 font-semibold" }= name
+              %div{ class: "col-span-1 text-right text-stone-700 whitespace-nowrap" }= slot.field_position_abbreviation || "-"
+              %div{ class: "col-span-2 text-center text-stone-400 whitespace-nowrap" } ________
+              %div{ class: "col-span-2 text-center text-stone-400 whitespace-nowrap" } ________
+              %div{ class: "col-span-2 text-center text-stone-400 whitespace-nowrap" } ________
 
         - if show.missing_positions.any?
           %div{ class: "mt-2 text-red-700 font-semibold" }= "Missing: #{show.missing_positions_label}"
@@ -102,14 +115,14 @@
           %div{ class: "font-semibold mb-1" } Resting pitchers
           %div{ class: "text-stone-600" } None
 
-  %div{ class: "mt-10 border-t border-stone-300 pt-6 text-stone-900" }
-    %h3{ class: "font-semibold text-base" } Pitching Rules (Majors)
+  %div{ class: "mt-10 border-t border-stone-300 text-stone-900" }
+    %h3{ class: "font-semibold mt-1 text-base" } Pitching Rules (Majors)
 
-    %div{ class: "mt-3 text-sm" }
+    %div{ class: "mt-1 text-xs" }
       %div{ class: "font-semibold" } Daily max
       %div{ class: "mt-1" } 85 pitches per day (pitches are cumulative across all games that day, including doubleheaders).
 
-    %div{ class: "mt-4 text-sm" }
+    %div{ class: "mt-1 text-xs" }
       %div{ class: "font-semibold" } Required calendar days of rest (based on pitches thrown in a day)
       %ul{ class: "mt-1 list-disc pl-5 space-y-1" }
         %li 1–20 pitches: 0 days rest
@@ -118,7 +131,7 @@
         %li 51–65 pitches: 3 days rest
         %li 66+ pitches: 4 days rest
 
-    %div{ class: "mt-4 text-sm" }
+    %div{ class: "mt-1 text-xs" }
       %div{ class: "font-semibold" } Catcher rule (71+)
       %ul{ class: "mt-1 list-disc pl-5 space-y-1" }
         %li If a pitcher throws 71 or more pitches in a day, they cannot play catcher for the rest of that day (including later games).

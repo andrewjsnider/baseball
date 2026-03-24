@@ -16,4 +16,19 @@ class LineupSlot < ApplicationRecord
   }
 
   validates :batting_order, presence: true
+
+  def field_position_abbreviation
+    {
+      "pitcher" => "P",
+      "catcher" => "C",
+      "first_base" => "1B",
+      "second_base" => "2B",
+      "third_base" => "3B",
+      "shortstop" => "SS",
+      "left_field" => "LF",
+      "center_field" => "CF",
+      "right_field" => "RF",
+      "extra_hitter" => "EH"
+    }[field_position]
+  end
 end
