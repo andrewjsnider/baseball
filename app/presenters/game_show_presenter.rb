@@ -81,13 +81,25 @@ class GameShowPresenter
     game.lineup.present?
   end
 
+  def lineup_slots
+    return [] unless has_lineup?
+
+    @lineup_slots ||= game.lineup.lineup_slots.includes(:player).order(:batting_order).to_a
+  end
+
   def required_positions
     @required_positions ||= LineupSlot.field_positions.keys - ["extra_hitter"]
   end
 
   def filled_positions
     return [] unless has_lineup?
-    @filled_positions ||= game.lineup.lineup_slots.pluck(:field_position).compact
+
+    @filled_positions ||=
+      lineup_slots
+        .flat_map { |slot| [slot.field_position_first_two, slot.field_position_second_two] }
+        .compact
+        .reject { |pos| pos == "extra_hitter" }
+        .uniq
   end
 
   def missing_positions
@@ -96,7 +108,11 @@ class GameShowPresenter
 
   def starting_pitcher_slot
     return nil unless has_lineup?
-    @starting_pitcher_slot ||= game.lineup.lineup_slots.pitcher.first
+
+    @starting_pitcher_slot ||=
+      lineup_slots.find do |slot|
+        slot.field_position_first_two == "pitcher" || slot.field_position_second_two == "pitcher"
+      end
   end
 
   def my_pitchers
@@ -172,6 +188,7 @@ class GameShowPresenter
 
   def starting_pitcher
     return nil unless has_lineup?
+
     starting_pitcher_slot&.player
   end
 

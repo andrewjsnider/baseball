@@ -8,9 +8,19 @@
   - if !@show.has_lineup?
     %p{ class: "text-sm text-stone-600" } No lineup created yet.
   - else
-    %ol{ class: "list-decimal ml-6 space-y-1 text-sm" }
-      - @game.lineup.lineup_slots.order(:batting_order).each do |slot|
-        %li
-          = slot.player.name
-          - if slot.field_position.present?
-            %span{ class: "text-stone-500 ml-2" } (#{slot.field_position.humanize})
+    %div{ class: "border border-stone-200" }
+      %div{ class: "grid grid-cols-12 gap-2 px-2 py-1 border-b border-stone-200 bg-stone-50 font-semibold text-sm" }
+        %div{ class: "col-span-1" } #
+        %div{ class: "col-span-6" } Batter
+        %div{ class: "col-span-2 text-center whitespace-nowrap" } 1-2
+        %div{ class: "col-span-2 text-center whitespace-nowrap" } 3-4
+
+      - @game.lineup.lineup_slots.order(:batting_order).each_with_index do |slot, idx|
+        %div{ class: "grid grid-cols-12 gap-2 px-2 py-2 border-b border-stone-200 text-sm" }
+          %div{ class: "col-span-1 text-stone-600" }= idx + 1
+          %div{ class: "col-span-6 font-semibold" }= slot.player.name
+          %div{ class: "col-span-2 text-center text-stone-700 whitespace-nowrap" }= slot.first_two_abbreviation || "-"
+          %div{ class: "col-span-2 text-center text-stone-700 whitespace-nowrap" }= slot.second_two_abbreviation || "-"
+
+    - if @show.missing_positions.any?
+      %div{ class: "mt-2 text-red-700 font-semibold text-sm" }= "Missing: #{@show.missing_positions_label}"
