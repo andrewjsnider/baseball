@@ -5,6 +5,7 @@
 - plan_rows = show.pitch_plan_rows
 - lineup = game.lineup
 - lineup_slots = lineup&.lineup_slots&.includes(:player)&.to_a || []
+- game_info = "#{game.team.name} #{game.home_away == 'away' ? '@' : 'vs'} #{show.opp_name}"
 
 %div{ class: "no-print flex justify-end mb-1" }
   %button{ class: "border border-stone-900 px-3 py-1 text-sm hover:bg-stone-900 hover:text-white",
@@ -38,9 +39,6 @@
         - plan_rows.each do |row|
           - name = row.player_name.presence || "Not assigned"
           - pitches = row.target_pitches.to_i > 0 ? "#{row.target_pitches}p" : "-"
-          - eligible = row.player_id.present? && show.pitcher_eligible_today?(row.player_id)
-          - status_class = eligible ? "text-lime-600" : (row.player_id.present? ? "text-red-700" : "text-stone-600")
-
           - projected_lines = row.projected_options || []
 
           %div{ class: "border-b border-stone-200" }
@@ -85,6 +83,7 @@
 
       - else
         %div{ class: "text-stone-600" } No lineup set
+
   %div{ class: "border border-stone-300 p-2 mt-2" }
     %div{ class: "grid grid-cols-12 gap-2" }
       %div{ class: "col-span-6" }
@@ -103,29 +102,49 @@
           %div{ class: "font-semibold mb-1" } Resting pitchers (eligible again)
           %div{ class: "space-y-0.5" }
             - summary.next_up_rows.each do |r|
-              %div{ class: "text-red-700" }= "#{r.player_name}: #{r.eligible_on.strftime("%m-%d-%Y")}"
+              %div{ class: "text-red-700" }= "#{r.player_name}: #{r.eligible_on.strftime('%m-%d-%Y')}"
         - else
           %div{ class: "font-semibold mb-1" } Resting pitchers
           %div{ class: "text-stone-600" } None
 
-  %div{ class: "mt-10 border-t border-stone-300 text-stone-900" }
-    %h3{ class: "font-semibold mt-1 text-base" } Pitching Rules (Majors)
+  %div{ class: "mt-4 grid grid-cols-12 gap-2 border-t border-stone-300 pt-2 text-stone-900" }
+    %div{ class: "col-span-6 text-[10px]" }
+      %h3{ class: "font-semibold mb-1 text-sm" } Pitching Rules (Majors)
 
-    %div{ class: "mt-1 text-xs" }
-      %div{ class: "font-semibold" } Daily max
-      %div{ class: "mt-1" } 85 pitches per day (pitches are cumulative across all games that day, including doubleheaders).
+      %div{ class: "mt-1" }
+        %div{ class: "font-semibold" } Daily max
+        %div{ class: "mt-1" } 85 pitches per day (pitches are cumulative across all games that day, including doubleheaders).
 
-    %div{ class: "mt-1 text-xs" }
-      %div{ class: "font-semibold" } Required calendar days of rest (based on pitches thrown in a day)
-      %ul{ class: "mt-1 list-disc pl-5 space-y-1" }
-        %li 1–20 pitches: 0 days rest
-        %li 21–35 pitches: 1 day rest
-        %li 36–50 pitches: 2 days rest
-        %li 51–65 pitches: 3 days rest
-        %li 66+ pitches: 4 days rest
+      %div{ class: "mt-1" }
+        %div{ class: "font-semibold" } Required calendar days of rest (based on pitches thrown in a day)
+        %ul{ class: "mt-1 list-disc pl-4 space-y-0.5" }
+          %li 1–20 pitches: 0 days rest
+          %li 21–35 pitches: 1 day rest
+          %li 36–50 pitches: 2 days rest
+          %li 51–65 pitches: 3 days rest
+          %li 66+ pitches: 4 days rest
 
-    %div{ class: "mt-1 text-xs" }
-      %div{ class: "font-semibold" } Catcher rule (71+)
-      %ul{ class: "mt-1 list-disc pl-5 space-y-1" }
-        %li If a pitcher throws 71 or more pitches in a day, they cannot play catcher for the rest of that day (including later games).
-        %li If a player has already played catcher in a day, they may not reach 71 or more pitches that day (exception: may finish the current batter).
+      %div{ class: "mt-1" }
+        %div{ class: "font-semibold" } Catcher rule (71+)
+        %ul{ class: "mt-1 list-disc pl-4 space-y-0.5" }
+          %li If a pitcher throws 71 or more pitches in a day, they cannot play catcher for the rest of that day (including later games).
+          %li If a player has already played catcher in a day, they may not reach 71 or more pitches that day (exception: may finish the current batter).
+
+    %div{ class: "col-span-6 text-[10px]" }
+      %div{ class: "font-semibold mb-1 text-sm" } Game Report
+      %div{ class: "text-stone-600 mb-2" }= game_info
+
+      %div{ class: "grid grid-cols-2 gap-y-1" }
+        %div{ class: "font-semibold border-b border-stone-300 pb-1" }= game.team.name
+        %div{ class: "font-semibold border-b border-stone-300 pb-1" }= show.opp_name
+
+        .my-1 Score _________
+        .my-1 Score _________
+
+        - 4.times do
+          .my-1 P: # __ _____________ ______ pitches
+          .my-1 P: # __ _____________ ______ pitches
+
+        - 3.times do
+          .my-1 C: # __ _____________
+          .my-1 C: # __ _____________
