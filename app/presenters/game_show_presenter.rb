@@ -110,9 +110,8 @@ class GameShowPresenter
     return nil unless has_lineup?
 
     @starting_pitcher_slot ||=
-      lineup_slots.find do |slot|
-        slot.field_position_first_two == "pitcher" || slot.field_position_second_two == "pitcher"
-      end
+      lineup_slots.find { |slot| slot.field_position_first_two == "pitcher" } ||
+      lineup_slots.find { |slot| slot.field_position_second_two == "pitcher" }
   end
 
   def my_pitchers
